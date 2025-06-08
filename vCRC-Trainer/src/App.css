@@ -1,0 +1,63 @@
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.flightPlanInput {
+  color: rgb(116, 157, 211);
+  text-align: center;
+  border-color: rgb(70, 70, 70);
+  background-color: black;
+  border-width: 1px;
+  border-style: solid;
+  font-size: 14px;
+}
+
+.flightPlanReadonly {
+  border: none; 
+  background: none;
+}
+
+.flightPlanTextArea {
+  color: rgb(116, 157, 211);
+  text-align: left;
+  border-color: rgb(70, 70, 70);
+  background-color: black;
+  border-width: 1px;
+  border-style: solid;
+  resize: none;
+  width: 95%;
+  font-size: 14px;
+  line-height: 17px;
+}
+
+.amendFlightPlanButton {
+  border-radius: 0px;
+  border: 1px solid rgb(69, 93, 124);
+}
+
+.dataBlock {
+  position: absolute;
+  background-color: rgba(31, 31, 31, 0.7);
+  color: rgb(0, 230, 0);
+  font-size: 14px;
+  font-family: monospace;
+  margin: 0px;
+  padding: 1px;
+  line-height: 12px;
+}
+
+.preventSelect {
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+
+textarea, input { font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; }

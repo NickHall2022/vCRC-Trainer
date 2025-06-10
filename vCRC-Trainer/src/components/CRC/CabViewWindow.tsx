@@ -1,4 +1,4 @@
-import { useFlightPlans } from "../hooks/useFlightPlans";
+import { useFlightPlans } from "../../hooks/useFlightPlans";
 import { Airplane } from "./Airplane";
 import { FlightPlanEditor } from "./FlightPlanEditor";
 

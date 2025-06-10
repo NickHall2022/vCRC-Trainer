@@ -1,4 +1,4 @@
-import type { FlightPlan } from "../types/flightPlan";
+import type { FlightPlan } from "../types/common";
 
 export const FLIGHT_PLANS: FlightPlan[] = [
     {

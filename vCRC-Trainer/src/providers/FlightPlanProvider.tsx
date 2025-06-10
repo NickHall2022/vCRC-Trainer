@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import type { FlightPlan } from "../types/flightPlan";
+import type { FlightPlan } from "../types/common";
 import { FlightPlanContext } from "../hooks/useFlightPlans";
 import { FLIGHT_PLANS } from "../assets/flightPlans";
 
@@ -18,6 +18,7 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
             const replaceIndex = prev.findIndex(flightPlan => flightPlan.callsign === amendedFlightPlan.callsign);
             if(replaceIndex !== -1){
                 result[replaceIndex] = amendedFlightPlan;
+                result[replaceIndex].printCount += 1;
             }
             return result;
         })

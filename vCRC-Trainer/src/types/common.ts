@@ -1,3 +1,4 @@
+import type { Updater } from "use-immer";
 
 export type FlightPlan = {
     callsign: string;
@@ -22,6 +23,8 @@ export type BayName = "ground" | "local" | "printer"
 export type StripData = FlightPlan & {
     bayName: BayName;
     id: string;
+    box10?: string;
+    box12?: string;
 }
 
 export type FlightPlanDetails = {
@@ -30,4 +33,11 @@ export type FlightPlanDetails = {
     selectedFlightPlan: FlightPlan | undefined;
     setSelectedFlightPlan: (callsign: string) => void;
     amendFlightPlan: (amendedFlightPlan: FlightPlan) => void
+}
+
+export type StripsDetails = {
+    strips: StripData[];
+    setStrips: Updater<StripData[]>;
+    printerStrips: StripData[];
+    printAmendedFlightPlan: (flightPlan: FlightPlan) => void;
 }

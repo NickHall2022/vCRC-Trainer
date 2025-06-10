@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { FlightPlanDetails } from "../types/flightPlan";
+import type { FlightPlanDetails } from "../types/common";
 
 export const FlightPlanContext = createContext<FlightPlanDetails>({} as FlightPlanDetails)
 

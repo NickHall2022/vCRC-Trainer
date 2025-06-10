@@ -1,12 +1,15 @@
 import { Grid } from "@mui/material";
-import { useFlightPlans } from "../hooks/useFlightPlans";
-import type { FlightPlan } from "../types/flightPlan";
+import { useFlightPlans } from "../../hooks/useFlightPlans";
+import type { FlightPlan } from "../../types/common";
 import { useState, useEffect, useRef, type RefObject } from "react";
 import Draggable from "react-draggable";
-import { makeEmptyFlightPlan } from "../assets/flightPlans";
+import { makeEmptyFlightPlan } from "../../assets/flightPlans";
+import { useStrips } from "../../hooks/useStrips";
 
 export function FlightPlanEditor(){
     const {selectedFlightPlan, amendFlightPlan} = useFlightPlans();
+    const {printAmendedFlightPlan} = useStrips();
+
     const draggableRef = useRef<HTMLDivElement>(null);
 
     const [flightPlan, setFlightPlan] = useState<FlightPlan>(handleNewSelectedFlightPlan(selectedFlightPlan));
@@ -29,11 +32,18 @@ export function FlightPlanEditor(){
     function handleAmendFlightPlan(){
         setHasBeenEdited(false);
         amendFlightPlan(flightPlan);
+        printAmendedFlightPlan(flightPlan);
+    }
+
+    function handleEnterPressed(event: React.KeyboardEvent){
+        if(event.key === "Enter" && hasBeenEdited){
+           handleAmendFlightPlan(); 
+        }
     }
 
     return (
         <Draggable nodeRef={draggableRef as RefObject<HTMLElement>} allowAnyClick={true} handle=".handle">
-            <div className="preventSelect" ref={draggableRef} style={{width: "620px", height: "155px", backgroundColor: "#090909", position: "absolute", top: "75%", left: "35%"}}>
+            <div className="preventSelect" ref={draggableRef} style={{width: "620px", height: "155px", backgroundColor: "#090909", position: "absolute", top: "75%", left: "35%"}} onKeyDown={handleEnterPressed}>
                 <div className="handle" style={{backgroundColor: "#151515", margin: "0px", marginBottom: "2px"}}>
                     <p style={{margin: "0px", marginLeft: "4px", fontSize: "11px"}}>Flight Plan Editor</p>
                 </div>

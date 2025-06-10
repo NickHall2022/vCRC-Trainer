@@ -1,6 +1,6 @@
 import Grid from "@mui/material/Grid";
-import { CabViewWindow } from "../components/CabViewWindow";
-import { StripsWindow } from "../components/StripsWindow";
+import { CabViewWindow } from "../components/CRC/CabViewWindow";
+import { StripsWindow } from "../components/vStrips/StripsWindow";
 export function CGgroundPage() {
     return (
         <Grid container >

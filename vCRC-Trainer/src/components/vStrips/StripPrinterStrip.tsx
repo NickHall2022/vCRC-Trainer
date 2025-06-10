@@ -1,12 +1,12 @@
 import { type Dispatch, type SetStateAction } from "react";
-import type { StripData } from "../types/flightPlan";
+import type { StripData } from "../../types/common";
 import { Strip } from "./Strip";
 import Grid from "@mui/material/Grid";
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import { useStrips } from "../../hooks/useStrips";
 
 type Props = {
-    printerStrips: StripData[];
     setDraggedStrip: Dispatch<SetStateAction<StripData>>;
     handleStripInsert: (targetStrip: StripData) => void;
     handleDeletePrinterStrip: (printerStripIndex: number) => void;
@@ -15,7 +15,8 @@ type Props = {
     setSelectedIndex: Dispatch<SetStateAction<number>>;
 }
 
-export function StripPrinterStrip({printerStrips, setDraggedStrip, handleStripInsert, handleDeletePrinterStrip, handleMoveToBay, selectedIndex, setSelectedIndex} : Props){
+export function StripPrinterStrip({setDraggedStrip, handleStripInsert, handleDeletePrinterStrip, handleMoveToBay, selectedIndex, setSelectedIndex} : Props){
+    const { printerStrips } = useStrips();
     
     if(printerStrips.length === 0){
         return <p style={{fontWeight: "500"}}>No new flight strips</p>;

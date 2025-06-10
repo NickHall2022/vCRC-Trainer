@@ -1,28 +1,27 @@
 import { Grid } from "@mui/material";
-import type { BayName, StripData } from "../types/flightPlan"
+import type { BayName, StripData } from "../../types/common"
 import React, { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
-import { useFlightPlans } from "../hooks/useFlightPlans";
-import type { Updater } from "use-immer";
+import { useFlightPlans } from "../../hooks/useFlightPlans";
 import { v4 as uuidv4 } from 'uuid';
 import { StripPrinterStrip } from "./StripPrinterStrip";
+import { useStrips } from "../../hooks/useStrips";
+import CloseIcon from '@mui/icons-material/Close';
 
 type Props = {
-    strips: StripData[];
-    setStrips: Updater<StripData[]>;
     setDraggedStrip: Dispatch<SetStateAction<StripData>>;
     handleStripInsert: (targetStrip: StripData) => void;
     selectedBay: BayName;
     setPrinterOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export function StripPrinter({strips, setStrips, setDraggedStrip, handleStripInsert, selectedBay, setPrinterOpen} : Props){
+export function StripPrinter({setDraggedStrip, handleStripInsert, selectedBay, setPrinterOpen} : Props){
     const { flightPlans } = useFlightPlans();
+    const { strips, setStrips, printerStrips } = useStrips();
     const [enteredCallsign, setEnteredCallsign] = useState("");
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const selectedFlightPlan = flightPlans.find(flightPlan => flightPlan.callsign === enteredCallsign);
-    const printerStrips = strips.filter(strip => strip.bayName === "printer");
 
     function handleClickOutside(event: MouseEvent){
         if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
@@ -76,8 +75,15 @@ export function StripPrinter({strips, setStrips, setDraggedStrip, handleStripIns
         });
     }
 
+    function handleClosePrinter(){
+        setPrinterOpen(false);
+    }
+
     return (
         <div className="stripPrinter" ref={wrapperRef}>
+            <div style={{textAlign: "right", marginBottom: "-20px"}}>
+                <button style={{background: "none"}} onClick={handleClosePrinter}><CloseIcon></CloseIcon></button>
+            </div>
             <p style={{fontSize: "24px", marginBottom: "20px", fontWeight: "500"}}>
                 Flight Strip Printer
             </p>
@@ -93,7 +99,7 @@ export function StripPrinter({strips, setStrips, setDraggedStrip, handleStripIns
 
             <hr style={{width: "80%", backgroundColor: "#fff", border: "none", height: "1px", marginTop: "20px", marginBottom: "20px"}} ></hr>
 
-            <StripPrinterStrip printerStrips={printerStrips} setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert} handleDeletePrinterStrip={handleDeletePrinterStrip} handleMoveToBay={handleMoveToBay} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}></StripPrinterStrip>
+            <StripPrinterStrip setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert} handleDeletePrinterStrip={handleDeletePrinterStrip} handleMoveToBay={handleMoveToBay} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}></StripPrinterStrip>
         </div>
     )
 }

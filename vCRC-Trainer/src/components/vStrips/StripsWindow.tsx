@@ -1,27 +1,19 @@
 import { useState } from "react"
-import type { BayName, StripData } from "../types/flightPlan"
+import type { BayName, StripData } from "../../types/common"
 import { Strip } from "./Strip"
-import { useFlightPlans } from "../hooks/useFlightPlans"
 import Grid from "@mui/material/Grid";
-import { useImmer } from "use-immer";
 import { StripPrinter } from "./StripPrinter";
-import { v4 as uuidv4 } from 'uuid';
 import PrintIcon from '@mui/icons-material/Print';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useStrips } from "../../hooks/useStrips";
+import { isStripDividerStrip } from "../../utils/stripUtils";
 
 export function StripsWindow(){
-    const { flightPlans } = useFlightPlans();
-    const [strips, setStrips] = useImmer<StripData[]>(() => {
-        return flightPlans.map(flightPlan => {
-            return {...flightPlan, bayName: "printer", id: uuidv4()};
-        });
-    });
+    const { strips, setStrips } = useStrips();
 
     const [selectedBay, setSelectedBay] = useState<BayName>("ground");
     const [printerOpen, setPrinterOpen] = useState(false);
     const [draggedStrip, setDraggedStrip] = useState<StripData>({} as StripData);
-
-    const visibleBayStrips = strips.filter(strip => strip.bayName === selectedBay);
 
     function executeInsert(droppedIndex: number, draggedIndex: number){
         setStrips((draft) => {
@@ -44,8 +36,12 @@ export function StripsWindow(){
     }
 
     function handleDrop(){
-        const draggedIndex = strips.findIndex(strip => strip.id === draggedStrip.id);
-        executeInsert(visibleBayStrips.length, draggedIndex);
+        setStrips((draft) => {
+            const draggedIndex = draft.findIndex(strip => strip.id === draggedStrip.id);
+            const [removedStrip] = draft.splice(draggedIndex, 1);
+            removedStrip.bayName = selectedBay;
+            draft.push(removedStrip);
+        })
     }
     
     function handleDragOver(event: React.DragEvent){
@@ -78,28 +74,37 @@ export function StripsWindow(){
         });
     }
 
+    function handleBarDragOver(event: React.DragEvent){
+        if(!isStripDividerStrip(draggedStrip)){
+            event.preventDefault();
+        }
+    }
+
     return (
         <div className="preventSelect container" style={{position:"relative", height: "100vh", width: "550px"}}>
-            <Grid container className="stripsBar" style={{backgroundColor:"#1a1a1a", padding: "5px"}} textAlign={"center"}>
-                <Grid size={"grow"}>
-                    <button className={`stripsBarButton${selectedBay === "ground" ? ' selected' : ''}`} onClick={() => handleBayButtonClicked("ground")} onDrop={() => handleBayButtonDropped("ground")} onDragOver={handleDragOver}>Ground</button>
+            <div style={{zIndex: "2", position: "relative"}}>
+                <Grid container className="stripsBar" style={{backgroundColor:"#1a1a1a", padding: "5px"}} textAlign={"center"}>
+                    <Grid size={"grow"}>
+                        <button className={`stripsBarButton${selectedBay === "ground" ? ' selected' : ''}`} onClick={() => handleBayButtonClicked("ground")} onDrop={() => handleBayButtonDropped("ground")} onDragOver={handleBarDragOver}>GC</button>
+                    </Grid>
+                    <Grid size={"grow"}>
+                        <button className={`stripsBarButton${selectedBay === "local" ? ' selected' : ''}`} onClick={() => handleBayButtonClicked("local")} onDrop={() => handleBayButtonDropped("local")} onDragOver={handleBarDragOver}>LC</button>
+                    </Grid>
+                    <Grid size={"grow"}>
+                        <button className="stripsBarPrintButton" onDrop={handleDeleteStrip} onDragOver={handleBarDragOver} style={{marginRight: "8px", padding: "10px", paddingTop: "5px", paddingBottom: "5px"}}>
+                            <DeleteIcon></DeleteIcon>
+                        </button>
+                        <button className="stripsBarPrintButton" onClick={() => handleBayButtonClicked("printer")} style={{padding: "10px", paddingTop: "5px", paddingBottom: "5px"}}>
+                            <PrintIcon></PrintIcon>
+                        </button>
+                        <span style={{backgroundColor: "red", width: "15px", height: "15px", display: "block", position: "relative", top: "-45px", left: "130px", zIndex: "10001", borderRadius: "10px", fontSize: "10px"}}>{strips.filter(strip => strip.bayName === "printer").length}</span>
+                    </Grid>
                 </Grid>
-                <Grid size={"grow"}>
-                    <button className={`stripsBarButton${selectedBay === "local" ? ' selected' : ''}`} onClick={() => handleBayButtonClicked("local")} onDrop={() => handleBayButtonDropped("local")} onDragOver={handleDragOver}>Local</button>
-                </Grid>
-                <Grid size={"grow"}>
-                    <button className="stripsBarPrintButton" onDrop={handleDeleteStrip} onDragOver={handleDragOver} style={{marginRight: "8px", padding: "10px", paddingTop: "5px", paddingBottom: "5px"}}>
-                        <DeleteIcon></DeleteIcon>
-                    </button>
-                    <button className="stripsBarPrintButton" onClick={() => handleBayButtonClicked("printer")} style={{padding: "10px", paddingTop: "5px", paddingBottom: "5px"}}>
-                        <PrintIcon></PrintIcon>
-                    </button>
-                </Grid>
-            </Grid>
+            </div>
             <img src="/stripBay.png" draggable={false} style={{width: "100%", height: "100%"}} onDrop={handleDrop} onDragOver={handleDragOver}></img>
             {createStrips()}
             {printerOpen && (
-                <StripPrinter strips={strips} setStrips={setStrips} setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert} selectedBay={selectedBay} setPrinterOpen={setPrinterOpen}></StripPrinter>
+                <StripPrinter setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert} selectedBay={selectedBay} setPrinterOpen={setPrinterOpen}></StripPrinter>
             )}
         </div>
     )

@@ -1,5 +1,5 @@
-import { useFlightPlans } from "../hooks/useFlightPlans";
-import type { FlightPlan } from "../types/flightPlan";
+import { useFlightPlans } from "../../hooks/useFlightPlans";
+import type { FlightPlan } from "../../types/common";
 
 export function Airplane({flightPlan}: {flightPlan: FlightPlan}){
     const {setSelectedFlightPlan} = useFlightPlans();

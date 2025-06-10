@@ -14,6 +14,14 @@ export type FlightPlan = {
     positionX: number;
     positionY: number;
     rotation: number;
+    printCount: number;
+}
+
+export type BayName = "ground" | "local" | "printer"
+
+export type StripData = FlightPlan & {
+    bayName: BayName;
+    id: string;
 }
 
 export type FlightPlanDetails = {

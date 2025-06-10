@@ -4,10 +4,10 @@ import { StripsWindow } from "../components/StripsWindow";
 export function CGgroundPage() {
     return (
         <Grid container >
-            <Grid size={3}>
+            <Grid size={"auto"}>
                 <StripsWindow></StripsWindow>
             </Grid>
-            <Grid size={9}>
+            <Grid size={"grow"}>
                 <CabViewWindow></CabViewWindow>
             </Grid>
         </Grid>

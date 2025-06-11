@@ -1,5 +1,6 @@
 import { useFlightPlans } from "../../hooks/useFlightPlans";
 import { Airplane } from "./Airplane";
+import { ControllerList } from "./ControllerList";
 import { FlightPlanEditor } from "./FlightPlanEditor";
 
 export function CabViewWindow(){
@@ -18,6 +19,7 @@ export function CabViewWindow(){
                 {createAirplanes()}
             </div>
             <FlightPlanEditor></FlightPlanEditor>
+            <ControllerList></ControllerList>
         </>
     )
 }

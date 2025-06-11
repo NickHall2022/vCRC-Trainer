@@ -108,4 +108,18 @@ html, body {
   font-family: cursive;
 }
 
+.controllersHeader {
+  color: rgb(37, 212, 224);
+  margin: 0px;
+  margin-left: 5px;
+}
+
+.controllersListItem {
+  color: rgb(200, 200, 200);
+}
+
+.controllersListItemActive {
+  color: rgb(32, 200, 212);
+}
+
 textarea, input { font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; }

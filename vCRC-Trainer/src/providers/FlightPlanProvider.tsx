@@ -18,7 +18,6 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
             const replaceIndex = prev.findIndex(flightPlan => flightPlan.callsign === amendedFlightPlan.callsign);
             if(replaceIndex !== -1){
                 result[replaceIndex] = amendedFlightPlan;
-                result[replaceIndex].printCount += 1;
             }
             return result;
         })

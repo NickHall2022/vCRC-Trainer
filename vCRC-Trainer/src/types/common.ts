@@ -40,4 +40,5 @@ export type StripsDetails = {
     setStrips: Updater<StripData[]>;
     printerStrips: StripData[];
     printAmendedFlightPlan: (flightPlan: FlightPlan) => void;
+    printStrip: (strip: StripData) => void;
 }

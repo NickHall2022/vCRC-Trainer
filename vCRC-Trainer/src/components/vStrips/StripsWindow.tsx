@@ -9,7 +9,7 @@ import { useStrips } from "../../hooks/useStrips";
 import { isStripDividerStrip } from "../../utils/stripUtils";
 
 export function StripsWindow(){
-    const { strips, setStrips } = useStrips();
+    const { strips, setStrips, printerStrips } = useStrips();
 
     const [selectedBay, setSelectedBay] = useState<BayName>("ground");
     const [printerOpen, setPrinterOpen] = useState(false);
@@ -97,7 +97,7 @@ export function StripsWindow(){
                         <button className="stripsBarPrintButton" onClick={() => handleBayButtonClicked("printer")} style={{padding: "10px", paddingTop: "5px", paddingBottom: "5px"}}>
                             <PrintIcon></PrintIcon>
                         </button>
-                        <span style={{backgroundColor: "red", width: "15px", height: "15px", display: "block", position: "relative", top: "-45px", left: "130px", zIndex: "10001", borderRadius: "10px", fontSize: "10px"}}>{strips.filter(strip => strip.bayName === "printer").length}</span>
+                        {printerStrips.length > 0 && <span style={{backgroundColor: "red", width: "15px", height: "15px", display: "block", position: "absolute", top: "0px", left: "495px", zIndex: "10001", borderRadius: "10px", fontSize: "10px"}}>{printerStrips.length}</span>}
                     </Grid>
                 </Grid>
             </div>

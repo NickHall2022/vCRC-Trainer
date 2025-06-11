@@ -15,8 +15,8 @@ type Props = {
 }
 
 export function StripPrinter({setDraggedStrip, handleStripInsert, selectedBay, setPrinterOpen} : Props){
-    const { flightPlans } = useFlightPlans();
-    const { strips, setStrips, printerStrips } = useStrips();
+    const { flightPlans, amendFlightPlan } = useFlightPlans();
+    const { strips, setStrips, printerStrips, printStrip } = useStrips();
     const [enteredCallsign, setEnteredCallsign] = useState("");
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -51,12 +51,12 @@ export function StripPrinter({setDraggedStrip, handleStripInsert, selectedBay, s
         if(!selectedFlightPlan){
             return;
         }
-        setStrips((draft) => {
-            draft.splice(0, 0, {
-                ...selectedFlightPlan,
-                bayName: "printer",
-                id: uuidv4()
-            });
+        amendFlightPlan({...selectedFlightPlan, printCount: selectedFlightPlan.printCount + 1});
+        printStrip({
+            ...selectedFlightPlan,
+            bayName: "printer",
+            id: uuidv4(),
+            printCount: selectedFlightPlan.printCount + 1
         });
         setSelectedIndex(0);
     }

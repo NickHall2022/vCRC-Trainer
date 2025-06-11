@@ -50,20 +50,30 @@ export function StripsProvider({ children }: { children: ReactNode }){
     });
 
     function printAmendedFlightPlan(flightPlan: FlightPlan) {
+        printStrip({
+            ...flightPlan,
+            bayName: "printer",
+            id: uuidv4()
+        });
+    }
+
+    function printStrip(strip: StripData){
         setStrips((draft) => {
-            draft.splice(0, 0, {
-                ...flightPlan,
-                bayName: "printer",
-                id: uuidv4()
-            })
-        })
+            for (let i = draft.length - 1; i >= 0; i--) {
+                if (draft[i].bayName === "printer" && strip.callsign === draft[i].callsign) {
+                    draft.splice(i, 1);
+                }
+            }
+            draft.splice(0, 0, strip);
+        });
     }
 
     const value: StripsDetails = {
         strips,
         setStrips,
         printerStrips: strips.filter(strip => strip.bayName === "printer"),
-        printAmendedFlightPlan
+        printAmendedFlightPlan,
+        printStrip
     }
 
     return <StripsContext.Provider value={value}>{children}</StripsContext.Provider>

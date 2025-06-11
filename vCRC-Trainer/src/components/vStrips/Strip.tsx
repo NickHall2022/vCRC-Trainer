@@ -95,6 +95,7 @@ export function Strip({stripData, index, setDraggedStrip, handleStripInsert, css
             </div>
             <input type="text" className={"stripTextInput"} maxLength={1} value={stripData.box10} size={1} onChange={(event) => handleTextInput("box10", event.target.value)} style={{position: "absolute", left: "452px"}}></input>
             <input type="text" className={"stripTextInput"} maxLength={1} value={stripData.box12} size={1} onChange={(event) => handleTextInput("box12", event.target.value)} style={{position: "absolute", left: "515px"}}></input>
+            {stripData.printCount > 1 && <div style={{position: "absolute", left: "5px", top: "15px", fontSize: "11px"}}>{stripData.printCount}</div>}
         </div>
     )
 }

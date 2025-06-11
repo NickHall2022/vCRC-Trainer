@@ -1,22 +1,21 @@
 import { type Dispatch, type SetStateAction } from "react";
-import type { StripData } from "../../types/common";
-import { Strip } from "./Strip";
+import type { AbstractStrip } from "../../types/common";
 import Grid from "@mui/material/Grid";
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useStrips } from "../../hooks/useStrips";
+import { BayItem } from "./BayItem";
 
 type Props = {
-    setDraggedStrip: Dispatch<SetStateAction<StripData>>;
-    handleStripInsert: (targetStrip: StripData) => void;
+    setDraggedStrip: Dispatch<SetStateAction<AbstractStrip>>;
+    handleStripInsert: (targetStrip: AbstractStrip) => void;
     handleDeletePrinterStrip: (printerStripIndex: number) => void;
-    handleMoveToBay: (printerStripIndex: number) => void;
     selectedIndex: number;
     setSelectedIndex: Dispatch<SetStateAction<number>>;
 }
 
-export function StripPrinterStrip({setDraggedStrip, handleStripInsert, handleDeletePrinterStrip, handleMoveToBay, selectedIndex, setSelectedIndex} : Props){
-    const { printerStrips } = useStrips();
+export function StripPrinterStrip({setDraggedStrip, handleStripInsert, handleDeletePrinterStrip, selectedIndex, setSelectedIndex} : Props){
+    const { printerStrips, moveStripToBay, selectedBay } = useStrips();
     
     if(printerStrips.length === 0){
         return <p style={{fontWeight: "500"}}>No new flight strips</p>;
@@ -50,7 +49,7 @@ export function StripPrinterStrip({setDraggedStrip, handleStripInsert, handleDel
                     </button>
                 </Grid>
                 <Grid textAlign={"left"}>
-                    <Strip stripData={printerStrips[selectedIndex]} index={0} setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert} cssClass={"printerStrip"}></Strip>
+                    <BayItem abstractStripData={printerStrips[selectedIndex]} setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert}></BayItem>
                 </Grid>
                 <Grid size={"grow"}>
                     <button style={{marginTop: "15px", padding: "-15px", background: "none", lineHeight: "-15px", position: "relative", top: "-35px", left:"-52px", border: "none"}} onClick={handleRightClicked}>
@@ -61,7 +60,7 @@ export function StripPrinterStrip({setDraggedStrip, handleStripInsert, handleDel
             <p style={{marginTop: "-50px"}}>{selectedIndex + 1}/{printerStrips.length}</p>
             <Grid container spacing={2}>
                 <Grid size={"grow"} textAlign={"right"}>
-                    <button className="stripPrinterInput" style={{backgroundColor: "rgb(63, 103, 145)"}} onClick={() => handleMoveToBay(selectedIndex)}>Move to Bay</button>
+                    <button className="stripPrinterInput" style={{backgroundColor: "rgb(63, 103, 145)"}} onClick={() => moveStripToBay(printerStrips[selectedIndex], selectedBay)}>Move to Bay</button>
                 </Grid>
                 <Grid size={"grow"} textAlign={"left"}>
                     <button className="stripPrinterInput" style={{marginBottom: "10px", backgroundColor: "rgb(231, 76, 60)"}} onClick={deleteButtonClicked}>Delete</button>

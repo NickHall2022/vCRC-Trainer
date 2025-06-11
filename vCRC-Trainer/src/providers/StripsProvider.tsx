@@ -1,49 +1,54 @@
-import { type ReactNode } from "react";
-import type { BayName, FlightPlan, StripData, StripsDetails } from "../types/common";
+import { useState, type ReactNode } from "react";
+import type { AbstractStrip, BayName, DividerData, FlightPlan, StripData, StripsDetails } from "../types/common";
 import { useFlightPlans } from "../hooks/useFlightPlans";
 import { useImmer } from "use-immer";
 import { v4 as uuidv4 } from 'uuid';
 import { StripsContext } from "../hooks/useStrips";
-import { makeEmptyFlightPlan } from "../assets/flightPlans";
 
 export function StripsProvider({ children }: { children: ReactNode }){
 
     const { flightPlans } = useFlightPlans();
+    const [selectedBay, setSelectedBay] = useState<BayName>("ground");
     
-    const [strips, setStrips] = useImmer<StripData[]>((): StripData[] => {
-        const flightStrips = flightPlans.map(flightPlan => {
-            return {...flightPlan, bayName: "printer" as BayName, id: uuidv4()};
+    const [strips, setStrips] = useImmer<AbstractStrip[]>((): AbstractStrip[] => {
+        const flightStrips: StripData[] = flightPlans.map(flightPlan => {
+            return {...flightPlan, bayName: "printer" as BayName, id: uuidv4(), offset: false, type: "strip"};
         });
-        const dividers: StripData[] = [
+        const dividers: DividerData[] = [
             {
-                ...makeEmptyFlightPlan(),
-                callsign: "taxi",
                 id: uuidv4(),
-                bayName: "ground"
+                bayName: "ground",
+                offset: false,
+                name: "taxi",
+                type: "divider"
             },
             {
-                ...makeEmptyFlightPlan(),
-                callsign: "pushback",
                 id: uuidv4(),
-                bayName: "ground"
+                bayName: "ground",
+                offset: false,
+                name: "pushback",
+                type: "divider"
             },
             {
-                ...makeEmptyFlightPlan(),
-                callsign: "clearance",
                 id: uuidv4(),
-                bayName: "ground"
+                bayName: "ground",
+                offset: false,
+                name: "clearance",
+                type: "divider"
             },
             {
-                ...makeEmptyFlightPlan(),
-                callsign: "runway",
                 id: uuidv4(),
-                bayName: "local"
+                bayName: "local",
+                offset: false,
+                name: "runway",
+                type: "divider"
             },
             {
-                ...makeEmptyFlightPlan(),
-                callsign: "holdCross",
                 id: uuidv4(),
-                bayName: "local"
+                bayName: "local",
+                offset: false,
+                name: "holdCross",
+                type: "divider"
             }
         ]
         return [...flightStrips, ...dividers];
@@ -53,14 +58,16 @@ export function StripsProvider({ children }: { children: ReactNode }){
         printStrip({
             ...flightPlan,
             bayName: "printer",
-            id: uuidv4()
+            id: uuidv4(),
+            offset: false,
+            type: "strip"
         });
     }
 
     function printStrip(strip: StripData){
         setStrips((draft) => {
             for (let i = draft.length - 1; i >= 0; i--) {
-                if (draft[i].bayName === "printer" && strip.callsign === draft[i].callsign) {
+                if (draft[i].bayName === "printer" && strip.callsign === (draft[i] as StripData).callsign) {
                     draft.splice(i, 1);
                 }
             }
@@ -68,12 +75,33 @@ export function StripsProvider({ children }: { children: ReactNode }){
         });
     }
 
+    function deleteStrip(idToDelete: string){
+        setStrips((draft) => {
+            const deleteIndex = strips.findIndex(strip => strip.id === idToDelete);
+            draft.splice(deleteIndex, 1);
+        });
+    }
+
+    function moveStripToBay(stripToAdd: AbstractStrip, bayName: BayName){
+        setStrips((draft) => {
+            const modifiedIndex = draft.findIndex(strip => strip.id === stripToAdd.id);
+            const [removedStrip] = draft.splice(modifiedIndex, 1);
+            removedStrip.bayName = bayName;
+            removedStrip.offset = false;
+            draft.push(removedStrip);
+        });
+    }
+
     const value: StripsDetails = {
         strips,
         setStrips,
-        printerStrips: strips.filter(strip => strip.bayName === "printer"),
+        printerStrips: strips.filter(strip => strip.bayName === "printer") as StripData[],
         printAmendedFlightPlan,
-        printStrip
+        printStrip,
+        deleteStrip,
+        selectedBay,
+        setSelectedBay,
+        moveStripToBay
     }
 
     return <StripsContext.Provider value={value}>{children}</StripsContext.Provider>

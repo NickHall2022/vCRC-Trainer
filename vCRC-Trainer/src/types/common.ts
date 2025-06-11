@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from "react";
 import type { Updater } from "use-immer";
 
 export type FlightPlan = {
@@ -18,13 +19,22 @@ export type FlightPlan = {
     printCount: number;
 }
 
-export type BayName = "ground" | "local" | "printer"
+export type BayName = "ground" | "local" | "spare" | "printer"
 
-export type StripData = FlightPlan & {
-    bayName: BayName;
+export type AbstractStrip = {
     id: string;
+    bayName: BayName;
+    offset: boolean;
+    type: "divider" | "strip" | "handwrittenDivider" | "blank";
+}
+
+export type StripData = AbstractStrip & FlightPlan & {
     box10?: string;
     box12?: string;
+}
+
+export type DividerData = AbstractStrip & {
+    name: string;
 }
 
 export type FlightPlanDetails = {
@@ -36,9 +46,13 @@ export type FlightPlanDetails = {
 }
 
 export type StripsDetails = {
-    strips: StripData[];
-    setStrips: Updater<StripData[]>;
+    strips: AbstractStrip[];
+    setStrips: Updater<AbstractStrip[]>;
     printerStrips: StripData[];
     printAmendedFlightPlan: (flightPlan: FlightPlan) => void;
     printStrip: (strip: StripData) => void;
+    deleteStrip: (idToDelete: string) => void;
+    selectedBay: BayName;
+    setSelectedBay: Dispatch<SetStateAction<BayName>>;
+    moveStripToBay: (stripToMove: AbstractStrip, bayName: BayName) => void;
 }

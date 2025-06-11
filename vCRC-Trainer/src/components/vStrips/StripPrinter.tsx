@@ -1,22 +1,22 @@
 import { Grid } from "@mui/material";
-import type { BayName, StripData } from "../../types/common"
+import type { AbstractStrip } from "../../types/common"
 import React, { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { useFlightPlans } from "../../hooks/useFlightPlans";
-import { v4 as uuidv4 } from 'uuid';
 import { StripPrinterStrip } from "./StripPrinterStrip";
 import { useStrips } from "../../hooks/useStrips";
 import CloseIcon from '@mui/icons-material/Close';
+import { makeEmptyFlightPlan } from "../../assets/flightPlans";
+import { v4 as uuidv4 } from 'uuid';
 
 type Props = {
-    setDraggedStrip: Dispatch<SetStateAction<StripData>>;
-    handleStripInsert: (targetStrip: StripData) => void;
-    selectedBay: BayName;
+    setDraggedStrip: Dispatch<SetStateAction<AbstractStrip>>;
+    handleStripInsert: (targetStrip: AbstractStrip) => void;
     setPrinterOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export function StripPrinter({setDraggedStrip, handleStripInsert, selectedBay, setPrinterOpen} : Props){
+export function StripPrinter({setDraggedStrip, handleStripInsert, setPrinterOpen} : Props){
     const { flightPlans, amendFlightPlan } = useFlightPlans();
-    const { strips, setStrips, printerStrips, printStrip } = useStrips();
+    const { strips, setStrips, printerStrips, printAmendedFlightPlan, printStrip } = useStrips();
     const [enteredCallsign, setEnteredCallsign] = useState("");
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -51,13 +51,9 @@ export function StripPrinter({setDraggedStrip, handleStripInsert, selectedBay, s
         if(!selectedFlightPlan){
             return;
         }
-        amendFlightPlan({...selectedFlightPlan, printCount: selectedFlightPlan.printCount + 1});
-        printStrip({
-            ...selectedFlightPlan,
-            bayName: "printer",
-            id: uuidv4(),
-            printCount: selectedFlightPlan.printCount + 1
-        });
+        const amendedFlightPlan = {...selectedFlightPlan, printCount: selectedFlightPlan.printCount + 1};
+        amendFlightPlan(amendedFlightPlan);
+        printAmendedFlightPlan(amendedFlightPlan)
         setSelectedIndex(0);
     }
 
@@ -68,15 +64,19 @@ export function StripPrinter({setDraggedStrip, handleStripInsert, selectedBay, s
         });
     }
 
-    function handleMoveToBay(printerStripIndex: number){
-        setStrips((draft) => {
-            const moveIndex = strips.findIndex(strip => strip.id === printerStrips[printerStripIndex].id);
-            draft[moveIndex].bayName = selectedBay;
-        });
+    function handleClosePrinter(){
+        setPrinterOpen((prev) => !prev);
     }
 
-    function handleClosePrinter(){
-        setPrinterOpen(false);
+    function printBlankStrip() {
+        const flightPlan = makeEmptyFlightPlan();
+        printStrip({
+            ...flightPlan,
+            type: "blank",
+            id: uuidv4(),
+            bayName: "printer",
+            offset: false
+        })
     }
 
     return (
@@ -95,11 +95,11 @@ export function StripPrinter({setDraggedStrip, handleStripInsert, selectedBay, s
                     <button className="stripPrinterInput" disabled={!selectedFlightPlan} style={{backgroundColor: "rgb(0, 188, 140)"}} onClick={handleRequestStrip}>Request Strip</button>
                 </Grid>
             </Grid>
-            <button className="stripPrinterInput" style={{backgroundColor: "rgb(63, 103, 145)"}}>Print Blank Strip</button>
+            <button className="stripPrinterInput" style={{backgroundColor: "rgb(63, 103, 145)"}} onClick={printBlankStrip}>Print Blank Strip</button>
 
             <hr style={{width: "80%", backgroundColor: "#fff", border: "none", height: "1px", marginTop: "20px", marginBottom: "20px"}} ></hr>
 
-            <StripPrinterStrip setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert} handleDeletePrinterStrip={handleDeletePrinterStrip} handleMoveToBay={handleMoveToBay} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}></StripPrinterStrip>
+            <StripPrinterStrip setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert} handleDeletePrinterStrip={handleDeletePrinterStrip} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}></StripPrinterStrip>
         </div>
     )
 }

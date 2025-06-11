@@ -38,7 +38,7 @@ export const FLIGHT_PLANS: FlightPlan[] = [
     {
         callsign: "JBU1321",
         CID: "674",
-        squawk: "4352",
+        squawk: "6412",
         aircraftType: "B378",
         equipmentCode: "L",
         departure: "KPWM",
@@ -55,7 +55,7 @@ export const FLIGHT_PLANS: FlightPlan[] = [
     {
         callsign: "N3545J",
         CID: "512",
-        squawk: "4352",
+        squawk: "7112",
         aircraftType: "C172",
         equipmentCode: "G",
         departure: "KPWM",

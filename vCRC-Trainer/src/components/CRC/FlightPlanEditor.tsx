@@ -7,18 +7,34 @@ import { makeEmptyFlightPlan } from "../../assets/flightPlans";
 import { useStrips } from "../../hooks/useStrips";
 
 export function FlightPlanEditor(){
-    const {selectedFlightPlan, amendFlightPlan} = useFlightPlans();
-    const {printAmendedFlightPlan} = useStrips();
+    const { selectedFlightPlan, amendFlightPlan, setSelectedFlightPlan } = useFlightPlans();
+    const { printAmendedFlightPlan } = useStrips();
 
     const draggableRef = useRef<HTMLDivElement>(null);
 
     const [flightPlan, setFlightPlan] = useState<FlightPlan>(handleNewSelectedFlightPlan(selectedFlightPlan));
     const [hasBeenEdited, setHasBeenEdited] = useState(false);
+    const callsignInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         setFlightPlan(handleNewSelectedFlightPlan(selectedFlightPlan));
         setHasBeenEdited(false);
     }, [setFlightPlan, selectedFlightPlan])
+
+    useEffect(() => {
+        document.addEventListener("keydown", handleControlF);
+        return () => {
+            document.removeEventListener("keydown", handleControlF);
+        }
+    }, []);
+
+    function handleControlF(event: KeyboardEvent){
+        if(event.key === "f" && event.ctrlKey){
+            event.preventDefault();
+            setFlightPlan(handleNewSelectedFlightPlan(undefined));
+            callsignInputRef.current?.focus();
+        }
+    }
 
     function handleTextInput(fieldType: keyof FlightPlan, value: string){
         setFlightPlan((prev) => {
@@ -34,30 +50,36 @@ export function FlightPlanEditor(){
         const amendedFlightPlan = {...flightPlan, printCount: flightPlan.printCount + 1};
         amendFlightPlan(amendedFlightPlan);
         printAmendedFlightPlan(amendedFlightPlan);
+        setFlightPlan(amendedFlightPlan);
     }
 
     function handleEnterPressed(event: React.KeyboardEvent){
         if(event.key === "Enter" && hasBeenEdited){
-           handleAmendFlightPlan(); 
+            handleAmendFlightPlan(); 
         }
+    }
+
+    function handleCallsignChange(callsign: string){
+        setSelectedFlightPlan(callsign);
     }
 
     return (
         <Draggable nodeRef={draggableRef as RefObject<HTMLElement>} allowAnyClick={true} handle=".handle">
-            <div className="preventSelect" ref={draggableRef} style={{width: "620px", height: "155px", backgroundColor: "#090909", position: "absolute", top: "60%", left: "570px", zIndex: 3}} onKeyDown={handleEnterPressed}>
+            <div className="preventSelect" ref={draggableRef} style={{width: "620px", height: "155px", backgroundColor: "#090909", position: "absolute", top: "60%", left: "590px", zIndex: 3}} onKeyDown={handleEnterPressed}>
                 <div className="handle" style={{backgroundColor: "#151515", margin: "0px", marginBottom: "2px"}}>
                     <p style={{margin: "0px", marginLeft: "4px", fontSize: "11px"}}>Flight Plan Editor</p>
                 </div>
-                <Grid container columnSpacing={1} style={{textAlign: "center", fontSize: "14px"}}>
-                    <Grid size={"auto"}></Grid>
-                    <Grid size={2}>
+                <Grid container columnSpacing={1} style={{textAlign: "center", fontSize: "14px", marginBottom: "3px"}}>
+                    <Grid size={1}></Grid>
+                    <Grid size={"auto"}>
                         AID
-                        <input className="flightPlanInput flightPlanReadonly" style={{width: "100%"}} defaultValue={flightPlan?.callsign}></input>
+                        <br></br>
+                        <input className="flightPlanInput" maxLength={8} size={8} ref={callsignInputRef} value={flightPlan?.callsign} onChange={(event)=>handleCallsignChange(event.target.value.toUpperCase())}></input>
                     </Grid>
                     <Grid size={"auto"}>
                         BCN
                         <br></br>
-                        <input className="flightPlanInput flightPlanReadonly" size={4} maxLength={4} defaultValue={flightPlan?.squawk}></input>
+                        <input className="flightPlanInput flightPlanReadonly" disabled={true} size={4} maxLength={4} defaultValue={flightPlan?.squawk}></input>
                     </Grid>
                     <Grid size={"auto"}>
                         TYP
@@ -87,9 +109,9 @@ export function FlightPlanEditor(){
                     <Grid size={"auto"}>
                         ALT
                         <br></br>
-                        <input className="flightPlanInput" size={6} maxLength={6} value={flightPlan?.altitude} onChange={(event)=>handleTextInput("altitude", event.target.value.toUpperCase())}></input>
+                        <input className="flightPlanInput" size={6} maxLength={7} value={flightPlan?.altitude} onChange={(event)=>handleTextInput("altitude", event.target.value.toUpperCase())}></input>
                     </Grid>
-                    <Grid size={"grow"}>
+                    <Grid size={1}>
                         <button disabled={!hasBeenEdited}  style={{marginTop: "6px"}} className="amendFlightPlanButton" onClick={handleAmendFlightPlan}>Amend</button>
                     </Grid>
                 </Grid>

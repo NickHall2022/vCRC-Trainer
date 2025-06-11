@@ -1,130 +1,131 @@
-import type { Dispatch, SetStateAction } from "react";
-import type { StripData } from "../../types/common";
-import { DividerStrip } from "./DividerStrip";
-import { isStripDividerStrip } from "../../utils/stripUtils";
+import { useState } from "react";
+import type { BayName, StripData } from "../../types/common";
 import { useStrips } from "../../hooks/useStrips";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { PrintedStrip } from "./PrintedStrip";
+import { BlankStrip } from "./BlankStrip";
 
 type Props = {
-    stripData: StripData, 
-    index: number, 
-    setDraggedStrip: Dispatch<SetStateAction<StripData>>, 
-    handleStripInsert: (targetStrip: StripData) => void,
-    cssClass: string
+    stripData: StripData
 }
 
-export function Strip({stripData, index, setDraggedStrip, handleStripInsert, cssClass}: Props){
-    const { setStrips } = useStrips();
+type Coordinates = {
+    mouseX: number;
+    mouseY: number;
+} | null;
 
-    if(isStripDividerStrip(stripData)){
-        return <DividerStrip stripData={stripData} index={index} setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert}></DividerStrip>
+export function Strip({stripData}: Props){
+    const { setStrips, deleteStrip, moveStripToBay, selectedBay } = useStrips();
+
+    const [contextMenu, setContextMenu] = useState<Coordinates>(null);
+    const [pushContextMenu, setPushContextMenu] = useState<Coordinates>(null);
+
+    function handleContextMenu(event: React.MouseEvent) {
+        event.preventDefault();
+
+        setContextMenu(
+            contextMenu === null ? {
+                mouseX: event.clientX + 2,
+                mouseY: event.clientY - 6,
+            } : null,
+        );
+        setPushContextMenu(null);
+    };
+
+    function handlePushContextMenu(event: React.MouseEvent) {
+        event.preventDefault();
+
+        setPushContextMenu(
+            pushContextMenu === null ? {
+                mouseX: event.clientX + 2,
+                mouseY: event.clientY - 6,
+            } : null,
+        );
     }
 
-    function handleDragStart(){
-        setDraggedStrip(stripData);
+    const handleClose = () => {
+        setContextMenu(null);
+        setPushContextMenu(null);
+    };
+
+    function handleDelete() {
+        handleClose();
+        deleteStrip(stripData.id);
     }
 
-    function handleDrop(){
-        handleStripInsert(stripData)
-    }
-    
-    function handleDragOver(event: React.DragEvent){
-        if(cssClass === "bayStrip"){
-            event.preventDefault();
-        }
-    }
-
-    function handleTextInput(fieldType: keyof Pick<StripData, "box10" | "box12">, value: string){
+    function handleOffset() {
+        handleClose();
         setStrips((draft) => {
-            const editingStrip = draft.find(strip => strip.id === stripData.id);
-            if(editingStrip){
-                editingStrip[fieldType] = value;
-            }
+            const updateIndex = draft.findIndex(strip => strip.id === stripData.id);
+            draft[updateIndex].offset = !draft[updateIndex].offset;
         });
     }
 
-    const baseStyle: React.CSSProperties = {
+    function handlePushToBay(bayName: BayName){
+        moveStripToBay(stripData, bayName);
+    }
+
+    const style: React.CSSProperties = {
         backgroundImage: "url(/strip.png)",
         color: "black",
-        width: "100%",
+        width: "550px",
         height: "76px",
         position: "relative",
         fontSize: "14px",
         lineHeight: "25px",
-        fontFamily: "monospace",
-        zIndex: 1
+        left: stripData.bayName !== "printer" && stripData.offset ? "20px" : "0px"
     }
 
-    const style: React.CSSProperties = cssClass === "bayStrip" ? {
-        ...baseStyle,
-        position: "absolute", 
-        left: "0px", 
-        bottom: `${76 * index}px`
-    } : {
-        ...baseStyle,
-        width: "550px",
-        height: "76px"
+    function getStripComponent(){
+        if(stripData.type === "strip"){
+            return (
+                <PrintedStrip stripData={stripData}></PrintedStrip>
+            )
+        }
+        if(stripData.type === "blank"){
+            return (
+                <BlankStrip stripData={stripData}></BlankStrip>
+            )
+        }
     }
-
-    const routeLines = splitIntoThreeParts(stripData)
 
     return (
-        <div className={cssClass} style={style} draggable={true} onDragStart={handleDragStart} onDrop={handleDrop} onDragOver={handleDragOver} >
-            <div style={{position: "absolute", left: "5px"}}>
-                {stripData.callsign}
-                <br></br>
-                {stripData.aircraftType}/{stripData.equipmentCode}
-                <br></br>
-                {stripData.CID}
-            </div>
-            <div style={{position: "absolute", left: "127px"}}>
-                {stripData.squawk}
-                <br></br>
-                P2100
-                <br></br>
-                {stripData.altitude}
-            </div>
-            <div style={{position: "absolute", left: "173px"}}>
-                {stripData.departure}
-            </div>
-            <div style={{position: "absolute", left: "248px"}}>
-                {routeLines[0]}
-                <br></br>
-                {routeLines[1]}
-                <br></br>
-                {routeLines[2]}
-            </div>
-            <input type="text" className={"stripTextInput"} maxLength={1} value={stripData.box10} size={1} onChange={(event) => handleTextInput("box10", event.target.value)} style={{position: "absolute", left: "452px"}}></input>
-            <input type="text" className={"stripTextInput"} maxLength={1} value={stripData.box12} size={1} onChange={(event) => handleTextInput("box12", event.target.value)} style={{position: "absolute", left: "515px"}}></input>
-            {stripData.printCount > 1 && <div style={{position: "absolute", left: "5px", top: "15px", fontSize: "11px"}}>{stripData.printCount}</div>}
+        <div style={style} draggable={true} onContextMenu={handleContextMenu}>
+            {getStripComponent()}
+
+            {stripData.bayName !== "printer" && <Menu
+                open={contextMenu !== null}
+                onClose={handleClose}
+                anchorReference="anchorPosition"
+                anchorPosition={
+                contextMenu !== null
+                    ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+                    : undefined
+                }
+                transitionDuration={0}
+            >
+                <MenuItem onClick={handlePushContextMenu}>
+                    Push...
+                    <Menu 
+                        open={contextMenu !== null && pushContextMenu !== null}
+                        onClose={handleClose}
+                        anchorReference="anchorPosition"
+                        anchorPosition={
+                            pushContextMenu !== null
+                                ? { top: pushContextMenu.mouseY, left: pushContextMenu.mouseX }
+                                : undefined
+                        }
+                        transitionDuration={0}
+                    >
+                        {selectedBay !== "ground" && <MenuItem onClick={() => handlePushToBay("ground")}>GC</MenuItem>}
+                        {selectedBay !== "local" && <MenuItem onClick={() => handlePushToBay("local")}>LC</MenuItem>}
+                        {selectedBay !== "spare" && <MenuItem onClick={() => handlePushToBay("spare")}>SPARE</MenuItem>}
+                    </Menu>
+                </MenuItem>
+                <MenuItem onClick={handleOffset}>Offset</MenuItem>
+                <MenuItem onClick={handleDelete}>Delete</MenuItem>
+            </Menu>}
         </div>
     )
-}
-
-function splitIntoThreeParts(stripData: StripData) {
-    let maxLength = 26;
-    const words = stripData.route.split(' ');
-    const lines = ['', '', ''];
-    let lineIndex = 0;
-
-    for (const word of words) {
-        if (word.length > maxLength) {
-            continue;
-        }
-
-        if ((lines[lineIndex] + word).length + (lines[lineIndex] ? 1 : 0) > maxLength) {
-            if(lineIndex === 1){
-                maxLength = 19;
-            }
-            lineIndex++;
-            
-            if (lineIndex > 2) {
-                lines[2] += "***" + stripData.destination;
-                return lines;
-            }
-        }
-
-        lines[lineIndex] += (lines[lineIndex] ? ' ' : '') + word;
-    }
-
-    return lines;
 }

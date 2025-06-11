@@ -1,40 +1,19 @@
-import type { Dispatch, SetStateAction } from "react";
-import type { StripData } from "../../types/common";
+import type { DividerData } from "../../types/common";
 
 type Props = {
-    stripData: StripData, 
-    index: number, 
-    setDraggedStrip: Dispatch<SetStateAction<StripData>>, 
-    handleStripInsert: (targetStrip: StripData) => void
+    stripData: DividerData,
 }
 
-export function DividerStrip({stripData, index, setDraggedStrip, handleStripInsert}: Props){
-
-    function handleDragStart(){
-        setDraggedStrip(stripData);
-    }
-
-    function handleDrop(){
-        handleStripInsert(stripData)
-    }
-    
-    function handleDragOver(event: React.DragEvent){
-        event.preventDefault();
-    }
+export function DividerStrip({stripData}: Props){
 
     const style: React.CSSProperties = {
-        backgroundImage: `url(/${stripData.callsign}.png)`,
-        objectFit: "contain",
-        width: "100%",
-        height: "76px",
-        position: "absolute", 
-        left: "0px", 
-        bottom: `${76 * index}px`,
-        zIndex: 1
+        backgroundImage: `url(/${stripData.name}.png)`,
+        width: "550px",
+        height: "76px"
     }
 
     return (
-        <div style={style} draggable={true} className={"container"} onDragStart={handleDragStart} onDrop={handleDrop} onDragOver={handleDragOver} >
+        <div style={style} draggable={true}>
         </div>
     )
 }

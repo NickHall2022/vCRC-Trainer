@@ -7,7 +7,7 @@ export function ControllerList(){
     
     return (
         <Draggable nodeRef={draggableRef as RefObject<HTMLElement>} allowAnyClick={true} handle=".handle">
-            <div ref={draggableRef} style={{width: "235px", height: "165px", backgroundColor: "#090909", position: "absolute", top: "80%", left: "570px", zIndex: 3, fontSize: "13px"}}>
+            <div ref={draggableRef} style={{width: "235px", height: "165px", backgroundColor: "#090909", position: "absolute", top: "80%", left: "590px", zIndex: 3, fontSize: "13px"}}>
                 <div className="handle" style={{backgroundColor: "#151515", margin: "0px", marginBottom: "2px"}}>
                     <p style={{margin: "0px", marginLeft: "4px", fontSize: "11px"}}>Controllers</p>
                 </div>

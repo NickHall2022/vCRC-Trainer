@@ -4,7 +4,7 @@ import { StripsWindow } from "../components/vStrips/StripsWindow";
 export function CGgroundPage() {
     return (
         <Grid container >
-            <Grid size={"auto"}>
+            <Grid size={"auto"} sx={{overflow: "scroll"}}>
                 <StripsWindow></StripsWindow>
             </Grid>
             <Grid size={"grow"}>

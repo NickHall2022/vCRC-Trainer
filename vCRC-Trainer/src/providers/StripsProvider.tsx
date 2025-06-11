@@ -4,11 +4,13 @@ import { useFlightPlans } from "../hooks/useFlightPlans";
 import { useImmer } from "use-immer";
 import { v4 as uuidv4 } from 'uuid';
 import { StripsContext } from "../hooks/useStrips";
+import useSound from "use-sound";
 
 export function StripsProvider({ children }: { children: ReactNode }){
 
     const { flightPlans } = useFlightPlans();
     const [selectedBay, setSelectedBay] = useState<BayName>("ground");
+    const [playPrintSound] = useSound("/printer.mp3");
     
     const [strips, setStrips] = useImmer<AbstractStrip[]>((): AbstractStrip[] => {
         const flightStrips: StripData[] = flightPlans.map(flightPlan => {
@@ -65,6 +67,7 @@ export function StripsProvider({ children }: { children: ReactNode }){
     }
 
     function printStrip(strip: StripData){
+        playPrintSound();
         setStrips((draft) => {
             for (let i = draft.length - 1; i >= 0; i--) {
                 if (draft[i].bayName === "printer" && strip.callsign === (draft[i] as StripData).callsign) {

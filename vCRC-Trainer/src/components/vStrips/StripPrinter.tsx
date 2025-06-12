@@ -72,6 +72,7 @@ export function StripPrinter({setDraggedStrip, handleStripInsert, printerOpen, s
 
     function printBlankStrip() {
         const flightPlan = makeEmptyFlightPlan();
+        setSelectedIndex(0);
         printStrip({
             ...flightPlan,
             type: "blank",

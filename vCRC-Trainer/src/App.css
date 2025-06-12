@@ -2,6 +2,23 @@ html, body {
   margin: 0;
   height: 100%;
   overflow: hidden;
+  color: white;
+  background-color: rgb(36,36,36);
+}
+
+button {
+  color: white;
+  background-color: rgb(36,36,36);
+}
+
+input {
+  color: white;
+  background-color: rgb(36, 36, 36);
+}
+
+button:disabled {
+  color: rgb(150, 150, 150);
+  background-color: rgb(19, 19, 19);
 }
 
 #root {
@@ -131,5 +148,20 @@ html, body {
 .controllersListItemActive {
   color: rgb(32, 200, 212);
 }
+
+/* input {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  line-height: normal;
+  line-height: 1;
+  height: 1.8em; 
+  outline: none;
+  font: inherit;
+  padding: 0px 0px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+} */
 
 textarea, input { font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; }

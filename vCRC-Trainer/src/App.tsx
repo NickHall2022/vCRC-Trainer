@@ -23,7 +23,6 @@ function App() {
   return (
     <FlightPlanProvider>
       <StripsProvider>
-  
         <CGgroundPage/>
       </StripsProvider>
     </FlightPlanProvider>

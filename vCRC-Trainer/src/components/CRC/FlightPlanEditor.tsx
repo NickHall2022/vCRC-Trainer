@@ -74,42 +74,42 @@ export function FlightPlanEditor(){
                     <Grid size={"auto"}>
                         AID
                         <br></br>
-                        <input className="flightPlanInput" maxLength={8} size={8} ref={callsignInputRef} value={flightPlan?.callsign} onChange={(event)=>handleCallsignChange(event.target.value.toUpperCase())}></input>
+                        <input className="flightPlanInput" maxLength={8} ref={callsignInputRef} value={flightPlan?.callsign} onChange={(event)=>handleCallsignChange(event.target.value.toUpperCase())} style={{width: "60px"}}></input>
                     </Grid>
                     <Grid size={"auto"}>
                         BCN
                         <br></br>
-                        <input className="flightPlanInput flightPlanReadonly" disabled={true} size={4} maxLength={4} defaultValue={flightPlan?.squawk}></input>
+                        <input className="flightPlanInput flightPlanReadonly" disabled={true} maxLength={4} defaultValue={flightPlan?.squawk} style={{width: "40px"}}></input>
                     </Grid>
                     <Grid size={"auto"}>
                         TYP
                         <br></br>
-                        <input className="flightPlanInput" size={4} maxLength={4} value={flightPlan?.aircraftType} onChange={(event)=>handleTextInput("aircraftType", event.target.value.toUpperCase())}></input>
+                        <input className="flightPlanInput" maxLength={4} value={flightPlan?.aircraftType} onChange={(event)=>handleTextInput("aircraftType", event.target.value.toUpperCase())} style={{width: "40px"}}></input>
                     </Grid>
                     <Grid size={"auto"}>
                         EQ
                         <br></br>
-                        <input className="flightPlanInput" size={1} maxLength={1} value={flightPlan?.equipmentCode} onChange={(event)=>handleTextInput("equipmentCode", event.target.value.toUpperCase())}></input>
+                        <input className="flightPlanInput" maxLength={1} value={flightPlan?.equipmentCode} onChange={(event)=>handleTextInput("equipmentCode", event.target.value.toUpperCase())} style={{width: "20px"}}></input>
                     </Grid>
                     <Grid size={"auto"}>
                         DEP
                         <br></br>
-                        <input className="flightPlanInput" size={4} maxLength={4} value={flightPlan?.departure} onChange={(event)=>handleTextInput("departure", event.target.value.toUpperCase())}></input>
+                        <input className="flightPlanInput" maxLength={4} value={flightPlan?.departure} onChange={(event)=>handleTextInput("departure", event.target.value.toUpperCase())} style={{width: "40px"}}></input>
                     </Grid>
                     <Grid size={"auto"}>
                         DEST
                         <br></br>
-                        <input className="flightPlanInput" size={4} maxLength={4} value={flightPlan?.destination} onChange={(event)=>handleTextInput("destination", event.target.value.toUpperCase())}></input>
+                        <input className="flightPlanInput" maxLength={4} value={flightPlan?.destination} onChange={(event)=>handleTextInput("destination", event.target.value.toUpperCase())} style={{width: "40px"}}></input>
                     </Grid>
                     <Grid size={"auto"}>
                         SPD
                         <br></br>
-                        <input step="none" className="flightPlanInput" size={4} maxLength={4} value={flightPlan?.speed} onChange={(event)=>handleTextInput("speed", event.target.value.replace(/\D/g, ""))}></input>
+                        <input step="none" className="flightPlanInput" maxLength={4} value={flightPlan?.speed} onChange={(event)=>handleTextInput("speed", event.target.value.replace(/\D/g, ""))} style={{width: "40px"}}></input>
                     </Grid>
                     <Grid size={"auto"}>
                         ALT
                         <br></br>
-                        <input className="flightPlanInput" size={6} maxLength={7} value={flightPlan?.altitude} onChange={(event)=>handleTextInput("altitude", event.target.value.toUpperCase())}></input>
+                        <input className="flightPlanInput" maxLength={7} value={flightPlan?.altitude} onChange={(event)=>handleTextInput("altitude", event.target.value.toUpperCase())} style={{width: "60px"}}></input>
                     </Grid>
                     <Grid size={1}>
                         <button disabled={!hasBeenEdited}  style={{marginTop: "6px"}} className="amendFlightPlanButton" onClick={handleAmendFlightPlan}>Amend</button>

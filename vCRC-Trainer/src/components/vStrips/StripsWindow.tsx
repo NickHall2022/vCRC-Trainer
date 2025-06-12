@@ -50,7 +50,7 @@ export function StripsWindow(){
     }
 
     return (
-        <div className="preventSelect container" style={{position:"relative", height: "100vh", width: "570px", overflowX: "visible"}}>
+        <div className="preventSelect container" style={{position:"relative", height: "100vh", width: "570px", overflowX: "visible" }}>
             <div style={{zIndex: "2", position: "relative", width: "550px"}}>
                 <Grid container className="stripsBar" style={{backgroundColor:"#1a1a1a", padding: "5px"}} textAlign={"center"}>
                     <Grid size={"grow"}>

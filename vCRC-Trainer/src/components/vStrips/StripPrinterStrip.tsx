@@ -50,7 +50,7 @@ export function StripPrinterStrip({setDraggedStrip, handleStripInsert, handleDel
         <>
             <Grid container>
                 <Grid size={"grow"}>
-                    <button style={{marginTop: "15px", padding: "-15px", background: "none", lineHeight: "-15px", position: "relative", top: "-35px", left:"-10px", border: "none"}} onClick={handleLeftClicked}>
+                    <button style={{marginTop: "15px", padding: "-15px", background: "none", lineHeight: "-15px", position: "relative", top: "-35px", left:"-10px", border: "none", outline: "none"}} onClick={handleLeftClicked}>
                         <ArrowLeftIcon style={{fontSize: "100px"}}></ArrowLeftIcon>
                     </button>
                 </Grid>
@@ -58,7 +58,7 @@ export function StripPrinterStrip({setDraggedStrip, handleStripInsert, handleDel
                     {selectedIndex < printerStrips.length && <BayItem abstractStripData={printerStrips[selectedIndex]} setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert}></BayItem>}
                 </Grid>
                 <Grid size={"grow"}>
-                    <button style={{marginTop: "15px", padding: "-15px", background: "none", lineHeight: "-15px", position: "relative", top: "-35px", left:"-52px", border: "none"}} onClick={handleRightClicked}>
+                    <button style={{marginTop: "15px", padding: "-15px", background: "none", lineHeight: "-15px", position: "relative", top: "-35px", left:"-52px", border: "none", outline: "none"}} onClick={handleRightClicked}>
                         <ArrowRightIcon style={{fontSize: "100px"}}></ArrowRightIcon>
                     </button>
                 </Grid>

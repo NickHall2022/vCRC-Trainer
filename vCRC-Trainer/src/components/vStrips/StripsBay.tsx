@@ -86,7 +86,13 @@ export function StripsBay({handleDrop, setDraggedStrip, handleStripInsert} : Pro
                 </MenuItem>
             </Menu>
             <Box sx={{display: "flex", flexDirection: "column", justifyContent: "flex-end", height: 'calc(100vh - 55px)'}}>
-                <List sx={{padding: "0px", maxHeight: 'calc(100vh - 55px)', overflowY: "scroll", width: "570px",  position: "fixed"}}>
+                <List sx={{padding: "0px", maxHeight: 'calc(100vh - 55px)', overflowY: "scroll", width: "570px",  position: "fixed", 
+                    '&::-webkit-scrollbar': {
+                    display: 'none',
+                    },
+                    '-ms-overflow-style': 'none',
+                    'scrollbar-width': 'none'}}
+                >
                     {createStrips()}
                 </List>
             </Box>

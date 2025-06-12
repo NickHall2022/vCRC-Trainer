@@ -11,7 +11,7 @@ type Props = {
 }
 
 export function BayItem({abstractStripData, setDraggedStrip, handleStripInsert}: Props){
-
+    
     function handleDragStart(){
         setDraggedStrip(abstractStripData);
     }

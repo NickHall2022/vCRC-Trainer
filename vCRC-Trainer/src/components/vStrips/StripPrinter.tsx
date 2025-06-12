@@ -11,10 +11,11 @@ import { v4 as uuidv4 } from 'uuid';
 type Props = {
     setDraggedStrip: Dispatch<SetStateAction<AbstractStrip>>;
     handleStripInsert: (targetStrip: AbstractStrip) => void;
+    printerOpen: boolean;
     setPrinterOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export function StripPrinter({setDraggedStrip, handleStripInsert, setPrinterOpen} : Props){
+export function StripPrinter({setDraggedStrip, handleStripInsert, printerOpen, setPrinterOpen} : Props){
     const { flightPlans, amendFlightPlan } = useFlightPlans();
     const { strips, setStrips, printerStrips, printAmendedFlightPlan, printStrip } = useStrips();
     const [enteredCallsign, setEnteredCallsign] = useState("");
@@ -24,15 +25,16 @@ export function StripPrinter({setDraggedStrip, handleStripInsert, setPrinterOpen
     const selectedFlightPlan = flightPlans.find(flightPlan => flightPlan.callsign === enteredCallsign);
 
     function handleClickOutside(event: MouseEvent){
-        if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        if (printerOpen && wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+            event.stopPropagation();
             setPrinterOpen(false);
         }
     }
 
     useEffect(() => {
-        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("mouseup", handleClickOutside);
         return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("mouseup", handleClickOutside);
         }
     }, []);
 

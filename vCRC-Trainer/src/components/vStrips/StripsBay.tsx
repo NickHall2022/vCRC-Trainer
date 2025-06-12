@@ -55,6 +55,8 @@ export function StripsBay({handleDrop, setDraggedStrip, handleStripInsert} : Pro
         setContextMenu(null);
     };
 
+    
+
     function createStrips(){
         return [...strips].reverse().filter(strip => strip.bayName === selectedBay).map(strip => {
             return (

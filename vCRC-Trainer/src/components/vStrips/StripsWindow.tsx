@@ -75,7 +75,7 @@ export function StripsWindow(){
             </div>
             <StripsBay handleDrop={() => moveStripToBay(draggedStrip, selectedBay)} setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert}></StripsBay>
             {printerOpen && (
-                <StripPrinter setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert} setPrinterOpen={setPrinterOpen}></StripPrinter>
+                <StripPrinter setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert} printerOpen={printerOpen} setPrinterOpen={setPrinterOpen}></StripPrinter>
             )}
         </div>
     )

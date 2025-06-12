@@ -1,4 +1,4 @@
-import { type Dispatch, type SetStateAction } from "react";
+import { useEffect, type Dispatch, type SetStateAction } from "react";
 import type { AbstractStrip } from "../../types/common";
 import Grid from "@mui/material/Grid";
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
@@ -16,6 +16,12 @@ type Props = {
 
 export function StripPrinterStrip({setDraggedStrip, handleStripInsert, handleDeletePrinterStrip, selectedIndex, setSelectedIndex} : Props){
     const { printerStrips, moveStripToBay, selectedBay } = useStrips();
+
+    useEffect(() => {
+        if(selectedIndex >= printerStrips.length){
+            setSelectedIndex(printerStrips.length - 1);
+        }
+    }, [selectedIndex, printerStrips, setSelectedIndex]);
     
     if(printerStrips.length === 0){
         return <p style={{fontWeight: "500"}}>No new flight strips</p>;
@@ -49,7 +55,7 @@ export function StripPrinterStrip({setDraggedStrip, handleStripInsert, handleDel
                     </button>
                 </Grid>
                 <Grid textAlign={"left"}>
-                    <BayItem abstractStripData={printerStrips[selectedIndex]} setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert}></BayItem>
+                    {selectedIndex < printerStrips.length && <BayItem abstractStripData={printerStrips[selectedIndex]} setDraggedStrip={setDraggedStrip} handleStripInsert={handleStripInsert}></BayItem>}
                 </Grid>
                 <Grid size={"grow"}>
                     <button style={{marginTop: "15px", padding: "-15px", background: "none", lineHeight: "-15px", position: "relative", top: "-35px", left:"-52px", border: "none"}} onClick={handleRightClicked}>

@@ -1,4 +1,3 @@
-
 import { useFlightPlans } from "../../hooks/useFlightPlans";
 import { useSimulation } from "../../hooks/useSimulation";
 import type { FlightPlan } from "../../types/common";
@@ -16,7 +15,7 @@ export function Airplane({flightPlan, zoom, rotate}: {flightPlan: FlightPlan, zo
         
         setSelectedFlightPlan(flightPlan.callsign);
     }
-
+    
     return (
         <>
             <div>
@@ -27,13 +26,12 @@ export function Airplane({flightPlan, zoom, rotate}: {flightPlan: FlightPlan, zo
 
                 <img src="/planeIcon.png" draggable={false} onClick={handleClick} style={{
                         width: `${flightPlan.size}%`, 
-                        position: "absolute",
+                        position: "absolute", 
                         top: `${flightPlan.positionY}%`, 
                         left: `${flightPlan.positionX}%`, 
-                        transform:`rotate(-${flightPlan.rotation}deg) translate(${-50}%, ${-50})%`, 
+                        transform:` translate(-50%, -50%) rotate(-${flightPlan.rotation}deg)`, 
                     }}
-                >
-                </img>
+                ></img>
             </div>
             {/* <div style={{top: `${flightPlan.positionY}%`, left: `${flightPlan.positionX}%`, position: "absolute", backgroundColor: "black", width: "3px", height: "3px"}}></div> */}
         </>

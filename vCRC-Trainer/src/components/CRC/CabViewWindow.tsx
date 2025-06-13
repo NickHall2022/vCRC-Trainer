@@ -4,6 +4,7 @@ import { Airplane } from "./Airplane";
 import { ControllerList } from "./ControllerList";
 import { FlightPlanEditor } from "./FlightPlanEditor";
 import Draggable from "react-draggable";
+import { MessageWindow } from "./MessageWindow";
 
 export function CabViewWindow(){
     const {flightPlans} = useFlightPlans();
@@ -50,6 +51,7 @@ export function CabViewWindow(){
             </div>
             <FlightPlanEditor></FlightPlanEditor>
             <ControllerList></ControllerList>
+            <MessageWindow></MessageWindow>
         </div>
     )
 }

@@ -3,7 +3,7 @@ import { useFlightPlans } from "../../hooks/useFlightPlans";
 import type { FlightPlan } from "../../types/common";
 import { useState, useEffect, useRef, type RefObject } from "react";
 import Draggable from "react-draggable";
-import { makeEmptyFlightPlan } from "../../assets/flightPlans";
+import { makeEmptyFlightPlan } from "../../utils/flightPlans";
 import { useStrips } from "../../hooks/useStrips";
 
 export function FlightPlanEditor(){
@@ -47,7 +47,10 @@ export function FlightPlanEditor(){
 
     function handleAmendFlightPlan(){
         setHasBeenEdited(false);
-        const amendedFlightPlan = {...flightPlan, printCount: flightPlan.printCount + 1};
+        const amendedFlightPlan = { ...flightPlan, printCount: flightPlan.printCount + 1, created: true };
+        if(amendedFlightPlan.equipmentCode.length === 0){
+            amendedFlightPlan.equipmentCode = "A";
+        }
         amendFlightPlan(amendedFlightPlan);
         printAmendedFlightPlan(amendedFlightPlan);
         setFlightPlan(amendedFlightPlan);
@@ -62,6 +65,8 @@ export function FlightPlanEditor(){
     function handleCallsignChange(callsign: string){
         setSelectedFlightPlan(callsign);
     }
+
+    const editButtonEnabled = (flightPlan.created && hasBeenEdited) || (!flightPlan.created && flightPlan.squawk !== "");
 
     return (
         <Draggable nodeRef={draggableRef as RefObject<HTMLElement>} allowAnyClick={true} handle=".handle">
@@ -79,7 +84,7 @@ export function FlightPlanEditor(){
                     <Grid size={"auto"}>
                         BCN
                         <br></br>
-                        <input className="flightPlanInput flightPlanReadonly" disabled={true} maxLength={4} defaultValue={flightPlan?.squawk} style={{width: "40px"}}></input>
+                        <input className="flightPlanInput flightPlanReadonly" disabled={true} maxLength={4} defaultValue={flightPlan.created ? flightPlan?.squawk : ""} style={{width: "40px"}}></input>
                     </Grid>
                     <Grid size={"auto"}>
                         TYP
@@ -112,7 +117,7 @@ export function FlightPlanEditor(){
                         <input className="flightPlanInput" maxLength={7} value={flightPlan?.altitude} onChange={(event)=>handleTextInput("altitude", event.target.value.toUpperCase())} style={{width: "60px"}}></input>
                     </Grid>
                     <Grid size={1}>
-                        <button disabled={!hasBeenEdited}  style={{marginTop: "6px"}} className="amendFlightPlanButton" onClick={handleAmendFlightPlan}>Amend</button>
+                        <button disabled={!editButtonEnabled}  style={{marginTop: "6px"}} className="amendFlightPlanButton" onClick={handleAmendFlightPlan}>{flightPlan.created ? "Amend" : "Create"}</button>
                     </Grid>
                 </Grid>
                 <Grid container spacing={0.5}>

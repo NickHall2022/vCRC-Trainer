@@ -26,14 +26,14 @@ export function PrintedStrip({ stripData }: Props){
             <div style={{position: "absolute", left: "5px"}}>
                 {stripData.callsign}
                 <br></br>
-                {stripData.aircraftType}/{stripData.equipmentCode}
+                {stripData.aircraftType}{stripData.equipmentCode.length > 0 ? `/${stripData.equipmentCode}` : ""}
                 <br></br>
                 {stripData.CID}
             </div>
             <div style={{position: "absolute", left: "127px"}}>
                 {stripData.squawk}
                 <br></br>
-                P2100
+                {stripData.plannedTime}
                 <br></br>
                 {stripData.altitude}
             </div>
@@ -58,7 +58,10 @@ function splitIntoThreeParts(stripData: StripData) {
     let maxLength = 26;
     const words = stripData.route.split(' ');
     const lines = ['', '', ''];
+    const remarksPresent = stripData.remarks.length > 0;
+    const maxRouteLines = remarksPresent ? 2 : 3;
     let lineIndex = 0;
+
 
     for (const word of words) {
         if (word.length > maxLength) {
@@ -66,18 +69,26 @@ function splitIntoThreeParts(stripData: StripData) {
         }
 
         if ((lines[lineIndex] + word).length + (lines[lineIndex] ? 1 : 0) > maxLength) {
-            if(lineIndex === 1){
+            if(lineIndex === maxRouteLines - 2){
                 maxLength = 19;
             }
             lineIndex++;
             
-            if (lineIndex > 2) {
-                lines[2] += "***" + stripData.destination;
-                return lines;
+            if (lineIndex > maxRouteLines - 1) {
+                lines[maxRouteLines - 1] += `***${stripData.destination}`;
+                break;
             }
         }
 
         lines[lineIndex] += (lines[lineIndex] ? ' ' : '') + word;
+    }
+
+    if(remarksPresent){
+        if(stripData.remarks.length > 25){
+            lines[2] = `\u25CB${stripData.remarks.substring(0, 22).toUpperCase()}***`;
+        } else {
+            lines[2] = `\u25CB${stripData.remarks.toUpperCase()}`;
+        }
     }
 
     return lines;

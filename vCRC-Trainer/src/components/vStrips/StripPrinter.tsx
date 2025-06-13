@@ -5,7 +5,7 @@ import { useFlightPlans } from "../../hooks/useFlightPlans";
 import { StripPrinterStrip } from "./StripPrinterStrip";
 import { useStrips } from "../../hooks/useStrips";
 import CloseIcon from '@mui/icons-material/Close';
-import { makeEmptyFlightPlan } from "../../assets/flightPlans";
+import { makeEmptyFlightPlan } from "../../utils/flightPlans";
 import { v4 as uuidv4 } from 'uuid';
 
 type Props = {

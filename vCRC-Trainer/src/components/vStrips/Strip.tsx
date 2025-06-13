@@ -34,14 +34,12 @@ export function Strip({stripData}: Props){
     };
 
     function handlePushContextMenu(event: React.MouseEvent) {
-        event.preventDefault();
-
         setPushContextMenu(
-            pushContextMenu === null ? {
-                mouseX: event.clientX + 2,
-                mouseY: event.clientY - 6,
-            } : null,
+            pushContextMenu === null && contextMenu !== null ? { ...contextMenu } : null,
         );
+
+        setContextMenu(null);
+        event.preventDefault();
     }
 
     const handleClose = () => {
@@ -67,14 +65,17 @@ export function Strip({stripData}: Props){
     }
 
     const style: React.CSSProperties = {
-        backgroundImage: "url(/strip.png)",
+        backgroundImage: stripData.type === "blank" ? "url(/blankStrip.png)" : "url(/strip.png)",
         color: "black",
         width: "550px",
         height: "76px",
+        objectFit: "cover",
         position: "relative",
         fontSize: "14px",
         lineHeight: "25px",
-        left: stripData.bayName !== "printer" && stripData.offset ? "20px" : "0px"
+        fontWeight: "bold",
+        left: stripData.bayName !== "printer" && stripData.offset ? "20px" : "0px",
+        transform: stripData.offset? "rotateY(5deg)" : "none"
     }
 
     function getStripComponent(){
@@ -94,38 +95,41 @@ export function Strip({stripData}: Props){
         <div style={style} draggable={true} onContextMenu={handleContextMenu}>
             {getStripComponent()}
 
-            {stripData.bayName !== "printer" && <Menu
-                open={contextMenu !== null}
-                onClose={handleClose}
-                anchorReference="anchorPosition"
-                anchorPosition={
-                contextMenu !== null
-                    ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-                    : undefined
-                }
-                transitionDuration={0}
-            >
-                <MenuItem onClick={handlePushContextMenu}>
-                    Push...
-                    <Menu 
-                        open={contextMenu !== null && pushContextMenu !== null}
-                        onClose={handleClose}
-                        anchorReference="anchorPosition"
-                        anchorPosition={
-                            pushContextMenu !== null
-                                ? { top: pushContextMenu.mouseY, left: pushContextMenu.mouseX }
-                                : undefined
-                        }
-                        transitionDuration={0}
-                    >
-                        {selectedBay !== "ground" && <MenuItem onClick={() => handlePushToBay("ground")}>GC</MenuItem>}
-                        {selectedBay !== "local" && <MenuItem onClick={() => handlePushToBay("local")}>LC</MenuItem>}
-                        {selectedBay !== "spare" && <MenuItem onClick={() => handlePushToBay("spare")}>SPARE</MenuItem>}
-                    </Menu>
-                </MenuItem>
-                <MenuItem onClick={handleOffset}>Offset</MenuItem>
-                <MenuItem onClick={handleDelete}>Delete</MenuItem>
-            </Menu>}
+            {stripData.bayName !== "printer" && <>
+                <Menu
+                    open={contextMenu !== null}
+                    onClose={handleClose}
+                    anchorReference="anchorPosition"
+                    anchorPosition={
+                    contextMenu !== null
+                        ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+                        : undefined
+                    }
+                    transitionDuration={0}
+                >
+                    <MenuItem onClick={handlePushContextMenu}>
+                        Push to...
+                        
+                    </MenuItem>
+                    <MenuItem onClick={handleOffset}>Offset</MenuItem>
+                    <MenuItem onClick={handleDelete}>Delete</MenuItem>
+                </Menu>
+                <Menu 
+                    open={pushContextMenu !== null}
+                    onClose={handleClose}
+                    anchorReference="anchorPosition"
+                    anchorPosition={
+                        pushContextMenu !== null
+                            ? { top: pushContextMenu.mouseY, left: pushContextMenu.mouseX }
+                            : undefined
+                    }
+                    transitionDuration={0}
+                >
+                    {selectedBay !== "ground" && <MenuItem onClick={() => handlePushToBay("ground")}>GC</MenuItem>}
+                    {selectedBay !== "local" && <MenuItem onClick={() => handlePushToBay("local")}>LC</MenuItem>}
+                    {selectedBay !== "spare" && <MenuItem onClick={() => handlePushToBay("spare")}>SPARE</MenuItem>}
+                </Menu>
+            </>}
         </div>
     )
 }

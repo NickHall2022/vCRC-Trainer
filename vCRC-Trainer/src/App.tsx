@@ -4,6 +4,8 @@ import { FlightPlanProvider } from './providers/FlightPlanProvider';
 import { CGgroundPage } from './pages/CGroundPage';
 import { StripsProvider } from './providers/StripsProvider';
 import { useEffect } from 'react';
+import { MessagesProvider } from './providers/MessagesProvider';
+import { SimulationProvider } from './providers/SimulationProvider';
 
 
 function App() {
@@ -23,7 +25,11 @@ function App() {
   return (
     <FlightPlanProvider>
       <StripsProvider>
-        <CGgroundPage/>
+        <MessagesProvider>
+          <SimulationProvider>
+            <CGgroundPage/>
+          </SimulationProvider>
+        </MessagesProvider>
       </StripsProvider>
     </FlightPlanProvider>
   )

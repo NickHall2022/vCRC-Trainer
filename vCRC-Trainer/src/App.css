@@ -146,22 +146,7 @@ button:disabled {
 }
 
 .controllersListItemActive {
-  color: rgb(32, 200, 212);
+  color: rgb(15, 160, 170);
 }
-
-/* input {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  line-height: normal;
-  line-height: 1;
-  height: 1.8em; 
-  outline: none;
-  font: inherit;
-  padding: 0px 0px;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-} */
 
 textarea, input { font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; }

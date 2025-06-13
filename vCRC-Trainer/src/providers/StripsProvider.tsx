@@ -13,7 +13,7 @@ export function StripsProvider({ children }: { children: ReactNode }){
     const [playPrintSound] = useSound("/printer.mp3");
     
     const [strips, setStrips] = useImmer<AbstractStrip[]>((): AbstractStrip[] => {
-        const flightStrips: StripData[] = flightPlans.map(flightPlan => {
+        const flightStrips: StripData[] = flightPlans.filter(flightPlan => flightPlan.created).map(flightPlan => {
             return {...flightPlan, bayName: "printer" as BayName, id: uuidv4(), offset: false, type: "strip"};
         });
         const dividers: DividerData[] = [

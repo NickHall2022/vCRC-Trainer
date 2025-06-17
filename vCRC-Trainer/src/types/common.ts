@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import type { Updater } from "use-immer";
 
-export type FlightStatus = "ramp" | "pushback" | "taxi";
+export type FlightStatus = "ramp" | "pushback" | "taxi" | "departing" | "departed";
 
 export type FlightPlan = {
     callsign: string;
@@ -55,8 +55,9 @@ export type FlightPlanDetails = {
     amendFlightPlan: (amendedFlightPlan: FlightPlan) => void
     removeFirstRequest: (callsign: string) => void;
     setNextRequestTime: (callsign: string, canSendRequestTime: number) => void;
-    setPlanePosition: (callsign: string, x: number, y: number) => void;
+    setPlanePosition: (callsign: string, x: number, y: number, angle?: number) => void;
     setPlaneStatus: (callsign: string, status: FlightStatus) => void;
+    deleteFlightPlan: (callsign: string) => void;
 }
 
 export type StripsDetails = {
@@ -104,3 +105,26 @@ export type SimulationDetails = {
     completeRequest: (callsign: string) => void;
 }
 
+export type FaaRouteType = "L" | "H" | "LSD" | "HSD" | "SLD" | "HLD" | "TEC";
+
+export type PrefRoute = {
+    area?: string;
+    a_artcc: string;
+    altitude?: string;
+    origin: string;
+    aircraft?: string;
+    destination: string;
+    hours1?: string;
+    hours2?: string;
+    hours3?: string;
+    type: FaaRouteType;
+    d_artcc: string;
+    route: string;
+    flow?: string;
+    seq: number;
+}
+
+export type PrefRouteDetails = {
+    tecRoutes: PrefRoute[];
+    highRoutes: PrefRoute[];
+}

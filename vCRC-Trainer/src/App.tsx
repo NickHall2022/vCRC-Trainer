@@ -6,6 +6,7 @@ import { StripsProvider } from './providers/StripsProvider';
 import { useEffect } from 'react';
 import { MessagesProvider } from './providers/MessagesProvider';
 import { SimulationProvider } from './providers/SimulationProvider';
+import { PrefRoutesProvider } from './providers/PrefRoutesProvider';
 
 
 function App() {
@@ -23,15 +24,17 @@ function App() {
   }, []);
 
   return (
-    <FlightPlanProvider>
-      <StripsProvider>
-        <MessagesProvider>
-          <SimulationProvider>
-            <CGgroundPage/>
-          </SimulationProvider>
-        </MessagesProvider>
-      </StripsProvider>
-    </FlightPlanProvider>
+    <PrefRoutesProvider>
+      <FlightPlanProvider>
+        <StripsProvider>
+          <MessagesProvider>
+            <SimulationProvider>
+              <CGgroundPage/>
+            </SimulationProvider>
+          </MessagesProvider>
+        </StripsProvider>
+      </FlightPlanProvider>
+    </PrefRoutesProvider>
   )
 }
 

@@ -1,13 +1,15 @@
 import { useState, type ReactNode } from "react";
 import type { FlightPlan, FlightStatus } from "../types/common";
 import { FlightPlanContext } from "../hooks/useFlightPlans";
-import { FLIGHT_PLANS, makeEmptyFlightPlan } from "../utils/flightPlans";
+import { createStartingFlightPlans, makeEmptyFlightPlan } from "../utils/flightPlans";
 import { useImmer } from "use-immer";
+import { usePrefRoutes } from "../hooks/usePrefRoutes";
 
 export function FlightPlanProvider({ children }: { children: ReactNode }){
     const [selectedFlightPlan, setSelectedFlightPlan] = useState<FlightPlan | undefined>(undefined)
+    const prefRoutes = usePrefRoutes();
 
-    const [flightPlans, setFlightPlans] = useImmer<FlightPlan[]>(FLIGHT_PLANS);
+    const [flightPlans, setFlightPlans] = useImmer<FlightPlan[]>(createStartingFlightPlans(prefRoutes));
 
     function getFlightByCallsign(callsign: string){
         const flightPlan = flightPlans.find(flightPlan => flightPlan.callsign === callsign);
@@ -44,12 +46,15 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
         });
     }
 
-    function setPlanePosition(callsign: string, x: number, y: number){
+    function setPlanePosition(callsign: string, x: number, y: number, angle?: number){
         setFlightPlans((draft) => {
             const modifyIndex = draft.findIndex(flightPlan => flightPlan.callsign === callsign);
             if(modifyIndex !== -1){
                 draft[modifyIndex].positionX = x;
                 draft[modifyIndex].positionY = y;
+                if(angle){
+                    draft[modifyIndex].rotation = angle;
+                }
             }
         });
     }
@@ -63,6 +68,15 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
         });
     }
 
+    function deleteFlightPlan(callsign: string){
+        setFlightPlans((draft) => {
+            const deleteIndex = draft.findIndex(flightPlan => flightPlan.callsign === callsign);
+            if(deleteIndex !== -1){
+                draft.splice(deleteIndex, 1);
+            }
+        });
+    }
+
     const value = {
         flightPlans, 
         getFlightByCallsign,
@@ -72,7 +86,8 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
         removeFirstRequest,
         setNextRequestTime,
         setPlanePosition,
-        setPlaneStatus
+        setPlaneStatus,
+        deleteFlightPlan
     }
 
     return <FlightPlanContext.Provider value={value}>{children}</FlightPlanContext.Provider>

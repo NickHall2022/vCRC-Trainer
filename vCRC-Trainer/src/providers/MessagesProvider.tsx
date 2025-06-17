@@ -8,7 +8,8 @@ export function MessagesProvider({ children }: { children: ReactNode }){
     const [playRadioMessageSound] = useSound("/RadioMessage.wav");
 
     const [messages, setMessages] = useImmer<Message[]>([
-        { content: "Network simulation activated", type: "system", time: Date.now(), callsign: "" }
+        { content: "Network simulation activated", type: "system", time: Date.now(), callsign: "" },
+        { content: "Weather is VFR, ATIS information A, landing and departing runway 29. Runway 36 is inactive. We have departure and center online above. I haven't talked to any planes on the ground yet. Coordination is contact with strips, your control, HL.", type: "ATC", time: Date.now(), callsign: "PWM_TWR" }
     ]);
 
     function sendMessage(content: string, callsign: string, type: MessageType){

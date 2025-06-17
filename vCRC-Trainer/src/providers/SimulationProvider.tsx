@@ -4,11 +4,12 @@ import { useMessages } from "../hooks/useMessages";
 import { useImmer } from "use-immer";
 import type { AircraftRequest, SimulationDetails } from "../types/common";
 import { useFlightPlans } from "../hooks/useFlightPlans";
+import { distance, taxiways } from "../utils/taxiways";
 
 export function SimulationProvider({ children }: { children: ReactNode }){
     const [requests, setRequests] = useImmer<AircraftRequest[]>([]);
 
-    const { flightPlans, removeFirstRequest, setNextRequestTime, setPlanePosition, setPlaneStatus } = useFlightPlans();
+    const { flightPlans, removeFirstRequest, setNextRequestTime, setPlanePosition, setPlaneStatus, deleteFlightPlan } = useFlightPlans();
     const { sendMessage } = useMessages();
 
     function addNewRequest(newRequest: AircraftRequest){
@@ -35,63 +36,113 @@ export function SimulationProvider({ children }: { children: ReactNode }){
 
     useEffect(() => {
         const interval = setInterval(() => {
-            for(const request of requests){
-                if(request.reminder && request.reminder.sendTime && Date.now() >= request.reminder.sendTime){
-                    sendMessage(request.reminder.message, request.callsign, "radio");
-                    setRequests((draft) => {
-                        const modifiedRequest = draft.find(element => element.callsign === request.callsign);
-                        if(modifiedRequest){
-                            delete modifiedRequest.reminder;
-                        }
-                    });
+            if(Math.floor(Date.now() / 1000) % 25 === 0){
+                for(const request of requests){
+                    if(request.reminder && request.reminder.sendTime && Date.now() >= request.reminder.sendTime){
+                        sendMessage(request.reminder.message, request.callsign, "radio");
+                        setRequests((draft) => {
+                            const modifiedRequest = draft.find(element => element.callsign === request.callsign);
+                            if(modifiedRequest){
+                                delete modifiedRequest.reminder;
+                            }
+                        });
+                        return;
+                    }
+                }
+                
+                if(requests.length >= 3){
                     return;
                 }
-            }
-            
-            if(requests.length >= 3){
-                return;
-            }
-
-            const flightsWithRequest = flightPlans.filter(flightPlan => {
-                if(flightPlan.requests.length === 0){
+    
+                const flightsWithRequest = flightPlans.filter(flightPlan => {
+                    if(flightPlan.requests.length === 0){
+                        return;
+                    }
+                    if(flightPlan.canSendRequestTime > Date.now()){
+                        return;
+                    }
+                    return !requests.find(request => request.callsign === flightPlan.callsign);
+                });
+    
+                if(flightsWithRequest.length === 0){
                     return;
                 }
-                if(flightPlan.canSendRequestTime > Date.now()){
-                    return;
+    
+                let maxPriority = -1;
+                for(const flightPlan of flightsWithRequest){
+                    if(flightPlan.requests[0].priority > maxPriority){
+                        maxPriority = flightPlan.requests[0].priority;
+                    }
                 }
-                return !requests.find(request => request.callsign === flightPlan.callsign);
-            });
-
-            if(flightsWithRequest.length === 0){
-                return;
+                const priorityFlightPlansWithRequest = flightsWithRequest.filter(flightPlan => flightPlan.requests[0].priority === maxPriority);
+                const randomIndex = Math.floor(Math.random() * priorityFlightPlansWithRequest.length);
+                const chosenFlight = priorityFlightPlansWithRequest[randomIndex];
+                const request = chosenFlight.requests[0];
+    
+                addNewRequest(request);
+                removeFirstRequest(chosenFlight.callsign);
             }
 
-            const chosenFlight = flightsWithRequest[0];
-            const request = chosenFlight.requests[0];
-
-            addNewRequest(request);
-            removeFirstRequest(chosenFlight.callsign);
-        }, 1000);
-        return () => {
-            clearInterval(interval);
-        };
-    }, [flightPlans, requests, setRequests, removeFirstRequest, sendMessage]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
             for(const flightPlan of flightPlans){
                 if(flightPlan.status === "pushback"){
                     const angleAsRadians = flightPlan.rotation * Math.PI / 180;
-                    const diffX = -Math.cos(angleAsRadians) * Math.min(0.1, Math.abs(flightPlan.positionX - flightPlan.pushbackLocation.x));
-                    const diffY = Math.sin(angleAsRadians) * Math.min(0.1, Math.abs(flightPlan.positionY - flightPlan.pushbackLocation.y));
+                    const diffX = -Math.cos(angleAsRadians) * Math.min(0.05, Math.abs(flightPlan.positionX - flightPlan.pushbackLocation.x));
+                    const diffY = Math.sin(angleAsRadians) * Math.min(0.05, Math.abs(flightPlan.positionY - flightPlan.pushbackLocation.y));
                     setPlanePosition(flightPlan.callsign, flightPlan.positionX + diffX, flightPlan.positionY + diffY);
+                } else if(flightPlan.status === "taxi" || flightPlan.status === "departing"){
+                    movePlaneTowardsRunway(flightPlan.callsign, flightPlan.positionX, flightPlan.positionY);
+                } else if(flightPlan.status === "departed"){
+                    deleteFlightPlan(flightPlan.callsign);
                 }
             }
         }, 1000);
         return () => {
             clearInterval(interval);
         };
-    }, [flightPlans, setPlanePosition]);
+    }, [flightPlans, requests, setRequests, removeFirstRequest, sendMessage, setPlanePosition]);
+
+    function movePlaneTowardsRunway(callsign: string, planeX: number, planeY: number){
+        let closestNode = taxiways[0];
+        let distanceToClosest = 100;
+        for(const node of taxiways){
+            const dist = distance(planeX, planeY, node.x, node.y);
+            if(dist < distanceToClosest){
+                distanceToClosest = dist;
+                closestNode = node;
+            }
+        }
+
+        if(closestNode.edges.length > 0){
+            const distanceBetweenClosestAndNext = distance(closestNode.edges[0].x, closestNode.edges[0].y, closestNode.x, closestNode.y);
+            const distanceBetweenPlaneAndNext = distance(closestNode.edges[0].x, closestNode.edges[0].y, planeX, planeY);
+            if(distanceBetweenPlaneAndNext <= distanceToClosest + distanceBetweenClosestAndNext){
+                closestNode = closestNode.edges[0];
+            }
+        }
+
+        const angleAsRadians = Math.atan2(closestNode.y - planeY, closestNode.x - planeX);
+        const diffX = Math.min(Math.cos(angleAsRadians) * 0.35, Math.abs(closestNode.x - planeX));
+        const diffY = Math.min(Math.sin(angleAsRadians) * 0.35, Math.abs(closestNode.y - planeY));
+        setPlanePosition(callsign, planeX + diffX, planeY + diffY, -angleAsRadians * 180 / Math.PI);
+
+        const endNode = taxiways.find(node => node.id === "END");
+        if(endNode){
+            const dist = distance(planeX, planeY, endNode.x, endNode.y)
+            if(dist < 15){
+                const flightPlan = flightPlans.find(flight => flight.callsign === callsign);
+                if(flightPlan && flightPlan.status === "taxi"){
+                    addNewRequest({
+                        callsign,
+                        priority: 1,
+                        responseMessage: "Contact tower 120.9",
+                        nextRequestDelay: 0,
+                        nextStatus: "departed"
+                    });
+                    setPlaneStatus(callsign, "departing");
+                }
+            }
+        }
+    }
 
     function completeRequest(callsign: string){
         const completedRequestIndex = requests.findIndex(request => request.callsign === callsign);
@@ -124,5 +175,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
         completeRequest
     }
 
-    return <SimulationContext.Provider value={value}>{children}</SimulationContext.Provider>
+    return (
+        <SimulationContext.Provider value={value}>{children}</SimulationContext.Provider>
+    );
 }

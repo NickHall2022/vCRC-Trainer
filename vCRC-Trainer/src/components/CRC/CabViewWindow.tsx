@@ -5,12 +5,14 @@ import { ControllerList } from "./ControllerList";
 import { FlightPlanEditor } from "./FlightPlanEditor";
 import Draggable from "react-draggable";
 import { MessageWindow } from "./MessageWindow";
+import { Taxiways } from "../debug/Taxiways";
 
 export function CabViewWindow(){
     const {flightPlans} = useFlightPlans();
     const [zoom, setZoom] = useState<number>(1);
     const [rotate, setRotate] = useState<number>(0);
     const draggableRef = useRef<HTMLDivElement>(null);
+    const visualizeTaxiways = false;
 
     function createAirplanes() {
         return flightPlans.map(flightPlan => {
@@ -45,6 +47,7 @@ export function CabViewWindow(){
                         >
                             <img src="/PWM.png" draggable={false} style={{objectFit: "cover", width: `100%`}}></img>
                             {createAirplanes()}
+                            { visualizeTaxiways && <Taxiways></Taxiways> }
                         </div>
                     </div>
                 </Draggable>

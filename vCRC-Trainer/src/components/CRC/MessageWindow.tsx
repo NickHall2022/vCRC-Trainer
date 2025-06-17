@@ -29,7 +29,7 @@ export function MessageWindow(){
 
     function createMessageDisplay(){
         const messageElements = messages.map(message => {
-            const displayString = `[${new Date(message.time).toLocaleTimeString("eo", {hour12: false})}] ${message.callsign ? message.callsign + ": " : ""}${message.content}`;
+            const displayString = `[${new Date(message.time).toLocaleTimeString("eo", {hour12: false})}] ${message.type === "ATC" ? "[ATC] " : ""}${message.callsign ? message.callsign + ": " : ""}${message.content}`;
             
             return (
                 <ListItem sx={{padding: "0px"}} key={message.time + message.callsign}>
@@ -42,7 +42,7 @@ export function MessageWindow(){
     
     return (
         <Draggable nodeRef={draggableRef as RefObject<HTMLElement>} allowAnyClick={true} handle=".handle">
-            <div ref={draggableRef} style={{width: "600px", height: "200px", backgroundColor: "#090909", position: "absolute", top: "77%", left: "900px", zIndex: 3}}>
+            <div ref={draggableRef} style={{width: "600px", height: "205px", backgroundColor: "#090909", position: "absolute", top: "77%", left: "900px", zIndex: 3}}>
                 <div className="handle" style={{backgroundColor: "#151515", margin: "0px", marginBottom: "2px"}}>
                     <p style={{margin: "0px", marginLeft: "4px", fontSize: "11px"}}>Messages</p>
                 </div>

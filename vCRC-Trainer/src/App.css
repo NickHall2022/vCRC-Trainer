@@ -150,3 +150,18 @@ button:disabled {
 }
 
 textarea, input { font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; }
+
+.welcome {
+  background-color: rgb(58, 58, 58);
+  width: 800px;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: rgba(0, 0, 0, 1.0) -5px 0px 40px 5px;
+  align-content: center;
+  padding-left: 2vw;
+  padding-right: 2vw;
+  padding-bottom: 2vh;
+  border-radius: 10px;
+}

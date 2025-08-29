@@ -1,15 +1,18 @@
 import { useState, type ReactNode } from "react";
 import type { FlightPlan, FlightStatus } from "../types/common";
 import { FlightPlanContext } from "../hooks/useFlightPlans";
-import { createStartingFlightPlans, makeEmptyFlightPlan } from "../utils/flightPlans";
+import { makeEmptyFlightPlan, makeNewFlight } from "../utils/flightPlans";//createStartingFlightPlans
 import { useImmer } from "use-immer";
 import { usePrefRoutes } from "../hooks/usePrefRoutes";
+import { useParkingSpots } from "../hooks/useParkingSpots";
 
 export function FlightPlanProvider({ children }: { children: ReactNode }){
+    const { reserveSpot } = useParkingSpots();
+
     const [selectedFlightPlan, setSelectedFlightPlan] = useState<FlightPlan | undefined>(undefined)
     const prefRoutes = usePrefRoutes();
 
-    const [flightPlans, setFlightPlans] = useImmer<FlightPlan[]>(createStartingFlightPlans(prefRoutes));
+    const [flightPlans, setFlightPlans] = useImmer<FlightPlan[]>([]);
 
     function getFlightByCallsign(callsign: string){
         const flightPlan = flightPlans.find(flightPlan => flightPlan.callsign === callsign);
@@ -77,6 +80,18 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
         });
     }
 
+    function spawnNewFlight(): FlightPlan | undefined {
+        const flightType = Math.random() < 0.7 ? "airline" : "ga"
+        const parkingSpot = reserveSpot(flightType);
+        if(parkingSpot){
+            const newFlightPlan = makeNewFlight(parkingSpot, prefRoutes);
+            setFlightPlans(draft => {
+                draft.push(newFlightPlan);
+            })
+            return newFlightPlan;
+        }
+    }
+
     const value = {
         flightPlans, 
         getFlightByCallsign,
@@ -87,7 +102,8 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
         setNextRequestTime,
         setPlanePosition,
         setPlaneStatus,
-        deleteFlightPlan
+        deleteFlightPlan,
+        spawnNewFlight
     }
 
     return <FlightPlanContext.Provider value={value}>{children}</FlightPlanContext.Provider>

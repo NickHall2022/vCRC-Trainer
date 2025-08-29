@@ -3,13 +3,17 @@ import './App.css'
 import { FlightPlanProvider } from './providers/FlightPlanProvider';
 import { CGgroundPage } from './pages/CGroundPage';
 import { StripsProvider } from './providers/StripsProvider';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { MessagesProvider } from './providers/MessagesProvider';
 import { SimulationProvider } from './providers/SimulationProvider';
 import { PrefRoutesProvider } from './providers/PrefRoutesProvider';
+import { ParkingSpotProvider } from './providers/ParkingSpotProvider';
+import Welcome from './components/Menus/Welcome';
+import { DifficultyProvider } from './providers/DifficultyProvider';
 
 
 function App() {
+  const [welcomeOpen, setWelcomeOpen] = useState(true);
 
   useEffect(() => {
     function handleWindowUnload(event: any){
@@ -23,18 +27,34 @@ function App() {
     }
   }, []);
 
+
+  if(welcomeOpen){
+      return (
+          <DifficultyProvider>
+            <PrefRoutesProvider loadSilently={true}>
+              <Welcome setWelcomeOpen={setWelcomeOpen}></Welcome>
+            </PrefRoutesProvider>
+          </DifficultyProvider>
+      )
+      
+  }
+
   return (
-    <PrefRoutesProvider>
-      <FlightPlanProvider>
-        <StripsProvider>
-          <MessagesProvider>
-            <SimulationProvider>
-              <CGgroundPage/>
-            </SimulationProvider>
-          </MessagesProvider>
-        </StripsProvider>
-      </FlightPlanProvider>
-    </PrefRoutesProvider>
+    <DifficultyProvider>
+      <PrefRoutesProvider loadSilently={false}>
+        <ParkingSpotProvider>
+          <FlightPlanProvider>
+            <StripsProvider>
+              <MessagesProvider>
+                <SimulationProvider>
+                  <CGgroundPage/>
+                </SimulationProvider>
+              </MessagesProvider>
+            </StripsProvider>
+          </FlightPlanProvider>
+        </ParkingSpotProvider>
+      </PrefRoutesProvider>
+    </DifficultyProvider>
   )
 }
 

@@ -29,7 +29,12 @@ export function MessageWindow(){
 
     function createMessageDisplay(){
         const messageElements = messages.map(message => {
-            const displayString = `[${new Date(message.time).toLocaleTimeString("eo", {hour12: false})}] ${message.type === "ATC" ? "[ATC] " : ""}${message.callsign ? message.callsign + ": " : ""}${message.content}`;
+            const date = new Date(message.time)
+            const hours = date.getUTCHours().toString().padStart(2, '0');
+            const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+            const seconds = date.getUTCSeconds().toString().padStart(2, '0');
+
+            const displayString = `[${hours}:${minutes}:${seconds}] ${message.type === "ATC" ? "[ATC] " : ""}${message.callsign ? message.callsign + ": " : ""}${message.content}`;
             
             return (
                 <ListItem sx={{padding: "0px"}} key={message.time + message.callsign}>

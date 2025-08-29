@@ -5,11 +5,19 @@ import { useImmer } from "use-immer";
 import type { AircraftRequest, SimulationDetails } from "../types/common";
 import { useFlightPlans } from "../hooks/useFlightPlans";
 import { distance, taxiways } from "../utils/taxiways";
+import { useStrips } from "../hooks/useStrips";
+import { useParkingSpots } from "../hooks/useParkingSpots";
+import { useDifficulty } from "../hooks/useDifficulty";
 
 export function SimulationProvider({ children }: { children: ReactNode }){
     const [requests, setRequests] = useImmer<AircraftRequest[]>([]);
+    const [paused, setPaused] = useImmer(false);
+    const { difficulty } = useDifficulty();
 
-    const { flightPlans, removeFirstRequest, setNextRequestTime, setPlanePosition, setPlaneStatus, deleteFlightPlan } = useFlightPlans();
+    const { flightPlans, removeFirstRequest, setNextRequestTime, setPlanePosition, setPlaneStatus, deleteFlightPlan, spawnNewFlight } = useFlightPlans();
+    const { releaseSpot } = useParkingSpots();
+    const { printAmendedFlightPlan } = useStrips();
+        
     const { sendMessage } = useMessages();
 
     function addNewRequest(newRequest: AircraftRequest){
@@ -33,10 +41,44 @@ export function SimulationProvider({ children }: { children: ReactNode }){
             draft.push(modifiedRequest);
         });
     }
-
+    
     useEffect(() => {
         const interval = setInterval(() => {
-            if(Math.floor(Date.now() / 1000) % 25 === 0){
+            if(paused){
+                return;
+            }
+
+            for(const flightPlan of flightPlans){
+                if(flightPlan.status === "pushback"){
+                    const angleAsRadians = flightPlan.rotation * Math.PI / 180;
+                    const diffX = -Math.cos(angleAsRadians) * Math.min(0.05, Math.abs(flightPlan.positionX - flightPlan.pushbackLocation.x));
+                    const diffY = Math.sin(angleAsRadians) * Math.min(0.05, Math.abs(flightPlan.positionY - flightPlan.pushbackLocation.y));
+                    setPlanePosition(flightPlan.callsign, flightPlan.positionX + diffX, flightPlan.positionY + diffY);
+                } else if(flightPlan.status === "taxi" || flightPlan.status === "departing"){
+                    movePlaneTowardsRunway(flightPlan.callsign, flightPlan.positionX, flightPlan.positionY);
+                } else if(flightPlan.status === "departed"){
+                    deleteFlightPlan(flightPlan.callsign);
+                }
+            }
+
+            const flightsWithRequest = flightPlans.filter(flightPlan => {
+                if(flightPlan.requests.length === 0){
+                    return;
+                }
+                if(flightPlan.canSendRequestTime > Date.now()){
+                    return;
+                }
+                return !requests.find(request => request.callsign === flightPlan.callsign);
+            });
+
+            if(flightsWithRequest.length < 2 + difficulty + 100){
+                const newFlight = spawnNewFlight();
+                if (newFlight) {
+                    printAmendedFlightPlan(newFlight);
+                }
+            }
+
+            if(Math.floor(Date.now() / 1000) % Math.ceil(60 / difficulty) === 0){
                 for(const request of requests){
                     if(request.reminder && request.reminder.sendTime && Date.now() >= request.reminder.sendTime){
                         sendMessage(request.reminder.message, request.callsign, "radio");
@@ -50,19 +92,9 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                     }
                 }
                 
-                if(requests.length >= 3){
+                if(requests.length >= difficulty){
                     return;
                 }
-    
-                const flightsWithRequest = flightPlans.filter(flightPlan => {
-                    if(flightPlan.requests.length === 0){
-                        return;
-                    }
-                    if(flightPlan.canSendRequestTime > Date.now()){
-                        return;
-                    }
-                    return !requests.find(request => request.callsign === flightPlan.callsign);
-                });
     
                 if(flightsWithRequest.length === 0){
                     return;
@@ -82,24 +114,11 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                 addNewRequest(request);
                 removeFirstRequest(chosenFlight.callsign);
             }
-
-            for(const flightPlan of flightPlans){
-                if(flightPlan.status === "pushback"){
-                    const angleAsRadians = flightPlan.rotation * Math.PI / 180;
-                    const diffX = -Math.cos(angleAsRadians) * Math.min(0.05, Math.abs(flightPlan.positionX - flightPlan.pushbackLocation.x));
-                    const diffY = Math.sin(angleAsRadians) * Math.min(0.05, Math.abs(flightPlan.positionY - flightPlan.pushbackLocation.y));
-                    setPlanePosition(flightPlan.callsign, flightPlan.positionX + diffX, flightPlan.positionY + diffY);
-                } else if(flightPlan.status === "taxi" || flightPlan.status === "departing"){
-                    movePlaneTowardsRunway(flightPlan.callsign, flightPlan.positionX, flightPlan.positionY);
-                } else if(flightPlan.status === "departed"){
-                    deleteFlightPlan(flightPlan.callsign);
-                }
-            }
         }, 1000);
         return () => {
             clearInterval(interval);
         };
-    }, [flightPlans, requests, setRequests, removeFirstRequest, sendMessage, setPlanePosition]);
+    }, [flightPlans, requests, setRequests, removeFirstRequest, sendMessage, setPlanePosition, paused]);
 
     function movePlaneTowardsRunway(callsign: string, planeX: number, planeY: number){
         let closestNode = taxiways[0];
@@ -166,13 +185,21 @@ export function SimulationProvider({ children }: { children: ReactNode }){
             });
         }
 
+        if(completedRequest.nextStatus === "taxi"){
+            const flight = flightPlans.find(flight => flight.callsign === callsign);
+            if(flight){
+                releaseSpot(flight.parkingSpotId);
+            }
+        }
+
         if(completedRequest.nextStatus){
             setPlaneStatus(completedRequest.callsign, completedRequest.nextStatus);
         }
     }
 
     const value: SimulationDetails = {
-        completeRequest
+        completeRequest,
+        setPaused
     }
 
     return (

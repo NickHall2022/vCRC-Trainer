@@ -9,7 +9,7 @@ export function MessagesProvider({ children }: { children: ReactNode }){
 
     const [messages, setMessages] = useImmer<Message[]>([
         { content: "Network simulation activated", type: "system", time: Date.now(), callsign: "" },
-        { content: "Weather is VFR, ATIS information A, landing and departing runway 29. Runway 36 is inactive. We have departure and center online above. I haven't talked to any planes on the ground yet. Coordination is contact with strips, your control, HL.", type: "ATC", time: Date.now(), callsign: "PWM_TWR" }
+        { content: "Airport: Portland airport ATIS A, Runway 29 in use. Runway 36 is inactive and your control. You have me on Local, CASCO on above as departure, and Center online above that. Airspace: not applicable. Special activities: none. Enroute weather: VFR, calm winds, no significant trends. Traffic: Nobody is moving on the ground, no clearances have been issued.", type: "ATC", time: Date.now(), callsign: "PWM_TWR" }
     ]);
 
     function sendMessage(content: string, callsign: string, type: MessageType){

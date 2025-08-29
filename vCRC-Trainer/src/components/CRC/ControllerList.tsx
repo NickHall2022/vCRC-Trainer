@@ -19,8 +19,8 @@ export function ControllerList(){
                 </Grid>
                 <p className="controllersHeader">PWM - Portland ATCT/TRACON</p>
                 <Grid container spacing={1}>
-                    <Grid size={3}><span className="controllersListItem" style={{marginLeft: "10px"}}>PWM</span></Grid>
-                    <Grid size={6}><span className="controllersListItem">Portland Departure</span></Grid>
+                    <Grid size={3}><span className="controllersListItem" style={{marginLeft: "10px"}}>1S</span></Grid>
+                    <Grid size={6}><span className="controllersListItem">CASCO</span></Grid>
                     <Grid size={3}><span className="controllersListItem">119.750</span></Grid>
                 </Grid>
                 <Grid container spacing={1}>

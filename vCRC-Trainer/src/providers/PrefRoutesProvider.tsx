@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { PrefRoute, PrefRouteDetails } from "../types/common";
 import { PrefRouteContext } from "../hooks/usePrefRoutes";
 
-export function PrefRoutesProvider({ children }: { children: ReactNode }){
+export function PrefRoutesProvider({ loadSilently, children }: { loadSilently: boolean, children: ReactNode }){
     
     const { data, error, isLoading } = useQuery<PrefRoute[]>({ queryKey: ['todos'], queryFn: async () => {
         //https://www.aviationapi.com/
@@ -11,10 +11,10 @@ export function PrefRoutesProvider({ children }: { children: ReactNode }){
         return await response.json();
     }});
     
-    if (isLoading || !data) return <div>Loading...</div>;
-    if (error) return <div>Error loading users</div>;
-    console.log(data)
-    const value: PrefRouteDetails = {
+    if (!loadSilently && (isLoading || !data)) return <h1>Loading...</h1>;
+    if (error) return <div style={{textAlign: "center"}}>Error loading users</div>;
+
+    const value: PrefRouteDetails = !data ? {tecRoutes: [], highRoutes: []} : {
         tecRoutes: data.filter(route => route.type === "TEC"),
         highRoutes: data.filter(route => route.type === "H")
     }

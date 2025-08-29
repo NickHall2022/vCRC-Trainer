@@ -7,7 +7,7 @@ import { makeEmptyFlightPlan } from "../../utils/flightPlans";
 import { useStrips } from "../../hooks/useStrips";
 
 export function FlightPlanEditor(){
-    const { selectedFlightPlan, amendFlightPlan, setSelectedFlightPlan } = useFlightPlans();
+    const { selectedFlightPlan, amendFlightPlan, setSelectedFlightPlan, flightPlans } = useFlightPlans();
     const { printAmendedFlightPlan } = useStrips();
 
     const draggableRef = useRef<HTMLDivElement>(null);
@@ -19,7 +19,7 @@ export function FlightPlanEditor(){
     useEffect(() => {
         setFlightPlan(handleNewSelectedFlightPlan(selectedFlightPlan));
         setHasBeenEdited(false);
-    }, [setFlightPlan, selectedFlightPlan])
+    }, [setFlightPlan, selectedFlightPlan, setHasBeenEdited, handleNewSelectedFlightPlan])
 
     useEffect(() => {
         document.addEventListener("keydown", handleControlF);
@@ -47,10 +47,26 @@ export function FlightPlanEditor(){
 
     function handleAmendFlightPlan(){
         setHasBeenEdited(false);
-        const amendedFlightPlan = { ...flightPlan, printCount: flightPlan.printCount + 1, created: true };
+        const latestFlightPlan = flightPlans.find(flight => flight.callsign === flightPlan.callsign);
+        if(!latestFlightPlan){
+            throw new Error("flight plan not properly selected");
+        }
+        const amendedFlightPlan: FlightPlan = { ...latestFlightPlan, 
+            printCount: flightPlan.printCount + 1, 
+            created: true,
+            aircraftType: flightPlan.aircraftType,
+            equipmentCode: flightPlan.equipmentCode,
+            departure: flightPlan.departure,
+            destination: flightPlan.destination,
+            speed: flightPlan.speed,
+            altitude: flightPlan.altitude,
+            route: flightPlan.route,
+            remarks: flightPlan.remarks
+        };
         if(amendedFlightPlan.equipmentCode.length === 0){
             amendedFlightPlan.equipmentCode = "A";
         }
+        
         amendFlightPlan(amendedFlightPlan);
         printAmendedFlightPlan(amendedFlightPlan);
         setFlightPlan(amendedFlightPlan);

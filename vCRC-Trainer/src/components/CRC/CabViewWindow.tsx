@@ -1,4 +1,4 @@
-import { useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { useFlightPlans } from "../../hooks/useFlightPlans";
 import { Airplane } from "./Airplane";
 import { ControllerList } from "./ControllerList";
@@ -13,6 +13,26 @@ export function CabViewWindow(){
     const [rotate, setRotate] = useState<number>(0);
     const draggableRef = useRef<HTMLDivElement>(null);
     const visualizeTaxiways = false;
+
+    useEffect(() => {
+        const draggable = draggableRef.current;
+        if (!draggable) {
+            return;
+        }
+
+        const preventLeftClickDrag = (event: MouseEvent) => {
+            if(event.buttons === 1){
+                event.stopPropagation();
+                event.preventDefault();
+            }
+        };
+
+        draggable.addEventListener("mousedown", preventLeftClickDrag);
+
+        return () => {
+            draggable.removeEventListener("mousedown", preventLeftClickDrag);
+        };
+    }, []);
 
     function createAirplanes() {
         return flightPlans.map(flightPlan => {
@@ -39,7 +59,7 @@ export function CabViewWindow(){
     return (
         <div>
             <div style={{overflow: "hidden"}}>
-                <Draggable nodeRef={draggableRef as RefObject<HTMLElement>} allowAnyClick={true} handle=".handle">
+                <Draggable nodeRef={draggableRef as RefObject<HTMLElement>} allowAnyClick={true} handle=".handle" cancel=".inner">
                     <div ref={draggableRef} onWheel={handleScroll} className={"handle"}>
                         <div id="cabViewContainer" className="preventSelect" style={{
                                 transform: `scale(${zoom}) rotate(${rotate}deg)`

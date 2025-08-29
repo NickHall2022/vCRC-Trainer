@@ -19,7 +19,7 @@ export function StripPrinterStrip({setDraggedStrip, handleStripInsert, handleDel
 
     useEffect(() => {
         if(selectedIndex >= printerStrips.length){
-            setSelectedIndex(printerStrips.length - 1);
+            setSelectedIndex(Math.max(printerStrips.length - 1, 0));
         }
     }, [selectedIndex, printerStrips, setSelectedIndex]);
     

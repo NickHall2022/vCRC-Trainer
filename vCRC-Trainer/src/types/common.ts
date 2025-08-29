@@ -27,7 +27,11 @@ export type FlightPlan = {
     pushbackLocation: { x: number, y: number};
     status: FlightStatus;
     created: boolean;
+    parkingSpotId: string;
 }
+
+export type PartialFlightPlan = Omit<FlightPlan, "requests" | "canSendRequestTime" | "printCount" | "CID" | "plannedTime" | "pushbackLocation" | "status" | "parkingSpotId">;
+export type PartialFlightPlanWithRequests = PartialFlightPlan & { requests: AircraftRequest[], canSendRequestTime: number };
 
 export type BayName = "ground" | "local" | "spare" | "printer"
 
@@ -58,6 +62,7 @@ export type FlightPlanDetails = {
     setPlanePosition: (callsign: string, x: number, y: number, angle?: number) => void;
     setPlaneStatus: (callsign: string, status: FlightStatus) => void;
     deleteFlightPlan: (callsign: string) => void;
+    spawnNewFlight: () => FlightPlan | undefined;
 }
 
 export type StripsDetails = {
@@ -103,6 +108,7 @@ export type AircraftRequest = {
 
 export type SimulationDetails = {
     completeRequest: (callsign: string) => void;
+    setPaused: Dispatch<SetStateAction<boolean>>
 }
 
 export type FaaRouteType = "L" | "H" | "LSD" | "HSD" | "SLD" | "HLD" | "TEC";
@@ -127,4 +133,39 @@ export type PrefRoute = {
 export type PrefRouteDetails = {
     tecRoutes: PrefRoute[];
     highRoutes: PrefRoute[];
+}
+
+export type ParkingSpot = {
+    x: number;
+    y: number;
+    rotation: number;
+    location: string;
+    pushbackIntoRamp?: boolean;
+    airline?: string;
+    available: boolean;
+    id: string;
+    type: ParkingSpotType;
+}
+
+export type ParkingSpotType = "airline" | "ga";
+
+export type ParkingSpotMethods = {
+    reserveSpot: (type: ParkingSpotType) => ParkingSpot | undefined;
+    releaseSpot: (id: string) => void;
+}
+
+export type DifficultyDetails = {
+    difficulty: number,
+    setDifficulty: Dispatch<SetStateAction<number>>
+}
+
+export type MistakeType = "stripBox" | "badRoute" | "badAlt" | "badEquipment" | "stripMovement" | "stripHandoff" | "aircraftHandoff" | "readbackIFR" | "taxiVFR";
+
+export type Mistake = {
+    type: MistakeType;
+}
+
+export type MistakeDetails = {
+    mistakes: Mistake[];
+    addMistake: (type: MistakeType) => void;
 }

@@ -5,11 +5,13 @@ import { useMessages } from "../../hooks/useMessages";
 import List from "@mui/material/List";
 import { ListItem } from "@mui/material";
 import type { MessageType } from "../../types/common";
+import { useSimulation } from "../../hooks/useSimulation";
 
 export function MessageWindow(){
     const draggableRef = useRef<HTMLDivElement>(null);
     const scrollRef = useRef<HTMLLIElement>(null);
 
+    const { completeRequest } = useSimulation();
     const { messages } = useMessages();
 
     useEffect(() => {
@@ -17,6 +19,10 @@ export function MessageWindow(){
             scrollRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [messages]);
+
+    function handleMessageClicked(callsign: string){
+        completeRequest(callsign);
+    }
 
     function handleColor(messageType: MessageType){
         if(messageType === "ATC"){
@@ -33,12 +39,13 @@ export function MessageWindow(){
             const hours = date.getUTCHours().toString().padStart(2, '0');
             const minutes = date.getUTCMinutes().toString().padStart(2, '0');
             const seconds = date.getUTCSeconds().toString().padStart(2, '0');
+            const cursor = message.type === "radio" ? "pointer" : "auto";
 
             const displayString = `[${hours}:${minutes}:${seconds}] ${message.type === "ATC" ? "[ATC] " : ""}${message.callsign ? message.callsign + ": " : ""}${message.content}`;
             
             return (
                 <ListItem sx={{padding: "0px"}} key={message.time + message.callsign}>
-                    <p style={{color: handleColor(message.type), marginTop: "0px", marginBottom: "0px", fontFamily: "monospace"}}>{displayString}</p>
+                    <p style={{color: handleColor(message.type), marginTop: "0px", marginBottom: "0px", fontFamily: "monospace", cursor: cursor}} onClick={() => handleMessageClicked(message.callsign)}>{displayString}</p>
                 </ListItem>
             )
         });

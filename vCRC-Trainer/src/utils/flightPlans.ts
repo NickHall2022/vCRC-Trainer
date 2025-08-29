@@ -1,6 +1,65 @@
 import type { AircraftRequest, FlightPlan, PrefRoute, PrefRouteDetails, ParkingSpot, PartialFlightPlan, PartialFlightPlanWithRequests } from "../types/common";
 
+export const VALID_WEST_ALT = ["040", "060", "080", "100", "120", "140", "160", "180", "200", "220", "240", "260", 
+    "280",  "300",  "320", "340", "360", "380", "400", "430"];
+export const VALID_EAST_ALT = ["030", "050", "070", "090", "110", "130", "150", "170", "190", "210", "230", "250", 
+    "270", "290",  "310",  "330", "350", "370", "390", "410"];
 
+export const HIGH_WEST_ALT = ["200", "220", "240", "260", "280", "300", "320", "340", "360", "380", "400", "430"];
+export const HIGH_EAST_ALT = ["210", "230", "250", "270", "290", "310", "330", "350", "370", "390", "410"];
+
+export const TEC_WEST_ALT = ["040", "060", "080", "100"];
+export const TEC_EAST_ALT = ["030", "050", "070", "090"];
+
+export const jetTypes = ["CRJ7", "CRJ9", "CRJX", "B737", "B738", "B739", "B38M", "A220", "A319", "A320", "A321", "A20N", "A21N", "E135", "E145", "E190"];
+
+export const DEST_TO_DIRECTION_MAP: Record<string, "west" | "east" | undefined> = {
+    //H
+    "KBWI": "west",
+    "KCLE": "west",
+    "KCLT": "west",
+    "KCVG": "west",
+    "KDCA": "west",
+    "KDTW": "west",
+    "KEWR": "west",
+    "KHPN": "west",
+    "KIAD": "west",
+    "KJFK": "west",
+    "KLGA": "west",
+    "KMCO": "west",
+    "KMIA": "west",
+    "KMSP": "west",
+    "KORD": "west",
+    "KPBI": "west",
+    "KPHL": "west",
+    "KPIT": "west",
+    "KRDU": "west",
+    "KRSW": "west",
+    "KSRQ": "west",
+    "KTPA": "west",
+    //TEC
+    "KACK": "west",
+    "KALB": "west",
+    "KBDL": "west",
+    "KBDR": "west",
+    "KBED": "west",
+    "KBOS": "west",
+    "KDXR": "west",
+    "KFRG": "west",
+    "KGON": "west",
+    "KHFD": "west",
+    "KHVN": "west",
+    "KHYA": "west",
+    "KISP": "west",
+    "KMVY": "west",
+    "KORH": "west",
+    "KOWD": "west",
+    "KOXC": "west",
+    "KPNE": "west",
+    "KPVC": "west",
+    "KPVD": "west",
+    "KSWF": "west"
+};
 
 let VFRFlightsToSpawn: PartialFlightPlanWithRequests[] = [];
 
@@ -98,6 +157,7 @@ export function makeNewFlight(parkingSpot: ParkingSpot, prefRoutes: PrefRouteDet
 export function makeNewAirlineFlight(parkingSpot: ParkingSpot, prefRoutes: PrefRouteDetails): FlightPlan {
     const type = getRandomJetType();
     const prefRoute = getRandomRoute(prefRoutes.highRoutes);
+    
     return buildDefaultAttributes(
         buildIFRWithPushBackRequests(
             {
@@ -109,13 +169,14 @@ export function makeNewAirlineFlight(parkingSpot: ParkingSpot, prefRoutes: PrefR
                 departure: "KPWM",
                 destination: `K${prefRoute.destination}`,
                 speed: getRandomJetSpeed(),
-                altitude: getRandomJetAltitude(),
-                route: prefRoute.route.substring(4, prefRoute.route.length - 4),
+                altitude: getRandomIFRAltitude(prefRoute),
+                route: prefRoute.route,
                 remarks: "",
                 size: 1.2,
                 positionX: parkingSpot.x,
                 positionY: parkingSpot.y,
                 rotation: parkingSpot.rotation,
+                routeType: "H",
                 created: true
             }, parkingSpot.pushbackIntoRamp as boolean, parkingSpot.location
         ), parkingSpot
@@ -164,7 +225,8 @@ function buildClearanceRequest(flightPlan: PartialFlightPlan): AircraftRequest {
             priority: 1,
             callsign: flightPlan.callsign,
             nextRequestDelay: 210000 + Math.floor(Math.random() * 120000)
-        }
+        },
+        nextStatus: "clearedIFR"
     }
 }
 
@@ -216,11 +278,13 @@ function buildFlightFollowingVFRDepartureRequest(flightPlan: PartialFlightPlan):
 }
 
 function buildVFRDepartureRequest(flightPlan: PartialFlightPlan, flightFollowing: boolean): PartialFlightPlanWithRequests {
+    const direction = getRandomDepartureDirection();
+    const altitude = getRandomVFRAltitude(direction);
     return {
         ...flightPlan,
         requests: [
             {
-                requestMessage: `Type ${flightPlan.actualAircraftType} at the north apron with A, request VFR departure${flightFollowing ? " with flight following" : ""} to the ${getRandomDepartureDirection()}${flightFollowing ? " at " + getRandomVFRAltitude() : ", negative flight following"}`,
+                requestMessage: `Type ${flightPlan.actualAircraftType} at the north apron with A, request VFR departure${flightFollowing ? " with flight following" : ""} to the ${direction}${flightFollowing ? " at " + altitude : ", negative flight following"}`,
                 responseMessage: `Maintain VFR at or below 2500, departure 119.75, squawk ${flightPlan.squawk}`,
                 priority: 1,
                 callsign: flightPlan.callsign,
@@ -275,7 +339,6 @@ function buildRandomFlightNumber(){
 }
 
 function getRandomJetType() {
-    const jetTypes = ["CRJ7", "CRJ9", "CRJX", "B737", "B738", "B739", "B38M", "A220", "A319", "A320", "A321", "A20N", "A21N", "E135", "E145", "E190"];
     return jetTypes[Math.floor(Math.random() * jetTypes.length)];
 }
 
@@ -285,21 +348,66 @@ function getRandomGAType() {
 }
 
 function getRandomRoute(prefRoutes: PrefRoute[]) {
-    return prefRoutes[Math.floor(Math.random() * prefRoutes.length)];
+    const prefRoute = prefRoutes[Math.floor(Math.random() * prefRoutes.length)];
+    let routeString = prefRoute.route.substring(4, prefRoute.route.length - 4);
+
+    if(Math.random() > 0.75){
+        const random = Math.random();
+        if(random < 0.33){
+            const blankRoutes = ["IFR DIRECT", "DIRECT", ""]
+            routeString = blankRoutes[Math.floor(Math.random() * blankRoutes.length)];
+        } else if(random >= 0.33 && random < 0.44) {
+            const otherRoutes = prefRoutes.filter(route => route.destination !== prefRoute.destination);
+            const randomRoute = otherRoutes[Math.floor(Math.random() * otherRoutes.length)];
+            routeString = randomRoute.route.substring(4, randomRoute.route.length - 4);
+        } else {
+            const splitRoute = routeString.split(" ")
+            const numElementsToDrop = Math.floor(Math.random() * Math.ceil(splitRoute.length / 2));
+            if(Math.random() < 0.5){
+                splitRoute.splice(splitRoute.length - numElementsToDrop - 1);
+            } else {
+                splitRoute.splice(0, numElementsToDrop);
+            }
+            routeString = splitRoute.join(" ");
+        }
+    }
+
+    return {
+        ...prefRoute,
+        route: routeString
+    }
 }
 
-function getRandomJetAltitude() {
-    const minValue = 25;
-    const maxValue = 35;
-    const selectedValue = minValue + Math.floor(Math.random() * (maxValue - minValue));
-    return `${selectedValue}0`;
+function getRandomIFRAltitude(prefRoute: PrefRoute) {
+    if(prefRoute.type === "TEC"){
+        if(Math.random() < 0.75){
+            const index = Math.floor(Math.random() * TEC_WEST_ALT.length);
+            return TEC_WEST_ALT[index];
+        }
+        if(Math.random() < 0.5){
+            const index = Math.floor(Math.random() * TEC_EAST_ALT.length);
+            return TEC_EAST_ALT[index];
+        }
+        const index = Math.floor(Math.random() * HIGH_WEST_ALT.length);
+        return HIGH_WEST_ALT[index];
+    }
+
+    if(Math.random() < 0.75){
+        const index = Math.floor(Math.random() * HIGH_WEST_ALT.length);
+        return HIGH_WEST_ALT[index];
+    }
+    const index = Math.floor(Math.random() * HIGH_EAST_ALT.length);
+    return HIGH_EAST_ALT[index];
 }
 
-function getRandomVFRAltitude() {
-    const minValue = 3;
-    const maxValue = 9;
-    const selectedValue = minValue + Math.floor(Math.random() * (maxValue - minValue));
-    return `0${selectedValue}5`;
+function getRandomVFRAltitude(direction: string) {
+    let start = 3;
+    if(direction.includes("west")){
+        start = 4;
+    }
+    
+    const selectedValue = start + (Math.floor(Math.random() * 4) * 2);
+    return `${selectedValue}500`;
 }
 
 function buildRandomNNumber(){

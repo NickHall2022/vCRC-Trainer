@@ -10,6 +10,7 @@ import { PrefRoutesProvider } from './providers/PrefRoutesProvider';
 import { ParkingSpotProvider } from './providers/ParkingSpotProvider';
 import Welcome from './components/Menus/Welcome';
 import { DifficultyProvider } from './providers/DifficultyProvider';
+import { MistakeProvider } from './providers/MistakeProvider';
 
 
 function App() {
@@ -44,13 +45,15 @@ function App() {
       <PrefRoutesProvider loadSilently={false}>
         <ParkingSpotProvider>
           <FlightPlanProvider>
-            <StripsProvider>
-              <MessagesProvider>
-                <SimulationProvider>
-                  <CGgroundPage/>
-                </SimulationProvider>
-              </MessagesProvider>
-            </StripsProvider>
+            <MistakeProvider>
+              <StripsProvider>
+                <MessagesProvider>
+                  <SimulationProvider>
+                    <CGgroundPage/>
+                  </SimulationProvider>
+                </MessagesProvider>
+              </StripsProvider>
+            </MistakeProvider>
           </FlightPlanProvider>
         </ParkingSpotProvider>
       </PrefRoutesProvider>

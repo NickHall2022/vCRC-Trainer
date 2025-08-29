@@ -28,7 +28,7 @@ function Help({setHelpOpen} : Props) {
                 
                 <ul>
                     <li>
-                        <code style={{border: "1px solid #999", borderRadius: 3, padding: "2px"}}><b>Left Click</b></code> on a plane to issue it a command
+                        <code style={{border: "1px solid #999", borderRadius: 3, padding: "2px"}}><b>Left Click</b></code> on a plane or its message to issue it a command
                     </li>
                     <li>
                         <code style={{border: "1px solid #999", borderRadius: 3, padding: "2px"}}><b>CTRL + Click</b></code> on a plane to open its flight plan

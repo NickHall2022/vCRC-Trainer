@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import type { Updater } from "use-immer";
 
-export type FlightStatus = "ramp" | "pushback" | "taxi" | "departing" | "departed";
+export type FlightStatus = "ramp" | "clearedIFR" | "pushback" | "taxi" | "departing" | "departed";
 
 export type FlightPlan = {
     callsign: string;
@@ -22,6 +22,7 @@ export type FlightPlan = {
     positionY: number;
     rotation: number;
     printCount: number;
+    routeType?: "TEC" | "H" | "VFR"
     requests: AircraftRequest[];
     canSendRequestTime: number;
     pushbackLocation: { x: number, y: number};
@@ -159,13 +160,17 @@ export type DifficultyDetails = {
     setDifficulty: Dispatch<SetStateAction<number>>
 }
 
-export type MistakeType = "stripBox" | "badRoute" | "badAlt" | "badEquipment" | "stripMovement" | "stripHandoff" | "aircraftHandoff" | "readbackIFR" | "taxiVFR";
+export type MistakeType = "stripBox" | "badRoute" | "IFRAltFormat" | "VFRAltFormat" | "badIFRAlt" | "badVFRAlt" | "badEquipment" | 
+    "stripHandoff" | "aircraftHandoff" | "readbackIFR" | "taxiVFR";
 
 export type Mistake = {
     type: MistakeType;
+    details?: string;
+    secondaryDetails?: string;
 }
 
 export type MistakeDetails = {
     mistakes: Mistake[];
     addMistake: (type: MistakeType) => void;
+    reviewClearance: (callsign: string) => void;
 }

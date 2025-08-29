@@ -8,11 +8,13 @@ import { distance, taxiways } from "../utils/taxiways";
 import { useStrips } from "../hooks/useStrips";
 import { useParkingSpots } from "../hooks/useParkingSpots";
 import { useDifficulty } from "../hooks/useDifficulty";
+import { useMistakes } from "../hooks/useMistakes";
 
 export function SimulationProvider({ children }: { children: ReactNode }){
     const [requests, setRequests] = useImmer<AircraftRequest[]>([]);
     const [paused, setPaused] = useImmer(false);
     const { difficulty } = useDifficulty();
+    const { reviewClearance } = useMistakes();
 
     const { flightPlans, removeFirstRequest, setNextRequestTime, setPlanePosition, setPlaneStatus, deleteFlightPlan, spawnNewFlight } = useFlightPlans();
     const { releaseSpot } = useParkingSpots();
@@ -190,6 +192,8 @@ export function SimulationProvider({ children }: { children: ReactNode }){
             if(flight){
                 releaseSpot(flight.parkingSpotId);
             }
+        } else if(completedRequest.nextStatus === "clearedIFR"){
+            reviewClearance(callsign);
         }
 
         if(completedRequest.nextStatus){

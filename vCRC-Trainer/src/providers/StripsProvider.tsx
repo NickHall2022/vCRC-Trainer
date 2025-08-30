@@ -14,7 +14,7 @@ export function StripsProvider({ children }: { children: ReactNode }){
     
     const [strips, setStrips] = useImmer<AbstractStrip[]>((): AbstractStrip[] => {
         const flightStrips: StripData[] = flightPlans.filter(flightPlan => flightPlan.created).map(flightPlan => {
-            return {...flightPlan, bayName: "printer" as BayName, id: uuidv4(), offset: false, type: "strip"};
+            return {...flightPlan, bayName: "printer" as BayName, id: uuidv4(), offset: false, type: "strip", box10: "", box12: ""};
         });
         const dividers: DividerData[] = [
             {
@@ -62,7 +62,9 @@ export function StripsProvider({ children }: { children: ReactNode }){
             bayName: "printer",
             id: uuidv4(),
             offset: false,
-            type: "strip"
+            type: "strip",
+            box10: "",
+            box12: ""
         });
     }
 

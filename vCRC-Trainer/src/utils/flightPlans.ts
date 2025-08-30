@@ -8,6 +8,9 @@ export const VALID_EAST_ALT = ["030", "050", "070", "090", "110", "130", "150", 
 export const HIGH_WEST_ALT = ["200", "220", "240", "260", "280", "300", "320", "340", "360", "380", "400", "430"];
 export const HIGH_EAST_ALT = ["210", "230", "250", "270", "290", "310", "330", "350", "370", "390", "410"];
 
+const SPAWNABLE_HIGH_WEST_ALT = ["220", "240", "260", "280", "300", "320", "340", "360", "380"];
+const SPAWNABLE_HIGH_EAST_ALT = ["230", "250", "270", "290", "310", "330", "350", "370"];
+
 export const TEC_WEST_ALT = ["040", "060", "080", "100"];
 export const TEC_EAST_ALT = ["030", "050", "070", "090"];
 
@@ -143,7 +146,8 @@ export function makeEmptyFlightPlan(): FlightPlan {
         },
         status: "ramp",
         created: false,
-        parkingSpotId: ""
+        parkingSpotId: "",
+        routeType: "VFR"
     }
 }
 
@@ -193,7 +197,8 @@ export function makeNewVFRFlight(parkingSpot: ParkingSpot): FlightPlan {
         ...buildDefaultAttributes(newFlight, parkingSpot),
         positionX: parkingSpot.x,
         positionY: parkingSpot.y,
-        rotation: parkingSpot.rotation
+        rotation: parkingSpot.rotation,
+        printCount: 0
     }
 }
 
@@ -220,6 +225,7 @@ function buildClearanceRequest(flightPlan: PartialFlightPlan): AircraftRequest {
             responseMessage: "Will call for pushback",
             reminder: {
                 message: "Ground, did you copy our readback?",
+                type: "readbackIFR",
                 sendDelay: 20000,
             },
             priority: 1,
@@ -284,7 +290,7 @@ function buildVFRDepartureRequest(flightPlan: PartialFlightPlan, flightFollowing
         ...flightPlan,
         requests: [
             {
-                requestMessage: `Type ${flightPlan.actualAircraftType} at the north apron with A, request VFR departure${flightFollowing ? " with flight following" : ""} to the ${direction}${flightFollowing ? " at " + altitude : ", negative flight following"}`,
+                requestMessage: `Type ${flightPlan.actualAircraftType} at the north apron with A, request VFR departure${flightFollowing ? " with flight following" : ""} to the ${direction} at ${altitude}${flightFollowing ? "" : ", negative flight following"}`,
                 responseMessage: `Maintain VFR at or below 2500, departure 119.75, squawk ${flightPlan.squawk}`,
                 priority: 1,
                 callsign: flightPlan.callsign,
@@ -293,6 +299,7 @@ function buildVFRDepartureRequest(flightPlan: PartialFlightPlan, flightFollowing
                     responseMessage: "Runway 29, taxi via C, A, cross runway 36",
                     reminder: {
                         message: "Ready to taxi",
+                        type: "taxiVFR",
                         sendDelay: 20000,
                     },
                     priority: 1,
@@ -302,7 +309,9 @@ function buildVFRDepartureRequest(flightPlan: PartialFlightPlan, flightFollowing
                 }
             }
         ],
-        canSendRequestTime: 0
+        requestedAltitude: altitude,
+        canSendRequestTime: 0,
+        routeType: flightFollowing ? "VFRFF" : "VFR"
     }
 }
 
@@ -319,7 +328,8 @@ function buildVFRPatternRequest(flightPlan: PartialFlightPlan): PartialFlightPla
                 nextRequestDelay: 0
             }
         ],
-        canSendRequestTime: 0
+        canSendRequestTime: 0,
+        routeType: "pattern"
     }
 }
 
@@ -384,20 +394,42 @@ function getRandomIFRAltitude(prefRoute: PrefRoute) {
             const index = Math.floor(Math.random() * TEC_WEST_ALT.length);
             return TEC_WEST_ALT[index];
         }
-        if(Math.random() < 0.5){
+        const random = Math.random();
+        if(random < 0.33){
             const index = Math.floor(Math.random() * TEC_EAST_ALT.length);
             return TEC_EAST_ALT[index];
         }
-        const index = Math.floor(Math.random() * HIGH_WEST_ALT.length);
-        return HIGH_WEST_ALT[index];
+        if(random >= 0.33 && random < 0.66){
+            const index = Math.floor(Math.random() * SPAWNABLE_HIGH_WEST_ALT.length);
+            return SPAWNABLE_HIGH_WEST_ALT[index];
+        }
+        if(Math.random() < 0.5){
+            const index = Math.floor(Math.random() * TEC_WEST_ALT.length);
+            return `${TEC_WEST_ALT[index]}00`;
+        }
+        const index = Math.floor(Math.random() * TEC_WEST_ALT.length);
+        return `VFR/${TEC_WEST_ALT[index]}`;
     }
 
     if(Math.random() < 0.75){
-        const index = Math.floor(Math.random() * HIGH_WEST_ALT.length);
-        return HIGH_WEST_ALT[index];
+        const index = Math.floor(Math.random() * SPAWNABLE_HIGH_WEST_ALT.length);
+        return SPAWNABLE_HIGH_WEST_ALT[index];
     }
-    const index = Math.floor(Math.random() * HIGH_EAST_ALT.length);
-    return HIGH_EAST_ALT[index];
+    const random = Math.random();
+    if(random < 0.33){
+        const index = Math.floor(Math.random() * SPAWNABLE_HIGH_EAST_ALT.length);
+        return SPAWNABLE_HIGH_EAST_ALT[index];
+    }
+    if(random >= 0.33 && random < 0.66){
+        const index = Math.floor(Math.random() * SPAWNABLE_HIGH_WEST_ALT.length);
+        return `FL${SPAWNABLE_HIGH_WEST_ALT[index]}`;
+    }
+    if(Math.random() < 0.5){
+        const index = Math.floor(Math.random() * SPAWNABLE_HIGH_WEST_ALT.length);
+        return `${SPAWNABLE_HIGH_WEST_ALT[index]}00`;
+    }
+    const index = Math.floor(Math.random() * SPAWNABLE_HIGH_WEST_ALT.length);
+    return `VFR/${SPAWNABLE_HIGH_WEST_ALT[index]}`;
 }
 
 function getRandomVFRAltitude(direction: string) {
@@ -477,6 +509,7 @@ function createPartialVFRFlightPlan() : PartialFlightPlan {
         created: false,
         positionX: 0,
         positionY: 0,
-        rotation: 0
+        rotation: 0,
+        routeType: "VFR"
     };
 }

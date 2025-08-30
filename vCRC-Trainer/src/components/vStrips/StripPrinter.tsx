@@ -78,7 +78,9 @@ export function StripPrinter({setDraggedStrip, handleStripInsert, printerOpen, s
             type: "blank",
             id: uuidv4(),
             bayName: "printer",
-            offset: false
+            offset: false,
+            box10: "",
+            box12: ""
         })
     }
 

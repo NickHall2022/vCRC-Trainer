@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useImmer } from "use-immer";
 import type { FlightPlan, Mistake, MistakeDetails, MistakeType } from "../types/common";
 import { MistakeContext } from "../hooks/useMistakes";
@@ -11,8 +11,7 @@ export function MistakeProvider({ children }: { children: ReactNode }){
     const [mistakes, setMistakes] = useImmer<Mistake[]>([]);
     const { flightPlans } = useFlightPlans();
     const prefRoutes = usePrefRoutes();
-
-    console.log(mistakes)
+    const [newMistake, setNewMistake] = useState(false);
 
     function addMistake(type: MistakeType, details?: string, secondaryDetails?: string){
         setMistakes(draft => {
@@ -21,7 +20,8 @@ export function MistakeProvider({ children }: { children: ReactNode }){
                 details,
                 secondaryDetails
             })
-        })
+        });
+        setNewMistake(true);
     }
 
     function reviewClearance(callsign: string){
@@ -71,10 +71,62 @@ export function MistakeProvider({ children }: { children: ReactNode }){
         }
     }
 
+    function reviewVFRDeparture(callsign: string){
+        const flightPlan = flightPlans.find(flight => flight.callsign === callsign);
+        if(!flightPlan){
+            return;
+        }
+        reviewVFRAircraftType(flightPlan)
+        reviewVFRRoute(flightPlan);
+        reviewVFRAltitude(flightPlan);
+        reviewVFRRemarks(flightPlan);
+    }
+
+    function reviewVFRAircraftType(flightPlan: FlightPlan){
+        if(flightPlan.aircraftType !== flightPlan.actualAircraftType){
+            addMistake("badVFRAircraft", flightPlan.aircraftType, `${flightPlan.callsign}(${flightPlan.actualAircraftType})`)
+        }
+    }
+
+    function reviewVFRRoute(flightPlan: FlightPlan){
+        if(flightPlan.route.length === 0){
+            addMistake("badVFRRoute", flightPlan.callsign);
+        }
+    }
+
+    function reviewVFRAltitude(flightPlan: FlightPlan){
+        const regex = /VFR\/\d{3}/;
+        if(!regex.test(flightPlan.altitude) || flightPlan.altitude.length !== 7 || flightPlan.altitude.charAt(flightPlan.altitude.length - 1) !== "5"){
+            return addMistake("VFRAltFormat", flightPlan.altitude);
+        }
+
+        if(!flightPlan.requestedAltitude){
+            return;
+        }
+
+        let requestedAltitude = `${Number(flightPlan.requestedAltitude) / 100}`;
+        if(requestedAltitude.length === 2){
+            requestedAltitude = `0${requestedAltitude}`;
+        }
+        requestedAltitude = `VFR/${requestedAltitude}`;
+        if(requestedAltitude !== flightPlan.altitude){
+            return addMistake("badVFRAlt", flightPlan.altitude, `${flightPlan.callsign}(requested ${flightPlan.requestedAltitude})`);
+        }
+    }
+
+    function reviewVFRRemarks(flightPlan: FlightPlan){
+        if((flightPlan.routeType === "VFRFF" && !flightPlan.remarks.toUpperCase().includes("FF")) || (flightPlan.routeType === "VFR" && flightPlan.remarks.includes("FF"))){
+            addMistake("badVFRFF", flightPlan.remarks, flightPlan.callsign);
+        }
+    }
+
     const value: MistakeDetails = {
         mistakes,
         addMistake,
-        reviewClearance
+        reviewClearance,
+        newMistake,
+        setNewMistake,
+        reviewVFRDeparture
     }
 
     return <MistakeContext.Provider value={value}>{children}</MistakeContext.Provider>

@@ -7,11 +7,13 @@ import HelpIcon from '@mui/icons-material/Help';
 import ErrorIcon from '@mui/icons-material/Error';
 import { useSimulation } from "../hooks/useSimulation";
 import MistakeTracker from "../components/Menus/MistakeTracker";
+import { useMistakes } from "../hooks/useMistakes";
 
 export function CGgroundPage() {
     const [helpOpen, setHelpOpen] = useState(false);
     const [mistakesOpen, setMistakesOpen] = useState(false);
     const { setPaused } = useSimulation();
+    const { newMistake, setNewMistake } = useMistakes();
 
     function handleHelpClicked(){
         setHelpOpen(true);
@@ -21,6 +23,7 @@ export function CGgroundPage() {
     function handleMistakesClicked(){
         setMistakesOpen(true);
         setPaused(true);
+        setNewMistake(false);
     }
 
     if(helpOpen){
@@ -41,8 +44,8 @@ export function CGgroundPage() {
                     <CabViewWindow></CabViewWindow>
                 </Grid>
             </Grid>
+            {newMistake && <div style={{position: "fixed", zIndex: 4, right: "250px", bottom: "35px",color: "red"}}><ErrorIcon ></ErrorIcon></div>}
             <button onClick={handleMistakesClicked} style={{backgroundColor: "#444", padding: "8px", border: "1px solid white", position: "fixed", zIndex: 3, right: "110px", bottom: "15px"}}>
-                <ErrorIcon sx={{fontSize: "20px", position: "relative", top: "3px"}}></ErrorIcon>
                 &nbsp;
                 <span style={{fontSize: "20px"}}>Mistake Tracker</span>
             </button>

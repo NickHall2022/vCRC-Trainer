@@ -67,6 +67,7 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
             const modifyIndex = draft.findIndex(flightPlan => flightPlan.callsign === callsign);
             if(modifyIndex !== -1){
                 draft[modifyIndex].status = status;
+                draft[modifyIndex].statusChangedTime = Date.now();
             }
         });
     }

@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import type { Updater } from "use-immer";
 
-export type FlightStatus = "ramp" | "clearedIFR" | "pushback" | "taxi" | "departing" | "departed";
+export type FlightStatus = "ramp" | "clearedIFR" | "pushback" | "taxi" | "departing" | "handedOff" | "handedOffReminded" | "departed";
 
 export type FlightPlan = {
     callsign: string;
@@ -9,6 +9,7 @@ export type FlightPlan = {
     squawk: string;
     aircraftType: string;
     actualAircraftType: string;
+    requestedAltitude?: string;
     equipmentCode: string;
     departure: string;
     destination: string;
@@ -22,16 +23,17 @@ export type FlightPlan = {
     positionY: number;
     rotation: number;
     printCount: number;
-    routeType?: "TEC" | "H" | "VFR"
+    routeType: "TEC" | "H" | "pattern" | "VFR" | "VFRFF";
     requests: AircraftRequest[];
     canSendRequestTime: number;
     pushbackLocation: { x: number, y: number};
     status: FlightStatus;
+    statusChangedTime?: number;
     created: boolean;
     parkingSpotId: string;
 }
 
-export type PartialFlightPlan = Omit<FlightPlan, "requests" | "canSendRequestTime" | "printCount" | "CID" | "plannedTime" | "pushbackLocation" | "status" | "parkingSpotId">;
+export type PartialFlightPlan = Omit<FlightPlan, "requests" | "canSendRequestTime" | "printCount" | "CID" | "plannedTime" | "pushbackLocation" | "status" | "parkingSpotId" | "routeTpye">;
 export type PartialFlightPlanWithRequests = PartialFlightPlan & { requests: AircraftRequest[], canSendRequestTime: number };
 
 export type BayName = "ground" | "local" | "spare" | "printer"
@@ -44,8 +46,8 @@ export type AbstractStrip = {
 }
 
 export type StripData = AbstractStrip & FlightPlan & {
-    box10?: string;
-    box12?: string;
+    box10: string;
+    box12: string;
 }
 
 export type DividerData = AbstractStrip & {
@@ -92,6 +94,8 @@ export type MessagesDetails = {
     sendMessage: (content: string, callsign: string, type: MessageType) => void;
 }
 
+export type RequestReminderType = "readbackIFR" | "taxiVFR" | "aircraftHandoff";
+
 export type AircraftRequest = {
     callsign: string;
     priority: number;
@@ -103,6 +107,7 @@ export type AircraftRequest = {
     reminder?: {
         message: string;
         sendDelay: number;
+        type: RequestReminderType;
         sendTime?: number;
     }
 }
@@ -160,8 +165,9 @@ export type DifficultyDetails = {
     setDifficulty: Dispatch<SetStateAction<number>>
 }
 
-export type MistakeType = "stripBox" | "badRoute" | "IFRAltFormat" | "VFRAltFormat" | "badIFRAlt" | "badVFRAlt" | "badEquipment" | 
-    "stripHandoff" | "aircraftHandoff" | "readbackIFR" | "taxiVFR";
+export type MistakeType = "stripBox" | "badRoute" | "IFRAltFormat" | "badIFRAlt" | "badEquipment" | 
+    "stripHandoff" | "aircraftHandoff" | "readbackIFR" | "taxiVFR" | "VFRAltFormat" | "badVFRAlt" | 
+    "badVFRRoute" | "badVFRAircraft" | "badVFRFF";
 
 export type Mistake = {
     type: MistakeType;
@@ -171,6 +177,9 @@ export type Mistake = {
 
 export type MistakeDetails = {
     mistakes: Mistake[];
-    addMistake: (type: MistakeType) => void;
+    addMistake: (type: MistakeType, details?: string, secondaryDetails?: string) => void;
     reviewClearance: (callsign: string) => void;
+    newMistake: boolean;
+    setNewMistake: Dispatch<SetStateAction<boolean>>
+    reviewVFRDeparture: (callsign: string) => void;
 }

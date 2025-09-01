@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import type { FlightPlan, FlightStatus } from "../types/common";
 import { FlightPlanContext } from "../hooks/useFlightPlans";
-import { makeEmptyFlightPlan, makeNewFlight } from "../utils/flightPlans";//createStartingFlightPlans
+import { makeEmptyFlightPlan, makeNewFlight } from "../utils/flightPlans";
 import { useImmer } from "use-immer";
 import { usePrefRoutes } from "../hooks/usePrefRoutes";
 import { useParkingSpots } from "../hooks/useParkingSpots";
@@ -40,11 +40,11 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
         });
     }
 
-    function setNextRequestTime(callsign: string, canSendRequestTime: number){
+    function setNextRequestTime(callsign: string, canSendRequestTime: number, timer: number){
         setFlightPlans((draft) => {
             const modifyIndex = draft.findIndex(flightPlan => flightPlan.callsign === callsign);
             if(modifyIndex !== -1){
-                draft[modifyIndex].canSendRequestTime = Date.now() + canSendRequestTime;
+                draft[modifyIndex].canSendRequestTime = timer + canSendRequestTime;
             }
         });
     }
@@ -62,12 +62,12 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
         });
     }
 
-    function setPlaneStatus(callsign: string, status: FlightStatus){
+    function setPlaneStatus(callsign: string, status: FlightStatus, timer: number){
         setFlightPlans((draft) => {
             const modifyIndex = draft.findIndex(flightPlan => flightPlan.callsign === callsign);
             if(modifyIndex !== -1){
                 draft[modifyIndex].status = status;
-                draft[modifyIndex].statusChangedTime = Date.now();
+                draft[modifyIndex].statusChangedTime = timer;
             }
         });
     }
@@ -82,7 +82,9 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
     }
 
     function spawnNewFlight(): FlightPlan | undefined {
-        const flightType = Math.random() < 0.7 ? "airline" : "ga"
+        const random = Math.random();
+        const flightType = random < 0.5 ? "airline" : (random < 0.7 ? "TEC" : "ga");
+
         const parkingSpot = reserveSpot(flightType);
         if(parkingSpot){
             const newFlightPlan = makeNewFlight(parkingSpot, prefRoutes);

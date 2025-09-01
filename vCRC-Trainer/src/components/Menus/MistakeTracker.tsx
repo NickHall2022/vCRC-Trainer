@@ -2,6 +2,7 @@ import { Box } from "@mui/material";
 import type { Dispatch, SetStateAction } from "react";
 import { useSimulation } from "../../hooks/useSimulation";
 import MistakeList from "./MistakeList";
+import { useMistakes } from "../../hooks/useMistakes";
 
 type Props = {
     setOpen: Dispatch<SetStateAction<boolean>>;
@@ -9,10 +10,12 @@ type Props = {
 
 function MistakeTracker({setOpen} : Props) {
     const { setPaused } = useSimulation();
+    const { setNewMistakes } = useMistakes();
 
     function handleResumeClicked(){
         setOpen(false);
         setPaused(false);
+        setNewMistakes(draft => draft = []);
     }
 
     return (

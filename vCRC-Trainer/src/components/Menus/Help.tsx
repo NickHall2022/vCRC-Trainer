@@ -34,6 +34,9 @@ function Help({setHelpOpen} : Props) {
                         <code style={{border: "1px solid #999", borderRadius: 3, padding: "2px"}}><b>CTRL + Click</b></code> on a plane to open its flight plan
                     </li>
                     <li>
+                        <code style={{border: "1px solid #999", borderRadius: 3, padding: "2px"}}><b>Click + Drag</b></code> on a datablock to move it around
+                    </li>
+                    <li>
                         <code style={{border: "1px solid #999", borderRadius: 3, padding: "2px"}}><b>CTRL + F</b></code> to search flight plan by callsign
                     </li>
                     <li>

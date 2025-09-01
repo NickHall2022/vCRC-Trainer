@@ -29,6 +29,8 @@ export function MessageWindow(){
             return "rgb(0, 230, 0)";
         } else if(messageType === "system"){
             return "yellow"
+        } else if(messageType === "self"){
+            return "rgb(37, 212, 224)";
         }
         return "white";
     }
@@ -54,12 +56,12 @@ export function MessageWindow(){
     
     return (
         <Draggable nodeRef={draggableRef as RefObject<HTMLElement>} allowAnyClick={true} handle=".handle">
-            <div ref={draggableRef} style={{width: "600px", height: "205px", backgroundColor: "#090909", position: "absolute", top: "77%", left: "900px", zIndex: 3}}>
+            <div ref={draggableRef} style={{width: "600px", height: "250px", backgroundColor: "#090909", position: "absolute", top: "70%", left: "900px", zIndex: 3}}>
                 <div className="handle" style={{backgroundColor: "#151515", margin: "0px", marginBottom: "2px"}}>
                     <p style={{margin: "0px", marginLeft: "4px", fontSize: "11px"}}>Messages</p>
                 </div>
                 <div style={{lineHeight: "16px", fontSize: "15px"}}>
-                    <List sx={{padding: "0px", paddingLeft: "5px", paddingRight: "5px", maxHeight: '180px', overflowY: "scroll", width: "590px",  position: "fixed" }}>
+                    <List sx={{padding: "0px", paddingLeft: "5px", paddingRight: "5px", maxHeight: '225px', overflowY: "scroll", width: "590px",  position: "fixed" }}>
                         {createMessageDisplay()}
                         <li ref={scrollRef}></li>
                     </List>

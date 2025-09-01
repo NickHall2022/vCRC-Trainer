@@ -13,7 +13,7 @@ export function CGgroundPage() {
     const [helpOpen, setHelpOpen] = useState(false);
     const [mistakesOpen, setMistakesOpen] = useState(false);
     const { setPaused } = useSimulation();
-    const { newMistake, setNewMistake } = useMistakes();
+    const { newMistakes } = useMistakes();
 
     function handleHelpClicked(){
         setHelpOpen(true);
@@ -23,7 +23,6 @@ export function CGgroundPage() {
     function handleMistakesClicked(){
         setMistakesOpen(true);
         setPaused(true);
-        setNewMistake(false);
     }
 
     if(helpOpen){
@@ -44,7 +43,7 @@ export function CGgroundPage() {
                     <CabViewWindow></CabViewWindow>
                 </Grid>
             </Grid>
-            {newMistake && <div style={{position: "fixed", zIndex: 4, right: "250px", bottom: "35px",color: "red"}}><ErrorIcon ></ErrorIcon></div>}
+            {newMistakes.length > 0 && <div style={{position: "fixed", zIndex: 4, right: "250px", bottom: "35px",color: "red"}}><ErrorIcon ></ErrorIcon></div>}
             <button onClick={handleMistakesClicked} style={{backgroundColor: "#444", padding: "8px", border: "1px solid white", position: "fixed", zIndex: 3, right: "110px", bottom: "15px"}}>
                 &nbsp;
                 <span style={{fontSize: "20px"}}>Mistake Tracker</span>

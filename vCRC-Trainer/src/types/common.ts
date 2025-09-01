@@ -61,9 +61,9 @@ export type FlightPlanDetails = {
     setSelectedFlightPlan: (callsign: string) => void;
     amendFlightPlan: (amendedFlightPlan: FlightPlan) => void
     removeFirstRequest: (callsign: string) => void;
-    setNextRequestTime: (callsign: string, canSendRequestTime: number) => void;
+    setNextRequestTime: (callsign: string, canSendRequestTime: number, timer: number) => void;
     setPlanePosition: (callsign: string, x: number, y: number, angle?: number) => void;
-    setPlaneStatus: (callsign: string, status: FlightStatus) => void;
+    setPlaneStatus: (callsign: string, status: FlightStatus, timer: number) => void;
     deleteFlightPlan: (callsign: string) => void;
     spawnNewFlight: () => FlightPlan | undefined;
 }
@@ -80,7 +80,7 @@ export type StripsDetails = {
     moveStripToBay: (stripToMove: AbstractStrip, bayName: BayName) => void;
 }
 
-export type MessageType = "system" | "ATC" | "radio";
+export type MessageType = "system" | "ATC" | "radio" | "self";
 
 export type Message = {
     callsign: string;
@@ -103,6 +103,7 @@ export type AircraftRequest = {
     requestMessage?: string;
     subsequentRequest?: AircraftRequest;
     nextRequestDelay: number;
+    atcMessage?: string;
     nextStatus?: FlightStatus;
     reminder?: {
         message: string;
@@ -151,9 +152,10 @@ export type ParkingSpot = {
     available: boolean;
     id: string;
     type: ParkingSpotType;
+    taxiInstruction?: string;
 }
 
-export type ParkingSpotType = "airline" | "ga";
+export type ParkingSpotType = "airline" | "ga" | "TEC";
 
 export type ParkingSpotMethods = {
     reserveSpot: (type: ParkingSpotType) => ParkingSpot | undefined;
@@ -167,7 +169,7 @@ export type DifficultyDetails = {
 
 export type MistakeType = "stripBox" | "badRoute" | "IFRAltFormat" | "badIFRAlt" | "badEquipment" | 
     "stripHandoff" | "aircraftHandoff" | "readbackIFR" | "taxiVFR" | "VFRAltFormat" | "badVFRAlt" | 
-    "badVFRRoute" | "badVFRAircraft" | "badVFRFF";
+    "badVFRAircraft" | "badVFRFF";
 
 export type Mistake = {
     type: MistakeType;
@@ -179,7 +181,7 @@ export type MistakeDetails = {
     mistakes: Mistake[];
     addMistake: (type: MistakeType, details?: string, secondaryDetails?: string) => void;
     reviewClearance: (callsign: string) => void;
-    newMistake: boolean;
-    setNewMistake: Dispatch<SetStateAction<boolean>>
+    newMistakes: MistakeType[];
+    setNewMistakes: Dispatch<SetStateAction<MistakeType[]>>
     reviewVFRDeparture: (callsign: string) => void;
 }

@@ -66,58 +66,6 @@ export const DEST_TO_DIRECTION_MAP: Record<string, "west" | "east" | undefined> 
 
 let VFRFlightsToSpawn: PartialFlightPlanWithRequests[] = [];
 
-// export function createStartingFlightPlans(prefRoutes: PrefRouteDetails): FlightPlan[] {
-//     const terminalJets = terminalJetParkingSpots.map(parkingSpot => {
-//         const type = getRandomJetType();
-//         const prefRoute = getRandomRoute(prefRoutes.highRoutes);
-//         return buildIFRWithPushBackRequests({
-//             callsign: `${parkingSpot.airline}${buildRandomFlightNumber()}`,
-//             squawk: buildRandomSquawk(),
-//             aircraftType: type,
-//             actualAircraftType: type,
-//             equipmentCode: getRandomJetEquipment(),
-//             departure: "KPWM",
-//             destination: `K${prefRoute.destination}`,
-//             speed: getRandomJetSpeed(),
-//             altitude: getRandomJetAltitude(),
-//             route: prefRoute.route.substring(4, prefRoute.route.length - 4),
-//             remarks: "",
-//             size: 1.2,
-//             positionX: parkingSpot.x,
-//             positionY: parkingSpot.y,
-//             rotation: parkingSpot.rotation,
-//             created: true
-//         }, parkingSpot.pushbackIntoRamp, parkingSpot.gate)
-//     });
-
-//     const gaPlanes = gaRampParkingSpots.map(parkingSpot => {
-//         const type = getRandomGAType();
-//         return buildVFRDepartureRequests({
-//             callsign: buildRandomNNumber(),
-//             squawk: buildRandomSquawk(),
-//             aircraftType: "",
-//             actualAircraftType: type,
-//             equipmentCode: "",
-//             departure: "",
-//             destination: "",
-//             speed: "",
-//             altitude: "",
-//             route: "",
-//             remarks: "",
-//             size: 0.8,
-//             positionX: parkingSpot.x,
-//             positionY: parkingSpot.y,
-//             rotation: parkingSpot.rotation,
-//             created: false
-//         })
-//     });
-
-//     return buildDefaultAttributes([
-//         ...terminalJets,
-//         ...gaPlanes
-//     ]);
-// }
-
 export function makeEmptyFlightPlan(): FlightPlan {
     return {
         callsign: "",
@@ -154,6 +102,8 @@ export function makeEmptyFlightPlan(): FlightPlan {
 export function makeNewFlight(parkingSpot: ParkingSpot, prefRoutes: PrefRouteDetails): FlightPlan {
     if(parkingSpot.type === "airline"){
         return makeNewAirlineFlight(parkingSpot, prefRoutes);
+    } else if(parkingSpot.type === "TEC"){
+        return makeNewTecFlight(parkingSpot, prefRoutes)
     }
     return makeNewVFRFlight(parkingSpot)
 }
@@ -187,7 +137,7 @@ export function makeNewAirlineFlight(parkingSpot: ParkingSpot, prefRoutes: PrefR
     )
 }
 
-export function makeNewVFRFlight(parkingSpot: ParkingSpot): FlightPlan {
+function makeNewVFRFlight(parkingSpot: ParkingSpot): FlightPlan {
     if(VFRFlightsToSpawn.length === 0){
         generateVFRFlightsToSpawn();
     }
@@ -202,11 +152,42 @@ export function makeNewVFRFlight(parkingSpot: ParkingSpot): FlightPlan {
     }
 }
 
+function makeNewTecFlight(parkingSpot: ParkingSpot, prefRoutes: PrefRouteDetails): FlightPlan {
+    const type = getRandomTecType();
+    const prefRoute = getRandomRoute(prefRoutes.tecRoutes);
+
+    const callsign = parkingSpot.airline ? `${parkingSpot.airline}${buildRandomFlightNumber()}` : buildRandomNNumber();
+    
+    return buildDefaultAttributes(
+        buildIFRWithoutPushBackRequests(
+            {
+                callsign,
+                squawk: buildRandomSquawk(),
+                aircraftType: type,
+                actualAircraftType: type,
+                equipmentCode: getRandomTecEquipment(),
+                departure: "KPWM",
+                destination: `K${prefRoute.destination}`,
+                speed: getRandomTecSpeed(),
+                altitude: getRandomIFRAltitude(prefRoute),
+                route: prefRoute.route,
+                remarks: "",
+                size: 0.8,
+                positionX: parkingSpot.x,
+                positionY: parkingSpot.y,
+                rotation: parkingSpot.rotation,
+                routeType: "TEC",
+                created: true
+            }, parkingSpot.location, parkingSpot.taxiInstruction
+        ), parkingSpot
+    )
+}
+
 function buildIFRWithPushBackRequests(flightPlan: PartialFlightPlan, intoRamp: boolean, location: string): PartialFlightPlanWithRequests {
     return {
         ...flightPlan,
         requests: [
-            buildClearanceRequest(flightPlan),
+            buildClearanceRequest(flightPlan, true),
             buildPusbackRequest(intoRamp, flightPlan, location),
             buildTaxiRequest(flightPlan)
         ],
@@ -214,23 +195,36 @@ function buildIFRWithPushBackRequests(flightPlan: PartialFlightPlan, intoRamp: b
     };
 }
 
-function buildClearanceRequest(flightPlan: PartialFlightPlan): AircraftRequest {
+function buildIFRWithoutPushBackRequests(flightPlan: PartialFlightPlan, location: string, taxiInstruction?: string): PartialFlightPlanWithRequests {
+    return {
+        ...flightPlan,
+        requests: [
+            buildClearanceRequest(flightPlan, false),
+            buildTaxiRequest(flightPlan, location, taxiInstruction)
+        ],
+        canSendRequestTime: 0
+    };
+}
+
+function buildClearanceRequest(flightPlan: PartialFlightPlan, withPushback: boolean): AircraftRequest {
     return {
         requestMessage: `Request IFR clearance to ${flightPlan.destination}`,
         responseMessage: `Cleared to ${flightPlan.destination}, squawk ${flightPlan.squawk}`,
         priority: 1,
         callsign: flightPlan.callsign,
         nextRequestDelay: 0,
+        atcMessage: `Clearance sent to ${flightPlan.callsign}`,
         subsequentRequest: {
-            responseMessage: "Will call for pushback",
+            responseMessage: withPushback ? "Will call for pushback" : "Will call for taxi",
             reminder: {
                 message: "Ground, did you copy our readback?",
                 type: "readbackIFR",
                 sendDelay: 20000,
             },
             priority: 1,
+            atcMessage: `Readback correct for ${flightPlan.callsign}`,
             callsign: flightPlan.callsign,
-            nextRequestDelay: 210000 + Math.floor(Math.random() * 120000)
+            nextRequestDelay: 180000 + Math.floor(Math.random() * 90000)
         },
         nextStatus: "clearedIFR"
     }
@@ -240,6 +234,7 @@ function buildPusbackRequest(intoRamp: boolean, flightPlan: PartialFlightPlan, g
     return {
         requestMessage: `Request pushback with A from gate ${gate}`,
         responseMessage: intoRamp ? "Pushback into the ramp at our discretion, will call for taxi" : "Pushback approved, will call for taxi",
+        atcMessage: `Push approved for ${flightPlan.callsign}`,
         priority: 1,
         callsign: flightPlan.callsign,
         nextRequestDelay: 180000 + Math.floor(Math.random() * 90000),
@@ -247,10 +242,11 @@ function buildPusbackRequest(intoRamp: boolean, flightPlan: PartialFlightPlan, g
     }
 }
 
-function buildTaxiRequest(flightPlan: PartialFlightPlan): AircraftRequest {
+function buildTaxiRequest(flightPlan: PartialFlightPlan, location?: string, taxiInstruction?: string): AircraftRequest {
     return {
-        requestMessage: "Ready for taxi",
-        responseMessage: "Runway 29, taxi via A, cross runway 36",
+        requestMessage: `Ready for taxi${location ? " with A from " + location: ""}`,
+        atcMessage: `Taxi instruction sent to ${flightPlan.callsign}`,
+        responseMessage: taxiInstruction ? taxiInstruction : "Runway 29, taxi via A, cross runway 36",
         priority: 2,
         callsign: flightPlan.callsign,
         nextRequestDelay: 0,
@@ -295,8 +291,10 @@ function buildVFRDepartureRequest(flightPlan: PartialFlightPlan, flightFollowing
                 priority: 1,
                 callsign: flightPlan.callsign,
                 nextRequestDelay: 0,
+                atcMessage: `VFR clearance sent to ${flightPlan.callsign}`,
                 subsequentRequest: {
                     responseMessage: "Runway 29, taxi via C, A, cross runway 36",
+                    atcMessage: `Taxi instruction sent to ${flightPlan.callsign}`,
                     reminder: {
                         message: "Ready to taxi",
                         type: "taxiVFR",
@@ -323,6 +321,7 @@ function buildVFRPatternRequest(flightPlan: PartialFlightPlan): PartialFlightPla
                 requestMessage: `Type ${flightPlan.actualAircraftType} at the north apron with A, request taxi for pattern work`,
                 responseMessage: `Squawk VFR, runway 29, taxi via C, A, cross runway 36`,
                 nextStatus: "taxi",
+                atcMessage: `Taxi instruction sent to ${flightPlan.callsign}`,
                 priority: 1,
                 callsign: flightPlan.callsign,
                 nextRequestDelay: 0
@@ -350,6 +349,11 @@ function buildRandomFlightNumber(){
 
 function getRandomJetType() {
     return jetTypes[Math.floor(Math.random() * jetTypes.length)];
+}
+
+function getRandomTecType() {
+    const tecTypes = ["C208", "BE58", "B350", "C414", "P212", "BN2P", "C408", "DHC6"];
+    return tecTypes[Math.floor(Math.random() * tecTypes.length)];
 }
 
 function getRandomGAType() {
@@ -405,7 +409,11 @@ function getRandomIFRAltitude(prefRoute: PrefRoute) {
         }
         if(Math.random() < 0.5){
             const index = Math.floor(Math.random() * TEC_WEST_ALT.length);
-            return `${TEC_WEST_ALT[index]}00`;
+            const alt = `${TEC_WEST_ALT[index]}00`;
+            if(alt.charAt(0) === "0"){
+                return alt.substring(1);
+            }
+            return alt;
         }
         const index = Math.floor(Math.random() * TEC_WEST_ALT.length);
         return `VFR/${TEC_WEST_ALT[index]}`;
@@ -468,11 +476,26 @@ function getRandomJetSpeed() {
     return `${selectedValue}`;
 }
 
+function getRandomTecSpeed() {
+    const minValue = 150;
+    const maxValue = 200;
+    const selectedValue = minValue + Math.floor(Math.random() * (maxValue - minValue));
+    return `${selectedValue}`;
+}
+
 function getRandomJetEquipment() {
     if(Math.random() < 0.75){
         return "L";
     }
-    const equipmentCodes = ["X", "G", "W", "P", "A", "D", "B"];
+    const equipmentCodes = ["X", "G", "W", "P", "A", "D", "B", "T", "U"];
+    return equipmentCodes[Math.floor(Math.random() * equipmentCodes.length)];
+}
+
+function getRandomTecEquipment() {
+    if(Math.random() < 0.75){
+        return "G";
+    }
+    const equipmentCodes = ["X", "L", "W", "P", "A", "D", "B", "T", "U"];
     return equipmentCodes[Math.floor(Math.random() * equipmentCodes.length)];
 }
 

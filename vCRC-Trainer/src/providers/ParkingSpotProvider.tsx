@@ -21,10 +21,23 @@ const AIRLINE_SPOTS: Omit<ParkingSpot, "available" | "id" | "type">[] = [
 
 const GA_SPOTS: Omit<ParkingSpot, "available" | "id" | "type">[] = [
     {x: 62.5, y: 34, rotation: 0, location: "north ramp"},
-    {x: 62.8, y: 32, rotation: 0, location: "north ramp"},
-    {x: 63.1, y: 30, rotation: 0, location: "north ramp"},
-    {x: 63.4, y: 28, rotation: 0, location: "north ramp"},
-    {x: 63.7, y: 26, rotation: 0, location: "north ramp"},
+    {x: 62.8, y: 32, rotation: 180, location: "north ramp"},
+    {x: 62.1, y: 30, rotation: 0, location: "north ramp"},
+    {x: 62.4, y: 28, rotation: 180, location: "north ramp"},
+    {x: 62.7, y: 26, rotation: 0, location: "north ramp"},
+]
+
+const TEC_SPOTS: Omit<ParkingSpot, "available" | "id" | "type">[] = [
+    {x: 61, y: 47.5, rotation: 70, location: "gate 1B", airline: "KAP"},
+    {x: 63, y: 46.5, rotation: 170, location: "gate 1A", airline: "KAP", taxiInstruction: "Runway 29, taxi via C, A, cross runway 36"},
+    {x: 63, y: 22, rotation: 0, location: "north ramp", taxiInstruction: "Runway 29, taxi via C, A, cross runway 36"},
+    {x: 63, y: 20, rotation: 180, location: "north ramp", taxiInstruction: "Runway 29, taxi via C, A, cross runway 36"},
+    {x: 63, y: 18, rotation: 0, location: "north ramp", taxiInstruction: "Runway 29, taxi via C, A, cross runway 36"},
+    {x: 63, y: 16, rotation: 180, location: "north ramp", taxiInstruction: "Runway 29, taxi via C, A, cross runway 36"},
+    {x: 75, y: 37, rotation: 270, location: "cargo ramp", airline: "FDX", taxiInstruction: "Runway 29, taxi via G, join runway 18, A"},
+    {x: 76.5, y: 37.5, rotation: 90, location: "cargo ramp", airline: "FDX", taxiInstruction: "Runway 29, taxi via G, join runway 18, A"},
+    {x: 78, y: 37, rotation: 270, location: "cargo ramp", airline: "WIG", taxiInstruction: "Runway 29, taxi via G, join runway 18, A"},
+    {x: 79.5, y: 37.5, rotation: 90, location: "cargo ramp", airline: "WIG", taxiInstruction: "Runway 29, taxi via G, join runway 18, A"},
 ]
 
 export function ParkingSpotProvider({ children }: { children: ReactNode }){
@@ -34,6 +47,9 @@ export function ParkingSpotProvider({ children }: { children: ReactNode }){
             }),
             ...GA_SPOTS.map(spot => {
                 return {...spot, available: true, id: uuidv4(), type: "ga" as ParkingSpotType}
+            }),
+            ...TEC_SPOTS.map(spot => {
+                return {...spot, available: true, id: uuidv4(), type: "TEC" as ParkingSpotType}
             })
         ]
     );

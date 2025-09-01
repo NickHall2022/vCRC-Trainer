@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { useImmer } from "use-immer";
 import type { FlightPlan, Mistake, MistakeDetails, MistakeType } from "../types/common";
 import { MistakeContext } from "../hooks/useMistakes";
@@ -11,7 +11,7 @@ export function MistakeProvider({ children }: { children: ReactNode }){
     const [mistakes, setMistakes] = useImmer<Mistake[]>([]);
     const { flightPlans } = useFlightPlans();
     const prefRoutes = usePrefRoutes();
-    const [newMistake, setNewMistake] = useState(false);
+    const [newMistakes, setNewMistakes] = useImmer<MistakeType[]>([]);
 
     function addMistake(type: MistakeType, details?: string, secondaryDetails?: string){
         setMistakes(draft => {
@@ -21,7 +21,7 @@ export function MistakeProvider({ children }: { children: ReactNode }){
                 secondaryDetails
             })
         });
-        setNewMistake(true);
+        setNewMistakes(draft => [...draft, type]);
     }
 
     function reviewClearance(callsign: string){
@@ -44,11 +44,17 @@ export function MistakeProvider({ children }: { children: ReactNode }){
         
         if(direction){
             if(direction === "west"){
-                if((flightPlan.routeType === "H" && HIGH_WEST_ALT.indexOf(flightPlan.altitude) === -1) || (flightPlan.routeType === "TEC" && TEC_WEST_ALT.indexOf(flightPlan.altitude) === -1)){
+                if(flightPlan.routeType === "H" && HIGH_WEST_ALT.indexOf(flightPlan.altitude) === -1){
                     return addMistake("badIFRAlt", flightPlan.altitude, flightPlan.destination)
                 }
-            } else if((flightPlan.routeType === "H" && HIGH_EAST_ALT.indexOf(flightPlan.altitude) === -1) || (flightPlan.routeType === "TEC" && TEC_EAST_ALT.indexOf(flightPlan.altitude) === -1)){
+                if(flightPlan.routeType === "TEC" && TEC_WEST_ALT.indexOf(flightPlan.altitude) === -1){
+                    return addMistake("badIFRAlt", flightPlan.altitude, `${flightPlan.destination}(TEC Route)`)
+                }
+            } else if(flightPlan.routeType === "H" && HIGH_EAST_ALT.indexOf(flightPlan.altitude) === -1){
                 return addMistake("badIFRAlt", flightPlan.altitude, flightPlan.destination)
+            }
+            if(flightPlan.routeType === "TEC" && TEC_EAST_ALT.indexOf(flightPlan.altitude) === -1){
+                return addMistake("badIFRAlt", flightPlan.altitude, `${flightPlan.destination}(TEC Route)`)
             }
         }
     }
@@ -66,7 +72,7 @@ export function MistakeProvider({ children }: { children: ReactNode }){
             return;
         }
 
-        if(!routesToDestination.find(route => route.route.substring(4, route.route.length - 4) === flightPlan.route)){
+        if(!routesToDestination.find(route => route.route.substring(4, route.route.length - 4) === flightPlan.route.trimEnd().trimStart())){
             addMistake("badRoute", flightPlan.route, flightPlan.destination);
         }
     }
@@ -76,8 +82,7 @@ export function MistakeProvider({ children }: { children: ReactNode }){
         if(!flightPlan){
             return;
         }
-        reviewVFRAircraftType(flightPlan)
-        reviewVFRRoute(flightPlan);
+        reviewVFRAircraftType(flightPlan);
         reviewVFRAltitude(flightPlan);
         reviewVFRRemarks(flightPlan);
     }
@@ -85,12 +90,6 @@ export function MistakeProvider({ children }: { children: ReactNode }){
     function reviewVFRAircraftType(flightPlan: FlightPlan){
         if(flightPlan.aircraftType !== flightPlan.actualAircraftType){
             addMistake("badVFRAircraft", flightPlan.aircraftType, `${flightPlan.callsign}(${flightPlan.actualAircraftType})`)
-        }
-    }
-
-    function reviewVFRRoute(flightPlan: FlightPlan){
-        if(flightPlan.route.length === 0){
-            addMistake("badVFRRoute", flightPlan.callsign);
         }
     }
 
@@ -124,8 +123,8 @@ export function MistakeProvider({ children }: { children: ReactNode }){
         mistakes,
         addMistake,
         reviewClearance,
-        newMistake,
-        setNewMistake,
+        newMistakes,
+        setNewMistakes,
         reviewVFRDeparture
     }
 

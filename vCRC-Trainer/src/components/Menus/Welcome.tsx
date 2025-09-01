@@ -64,6 +64,9 @@ function Welcome({setWelcomeOpen} : Props) {
                 <div style={{textAlign: "center"}}>
                     <button style={{backgroundColor: "#444", padding: "20px", border: "1px solid white"}} onClick={() => setWelcomeOpen(false)}>Ready for Briefing!</button>
                 </div>
+                Created by Nick Hall
+                <br></br>
+                Concept by Jeff Hall
             </Box>
         </div>
     )

@@ -13,15 +13,24 @@ export function MessagesProvider({ children }: { children: ReactNode }){
     ]);
 
     function sendMessage(content: string, callsign: string, type: MessageType){
-        playRadioMessageSound();
-        setMessages((draft) => {
-            draft.push({
-                content,
-                callsign,
-                type,
-                time: Date.now()
-            })
-        });
+        function addMessage(){
+            setMessages((draft) => {
+                draft.push({
+                    content,
+                    callsign,
+                    type,
+                    time: Date.now()
+                })
+            });
+        }
+        if(type !== "self"){
+            setTimeout(() => {
+                playRadioMessageSound();
+                addMessage();
+            }, 750);
+        } else {
+            addMessage();
+        }
     }
 
     const value: MessagesDetails = {

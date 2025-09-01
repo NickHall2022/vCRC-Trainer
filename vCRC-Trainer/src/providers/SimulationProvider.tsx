@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { SimulationContext } from "../hooks/useSimulation";
 import { useMessages } from "../hooks/useMessages";
 import { useImmer } from "use-immer";
@@ -16,6 +16,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
     const { difficulty } = useDifficulty();
     const { addMistake, reviewClearance, reviewVFRDeparture } = useMistakes();
     const { strips } = useStrips();
+    const [timer, setTimer] = useState(0);
 
     const { flightPlans, removeFirstRequest, setNextRequestTime, setPlanePosition, setPlaneStatus, deleteFlightPlan, spawnNewFlight } = useFlightPlans();
     const { releaseSpot } = useParkingSpots();
@@ -30,7 +31,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
 
         const modifiedRequest = {...newRequest};
         if(newRequest.reminder){
-            modifiedRequest.reminder = {...newRequest.reminder, sendTime: Date.now() + newRequest.reminder.sendDelay};
+            modifiedRequest.reminder = {...newRequest.reminder, sendTime: timer + newRequest.reminder.sendDelay};
         }
 
         setRequests((draft) => {
@@ -49,6 +50,8 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                 return;
             }
 
+            setTimer(timer + 1000);
+
             for(const flightPlan of flightPlans){
                 if(flightPlan.status === "pushback"){
                     const angleAsRadians = flightPlan.rotation * Math.PI / 180;
@@ -59,14 +62,14 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                     movePlaneTowardsRunway(flightPlan.callsign, flightPlan.positionX, flightPlan.positionY);
                 } else if(flightPlan.status === "handedOff"){
                     movePlaneTowardsRunway(flightPlan.callsign, flightPlan.positionX, flightPlan.positionY);
-                    if(Date.now() - (flightPlan.statusChangedTime as number) > 20000){
+                    if(timer - (flightPlan.statusChangedTime as number) > 20000){
                         const localStrips = strips.filter(strip => strip.bayName === "local");
                         if(!localStrips.find(strip => (strip as StripData).callsign === flightPlan.callsign)){
                             sendMessage(`Can you pass me the strip for ${flightPlan.callsign}?`, "PWM_TWR", "ATC");
                             addMistake("stripHandoff", flightPlan.callsign);
-                            setPlaneStatus(flightPlan.callsign, "handedOffReminded");
+                            setPlaneStatus(flightPlan.callsign, "handedOffReminded", timer);
                         } else {
-                            setPlaneStatus(flightPlan.callsign, "departed");
+                            setPlaneStatus(flightPlan.callsign, "departed", timer);
                         }
                         if(flightPlan.routeType === "VFR" || flightPlan.routeType === "VFRFF"){
                             reviewVFRDeparture(flightPlan.callsign);
@@ -76,7 +79,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                     movePlaneTowardsRunway(flightPlan.callsign, flightPlan.positionX, flightPlan.positionY);
                     const localStrips = strips.filter(strip => strip.bayName === "local");
                     if(localStrips.find(strip => (strip as StripData).callsign === flightPlan.callsign)){
-                        setPlaneStatus(flightPlan.callsign, "departed");
+                        setPlaneStatus(flightPlan.callsign, "departed", timer);
                     }
                 } else if(flightPlan.status === "departed"){
                     const localStrips = strips.filter(strip => strip.bayName === "local");
@@ -92,22 +95,22 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                 if(flightPlan.requests.length === 0){
                     return;
                 }
-                if(flightPlan.canSendRequestTime > Date.now()){
+                if(flightPlan.canSendRequestTime > timer){
                     return;
                 }
                 return !requests.find(request => request.callsign === flightPlan.callsign);
             });
 
-            if(flightsWithRequest.length < 1 + difficulty){
+            if(flightsWithRequest.length < 1 + difficulty + 100){
                 const newFlight = spawnNewFlight();
                 if (newFlight && (newFlight.routeType === "TEC" || newFlight?.routeType === "H")) {
                     printAmendedFlightPlan(newFlight);
                 }
             }
 
-            if(Math.floor(Date.now() / 1000) % Math.ceil(60 / difficulty) === 0){
+            if(Math.floor(timer / 1000) % Math.ceil(60 / difficulty) === 0){
                 for(const request of requests){
-                    if(request.reminder && request.reminder.sendTime && Date.now() >= request.reminder.sendTime){
+                    if(request.reminder && request.reminder.sendTime && timer >= request.reminder.sendTime){
                         sendMessage(request.reminder.message, request.callsign, "radio");
                         addMistake(request.reminder.type, request.callsign);
                         setRequests((draft) => {
@@ -146,7 +149,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
         return () => {
             clearInterval(interval);
         };
-    }, [flightPlans, requests, setRequests, removeFirstRequest, sendMessage, setPlanePosition, paused]);
+    }, [flightPlans, requests, setRequests, removeFirstRequest, sendMessage, setPlanePosition, paused, timer]);
 
     function movePlaneTowardsRunway(callsign: string, planeX: number, planeY: number){
         let closestNode = taxiways[0];
@@ -175,7 +178,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
         const endNode = taxiways.find(node => node.id === "END");
         if(endNode){
             const dist = distance(planeX, planeY, endNode.x, endNode.y)
-            if(dist < 15){
+            if(dist < 20){
                 const flightPlan = flightPlans.find(flight => flight.callsign === callsign);
                 if(flightPlan && flightPlan.status === "taxi"){
                     addNewRequest({
@@ -184,13 +187,14 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                         responseMessage: "Contact tower 120.9",
                         nextRequestDelay: 0,
                         nextStatus: "handedOff",
+                        atcMessage: `${flightPlan.callsign} handed to tower`,
                         reminder: {
                             message: "Ground, should we switch to tower?",
                             type: "aircraftHandoff",
                             sendDelay: 40000
                         }
                     });
-                    setPlaneStatus(callsign, "departing");
+                    setPlaneStatus(callsign, "departing", timer);
                 }
             }
         }
@@ -204,10 +208,13 @@ export function SimulationProvider({ children }: { children: ReactNode }){
         const completedRequest = requests[completedRequestIndex];
 
         if(completedRequest.responseMessage){
+            if(completedRequest.atcMessage){
+                sendMessage(completedRequest.atcMessage, "PWM_GND", "self")
+            }
             sendMessage(completedRequest.responseMessage, completedRequest.callsign, "radio");
         }
 
-        setNextRequestTime(completedRequest.callsign, completedRequest.nextRequestDelay);
+        setNextRequestTime(completedRequest.callsign, completedRequest.nextRequestDelay, timer);
 
         if(completedRequest.subsequentRequest){
             addNewRequest(completedRequest.subsequentRequest);
@@ -220,7 +227,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
             });
         }
 
-        if(completedRequest.nextStatus === "taxi"){
+        if(completedRequest.nextStatus === "handedOff"){
             const flight = flightPlans.find(flight => flight.callsign === callsign);
             if(flight){
                 releaseSpot(flight.parkingSpotId);
@@ -230,7 +237,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
         }
 
         if(completedRequest.nextStatus){
-            setPlaneStatus(completedRequest.callsign, completedRequest.nextStatus);
+            setPlaneStatus(completedRequest.callsign, completedRequest.nextStatus, timer);
         }
     }
 

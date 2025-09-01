@@ -86,7 +86,7 @@ export function FlightPlanEditor(){
 
     return (
         <Draggable nodeRef={draggableRef as RefObject<HTMLElement>} allowAnyClick={true} handle=".handle">
-            <div className="preventSelect" ref={draggableRef} style={{width: "620px", height: "155px", backgroundColor: "#090909", position: "absolute", top: "60%", left: "590px", zIndex: 3}} onKeyDown={handleEnterPressed}>
+            <div className="preventSelect" ref={draggableRef} style={{width: "620px", height: "155px", backgroundColor: "#090909", position: "absolute", top: "50%", left: "590px", zIndex: 3}} onKeyDown={handleEnterPressed}>
                 <div className="handle" style={{backgroundColor: "#151515", margin: "0px", marginBottom: "2px"}}>
                     <p style={{margin: "0px", marginLeft: "4px", fontSize: "11px"}}>Flight Plan Editor</p>
                 </div>

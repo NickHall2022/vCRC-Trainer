@@ -6,6 +6,7 @@ import { FlightPlanEditor } from "./FlightPlanEditor";
 import Draggable from "react-draggable";
 import { MessageWindow } from "./MessageWindow";
 import { Taxiways } from "../debug/Taxiways";
+import { DataBlock } from "./DataBlock";
 
 export function CabViewWindow(){
     const {flightPlans} = useFlightPlans();
@@ -36,7 +37,13 @@ export function CabViewWindow(){
 
     function createAirplanes() {
         return flightPlans.map(flightPlan => {
-            return <Airplane flightPlan={flightPlan} key={flightPlan.callsign} zoom={zoom} rotate={rotate}></Airplane>
+            return <Airplane flightPlan={flightPlan} key={flightPlan.callsign}></Airplane>
+        })
+    }
+
+    function createDataBlocks() {
+        return flightPlans.map(flightPlan => {
+            return <DataBlock flightPlan={flightPlan} key={flightPlan.callsign}></DataBlock>
         })
     }
 
@@ -71,6 +78,7 @@ export function CabViewWindow(){
                         </div>
                     </div>
                 </Draggable>
+                {createDataBlocks()}
             </div>
             <FlightPlanEditor></FlightPlanEditor>
             <ControllerList></ControllerList>

@@ -62,6 +62,15 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
         });
     }
 
+    function setTaxiwayNodeId(callsign: string, id: string){
+        setFlightPlans((draft) => {
+            const modifyIndex = draft.findIndex(flightPlan => flightPlan.callsign === callsign);
+            if(modifyIndex !== -1){
+                draft[modifyIndex].taxiwayNodeId = id;
+            }
+        });
+    }
+
     function setPlaneStatus(callsign: string, status: FlightStatus, timer: number){
         setFlightPlans((draft) => {
             const modifyIndex = draft.findIndex(flightPlan => flightPlan.callsign === callsign);
@@ -106,7 +115,8 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
         setPlanePosition,
         setPlaneStatus,
         deleteFlightPlan,
-        spawnNewFlight
+        spawnNewFlight,
+        setTaxiwayNodeId
     }
 
     return <FlightPlanContext.Provider value={value}>{children}</FlightPlanContext.Provider>

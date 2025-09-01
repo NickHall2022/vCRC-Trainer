@@ -63,8 +63,8 @@ export function MessageWindow(){
                         <div className="handle" style={{backgroundColor: "#151515", margin: "0px", marginBottom: "2px", height: "17px"}}>
                             <p style={{margin: "0px", marginLeft: "4px", fontSize: "11px"}}>Messages</p>
                         </div>
-                        <div style={{lineHeight: "16px", fontSize: "15px", paddingLeft: "5px", paddingRight: "5px", height: "calc(100% - 19px)"}}>
-                            <List sx={{overflowY: "scroll", maxHeight: "100%", width: "100%", height: "100%", padding: "0px"}}>
+                        <div style={{lineHeight: "16px", fontSize: "15px", paddingLeft: "5px", paddingRight: "5px", paddingBottom: "5px", height: "calc(100% - 19px)"}}>
+                            <List sx={{overflowY: "scroll", maxHeight: "calc(100% - 5px)", width: "100%", height: "calc(100% - 5px)", padding: "0px"}}>
                                 {createMessageDisplay()}
                                 <li ref={scrollRef}></li>
                             </List>

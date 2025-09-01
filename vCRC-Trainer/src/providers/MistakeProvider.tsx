@@ -65,7 +65,7 @@ export function MistakeProvider({ children }: { children: ReactNode }){
         if(jetTypes.indexOf(flightPlan.actualAircraftType) > -1 && flightPlan.equipmentCode !== "L"){
             addMistake("badEquipment", flightPlan.equipmentCode, flightPlan.actualAircraftType);
         }
-        if(tecTypes.indexOf(flightPlan.actualAircraftType) > -1 && flightPlan.equipmentCode !== "G"){
+        if(tecTypes.indexOf(flightPlan.actualAircraftType) > -1 && ["X", "W", "P", "A", "D", "B", "T", "U"].indexOf(flightPlan.equipmentCode) !== -1){
             addMistake("badEquipment", flightPlan.equipmentCode, flightPlan.actualAircraftType);
         }
     }

@@ -16,7 +16,10 @@ const SPAWNABLE_TEC_WEST_ALT = ["060", "080", "100"];
 const SPAWNABLE_TEC_EAST_ALT = ["050", "070", "090"];
 
 export const jetTypes = ["CRJ7", "CRJ9", "CRJX", "B737", "B738", "B739", "B38M", "A220", "A319", "A320", "A321", "A20N", "A21N", "E135", "E145", "E190"];
-export const tecTypes = ["C208", "BE58", "B350", "C414", "P212", "BN2P", "C408", "DHC6"];
+export const tecTypes = ["C208", "BE58", "B350", "C414", "P212", "BN2P", "C408", "DHC6", "TBM9"];
+
+const alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+export const ATIS = alphabet[Math.floor(Math.random() * alphabet.length)];
 
 export const DEST_TO_DIRECTION_MAP: Record<string, "west" | "east" | undefined> = {
     //H
@@ -226,7 +229,7 @@ function buildClearanceRequest(flightPlan: PartialFlightPlan, withPushback: bool
             priority: 1,
             atcMessage: `Readback correct for ${flightPlan.callsign}`,
             callsign: flightPlan.callsign,
-            nextRequestDelay: 180000 + Math.floor(Math.random() * 90000)
+            nextRequestDelay: 150000 + Math.floor(Math.random() * 60000)
         },
         nextStatus: "clearedIFR"
     }
@@ -234,19 +237,19 @@ function buildClearanceRequest(flightPlan: PartialFlightPlan, withPushback: bool
 
 function buildPusbackRequest(intoRamp: boolean, flightPlan: PartialFlightPlan, gate: string): AircraftRequest {
     return {
-        requestMessage: `Request pushback with A from gate ${gate}`,
+        requestMessage: `Request pushback with ${ATIS} from gate ${gate}`,
         responseMessage: intoRamp ? "Pushback into the ramp at our discretion, will call for taxi" : "Pushback approved, will call for taxi",
         atcMessage: `Push approved for ${flightPlan.callsign}`,
         priority: 1,
         callsign: flightPlan.callsign,
-        nextRequestDelay: 180000 + Math.floor(Math.random() * 90000),
+        nextRequestDelay: 120000 + Math.floor(Math.random() * 60000),
         nextStatus: "pushback"
     }
 }
 
 function buildTaxiRequest(flightPlan: PartialFlightPlan, location?: string, taxiInstruction?: string): AircraftRequest {
     return {
-        requestMessage: `Ready for taxi${location ? " with A from " + location: ""}`,
+        requestMessage: `Ready for taxi${location ? ` with ${ATIS} from ` + location: ""}`,
         atcMessage: `Taxi instruction sent to ${flightPlan.callsign}`,
         responseMessage: taxiInstruction ? taxiInstruction : "Runway 29, taxi via A, cross runway 36",
         priority: 2,
@@ -288,7 +291,7 @@ function buildVFRDepartureRequest(flightPlan: PartialFlightPlan, flightFollowing
         ...flightPlan,
         requests: [
             {
-                requestMessage: `Type ${flightPlan.actualAircraftType} at the north apron with A, request VFR departure${flightFollowing ? " with flight following" : ""} to the ${direction} at ${altitude}${flightFollowing ? "" : ", negative flight following"}`,
+                requestMessage: `Type ${flightPlan.actualAircraftType} at the north apron with ${ATIS}, request VFR departure${flightFollowing ? " with flight following" : ""} to the ${direction} at ${altitude}${flightFollowing ? "" : ", negative flight following"}`,
                 responseMessage: `Maintain VFR at or below 2500, departure 119.75, squawk ${flightPlan.squawk}`,
                 priority: 1,
                 callsign: flightPlan.callsign,
@@ -320,7 +323,7 @@ function buildVFRPatternRequest(flightPlan: PartialFlightPlan): PartialFlightPla
         ...flightPlan,
         requests: [
             {
-                requestMessage: `Type ${flightPlan.actualAircraftType} at the north apron with A, request taxi for pattern work`,
+                requestMessage: `Type ${flightPlan.actualAircraftType} at the north apron with ${ATIS}, request taxi for pattern work`,
                 responseMessage: `Squawk VFR, runway 29, taxi via C, A, cross runway 36`,
                 nextStatus: "taxi",
                 atcMessage: `Taxi instruction sent to ${flightPlan.callsign}`,

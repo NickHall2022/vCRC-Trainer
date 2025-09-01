@@ -2,13 +2,20 @@ import { useEffect, useState, type ReactNode } from "react";
 import { SimulationContext } from "../hooks/useSimulation";
 import { useMessages } from "../hooks/useMessages";
 import { useImmer } from "use-immer";
-import type { AircraftRequest, SimulationDetails, StripData } from "../types/common";
+import type { AircraftRequest, FlightPlan, SimulationDetails, StripData } from "../types/common";
 import { useFlightPlans } from "../hooks/useFlightPlans";
 import { distance, taxiways } from "../utils/taxiways";
 import { useStrips } from "../hooks/useStrips";
 import { useParkingSpots } from "../hooks/useParkingSpots";
 import { useDifficulty } from "../hooks/useDifficulty";
 import { useMistakes } from "../hooks/useMistakes";
+
+import type { Node } from "../utils/taxiways";
+import { ATIS } from "../utils/flightPlans";
+
+const endNode = taxiways.find(node => node.id === "END") as Node;
+const TAXIWAY_NODE_THRESHOLD = 0.5;
+const PLANE_DIST_THRESHOLD = 2.2;
 
 export function SimulationProvider({ children }: { children: ReactNode }){
     const [requests, setRequests] = useImmer<AircraftRequest[]>([]);
@@ -18,7 +25,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
     const { strips } = useStrips();
     const [timer, setTimer] = useState(0);
 
-    const { flightPlans, removeFirstRequest, setNextRequestTime, setPlanePosition, setPlaneStatus, deleteFlightPlan, spawnNewFlight } = useFlightPlans();
+    const { flightPlans, removeFirstRequest, setNextRequestTime, setPlanePosition, setTaxiwayNodeId, setPlaneStatus, deleteFlightPlan, spawnNewFlight } = useFlightPlans();
     const { releaseSpot } = useParkingSpots();
     const { printAmendedFlightPlan } = useStrips();
         
@@ -59,9 +66,9 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                     const diffY = Math.sin(angleAsRadians) * Math.min(0.05, Math.abs(flightPlan.positionY - flightPlan.pushbackLocation.y));
                     setPlanePosition(flightPlan.callsign, flightPlan.positionX + diffX, flightPlan.positionY + diffY);
                 } else if(flightPlan.status === "taxi" || flightPlan.status === "departing"){
-                    movePlaneTowardsRunway(flightPlan.callsign, flightPlan.positionX, flightPlan.positionY);
+                    movePlaneTowardsRunway(flightPlan);
                 } else if(flightPlan.status === "handedOff"){
-                    movePlaneTowardsRunway(flightPlan.callsign, flightPlan.positionX, flightPlan.positionY);
+                    movePlaneTowardsRunway(flightPlan);
                     if(timer - (flightPlan.statusChangedTime as number) > 20000){
                         const localStrips = strips.filter(strip => strip.bayName === "local");
                         if(!localStrips.find(strip => (strip as StripData).callsign === flightPlan.callsign)){
@@ -76,7 +83,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                         }
                     }
                 } else if(flightPlan.status === "handedOffReminded") {
-                    movePlaneTowardsRunway(flightPlan.callsign, flightPlan.positionX, flightPlan.positionY);
+                    movePlaneTowardsRunway(flightPlan);
                     const localStrips = strips.filter(strip => strip.bayName === "local");
                     if(localStrips.find(strip => (strip as StripData).callsign === flightPlan.callsign)){
                         setPlaneStatus(flightPlan.callsign, "departed", timer);
@@ -84,7 +91,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                 } else if(flightPlan.status === "departed"){
                     const localStrips = strips.filter(strip => strip.bayName === "local");
                     const strip = localStrips.find(strip => (strip as StripData).callsign === flightPlan.callsign) as StripData
-                    if(strip && (strip.box10 !== "B" || strip.box12 !== "A")) {
+                    if(strip && (strip.box10 !== "B" || strip.box12 !== ATIS)) {
                         addMistake("stripBox", flightPlan.callsign);
                     }
                     deleteFlightPlan(flightPlan.callsign);
@@ -149,55 +156,83 @@ export function SimulationProvider({ children }: { children: ReactNode }){
         return () => {
             clearInterval(interval);
         };
-    }, [flightPlans, requests, setRequests, removeFirstRequest, sendMessage, setPlanePosition, paused, timer]);
+    }, [flightPlans, requests, setRequests, removeFirstRequest, sendMessage, setPlanePosition, setTaxiwayNodeId, paused, timer]);
 
-    function movePlaneTowardsRunway(callsign: string, planeX: number, planeY: number){
-        let closestNode = taxiways[0];
-        let distanceToClosest = 100;
-        for(const node of taxiways){
-            const dist = distance(planeX, planeY, node.x, node.y);
-            if(dist < distanceToClosest){
-                distanceToClosest = dist;
-                closestNode = node;
+    function movePlaneTowardsRunway(flightPlan: FlightPlan){
+        const planeX = flightPlan.positionX;
+        const planeY = flightPlan.positionY;
+        const callsign = flightPlan.callsign;
+
+        const dist = flightPlan.taxiwayNodeId ? movePlaneToSavedNode(flightPlan) : 0;
+
+        if(dist < TAXIWAY_NODE_THRESHOLD){
+            let closestNode = taxiways[0];
+            let distanceToClosest = 100;
+            for(const node of taxiways){
+                const dist = distance(planeX, planeY, node.x, node.y);
+                if(dist < distanceToClosest){
+                    distanceToClosest = dist;
+                    closestNode = node;
+                }
             }
-        }
 
-        if(closestNode.edges.length > 0){
-            const distanceBetweenClosestAndNext = distance(closestNode.edges[0].x, closestNode.edges[0].y, closestNode.x, closestNode.y);
-            const distanceBetweenPlaneAndNext = distance(closestNode.edges[0].x, closestNode.edges[0].y, planeX, planeY);
-            if(distanceBetweenPlaneAndNext <= distanceToClosest + distanceBetweenClosestAndNext){
-                closestNode = closestNode.edges[0];
-            }
-        }
-
-        const angleAsRadians = Math.atan2(closestNode.y - planeY, closestNode.x - planeX);
-        const diffX = Math.min(Math.cos(angleAsRadians) * 0.35, Math.abs(closestNode.x - planeX));
-        const diffY = Math.min(Math.sin(angleAsRadians) * 0.35, Math.abs(closestNode.y - planeY));
-        setPlanePosition(callsign, planeX + diffX, planeY + diffY, -angleAsRadians * 180 / Math.PI);
-
-        const endNode = taxiways.find(node => node.id === "END");
-        if(endNode){
-            const dist = distance(planeX, planeY, endNode.x, endNode.y)
-            if(dist < 20){
-                const flightPlan = flightPlans.find(flight => flight.callsign === callsign);
-                if(flightPlan && flightPlan.status === "taxi"){
-                    addNewRequest({
-                        callsign,
-                        priority: 1,
-                        responseMessage: "Contact tower 120.9",
-                        nextRequestDelay: 0,
-                        nextStatus: "handedOff",
-                        atcMessage: `${flightPlan.callsign} handed to tower`,
-                        reminder: {
-                            message: "Ground, should we switch to tower?",
-                            type: "aircraftHandoff",
-                            sendDelay: 40000
-                        }
-                    });
-                    setPlaneStatus(callsign, "departing", timer);
+            if(distanceToClosest >= TAXIWAY_NODE_THRESHOLD){
+                setTaxiwayNodeId(flightPlan.callsign, closestNode.id);
+            } else {
+                if(closestNode.edges[0]){
+                    setTaxiwayNodeId(flightPlan.callsign, closestNode.edges[0].id);
                 }
             }
         }
+
+        const distanceToEnd = distance(planeX, planeY, endNode.x, endNode.y)
+        if(distanceToEnd < 20){
+            const flightPlan = flightPlans.find(flight => flight.callsign === callsign);
+            if(flightPlan && flightPlan.status === "taxi"){
+                addNewRequest({
+                    callsign,
+                    priority: 1,
+                    responseMessage: "Contact tower 120.9",
+                    nextRequestDelay: 0,
+                    nextStatus: "handedOff",
+                    atcMessage: `${flightPlan.callsign} handed to tower`,
+                    reminder: {
+                        message: "Ground, should we switch to tower?",
+                        type: "aircraftHandoff",
+                        sendDelay: 60000
+                    }
+                });
+                setPlaneStatus(callsign, "departing", timer);
+            }
+        }
+}
+
+    function movePlaneToSavedNode(flightPlan: FlightPlan): number {
+        let savedNode: Node = taxiways.find(node => node.id === flightPlan.taxiwayNodeId) as Node;
+        const planeX = flightPlan.positionX;
+        const planeY = flightPlan.positionY;
+
+        const dist = distance(planeX, planeY, savedNode.x, savedNode.y);
+
+        const angleAsRadians = Math.atan2(savedNode.y - planeY, savedNode.x - planeX);
+        const diffX = Math.min(Math.cos(angleAsRadians) * 0.35, Math.abs(savedNode.x - planeX));
+        const diffY = Math.min(Math.sin(angleAsRadians) * 0.35, Math.abs(savedNode.y - planeY));
+
+        const otherTaxiing = flightPlans.filter(flight => flight.status !== "ramp" && flight.status !== "clearedIFR");
+        for(let otherFlight of otherTaxiing){
+            const distToFlight = distance(planeX, planeY, otherFlight.positionX, otherFlight.positionY);
+            if(distToFlight < PLANE_DIST_THRESHOLD){
+                const myDistanceToEnd = distance(planeX, planeY, endNode.x, endNode.y);
+                const otherDistanceToEnd = distance(otherFlight.positionX, otherFlight.positionY, endNode.x, endNode.y);
+                if(myDistanceToEnd > otherDistanceToEnd){
+                    return dist;
+                }
+            }
+        }
+
+        setPlanePosition(flightPlan.callsign, planeX + diffX, planeY + diffY, -angleAsRadians * 180 / Math.PI);
+
+        return dist;
     }
 
     function completeRequest(callsign: string){

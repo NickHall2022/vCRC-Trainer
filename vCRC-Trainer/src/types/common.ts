@@ -31,6 +31,7 @@ export type FlightPlan = {
     statusChangedTime?: number;
     created: boolean;
     parkingSpotId: string;
+    taxiwayNodeId?: string;
 }
 
 export type PartialFlightPlan = Omit<FlightPlan, "requests" | "canSendRequestTime" | "printCount" | "CID" | "plannedTime" | "pushbackLocation" | "status" | "parkingSpotId" | "routeTpye">;
@@ -66,6 +67,7 @@ export type FlightPlanDetails = {
     setPlaneStatus: (callsign: string, status: FlightStatus, timer: number) => void;
     deleteFlightPlan: (callsign: string) => void;
     spawnNewFlight: () => FlightPlan | undefined;
+    setTaxiwayNodeId: (callsign: string, id: string) => void;
 }
 
 export type StripsDetails = {

@@ -6,6 +6,7 @@ import List from "@mui/material/List";
 import { ListItem } from "@mui/material";
 import type { MessageType } from "../../types/common";
 import { useSimulation } from "../../hooks/useSimulation";
+import { Resizable } from "re-resizable";
 
 export function MessageWindow(){
     const draggableRef = useRef<HTMLDivElement>(null);
@@ -55,18 +56,21 @@ export function MessageWindow(){
     }
     
     return (
-        <Draggable nodeRef={draggableRef as RefObject<HTMLElement>} allowAnyClick={true} handle=".handle">
-            <div ref={draggableRef} style={{width: "600px", height: "250px", backgroundColor: "#090909", position: "absolute", top: "70%", left: "900px", zIndex: 3}}>
-                <div className="handle" style={{backgroundColor: "#151515", margin: "0px", marginBottom: "2px"}}>
-                    <p style={{margin: "0px", marginLeft: "4px", fontSize: "11px"}}>Messages</p>
-                </div>
-                <div style={{lineHeight: "16px", fontSize: "15px"}}>
-                    <List sx={{padding: "0px", paddingLeft: "5px", paddingRight: "5px", maxHeight: '225px', overflowY: "scroll", width: "590px",  position: "fixed" }}>
-                        {createMessageDisplay()}
-                        <li ref={scrollRef}></li>
-                    </List>
-                </div>
-                
+        <Draggable nodeRef={draggableRef as RefObject<HTMLDivElement>} allowAnyClick={true} handle=".handle">
+            <div ref={draggableRef} style={{position: "fixed", bottom: "1%", left: "580px"}}>
+                <Resizable defaultSize={{width: 800, height: 300}} minWidth={400} minHeight={100} style={{backgroundColor: "#090909"}}>
+                    <div style={{backgroundColor: "#090909", width: "100%", height: "100%", zIndex: 3}}>
+                        <div className="handle" style={{backgroundColor: "#151515", margin: "0px", marginBottom: "2px", height: "17px"}}>
+                            <p style={{margin: "0px", marginLeft: "4px", fontSize: "11px"}}>Messages</p>
+                        </div>
+                        <div style={{lineHeight: "16px", fontSize: "15px", paddingLeft: "5px", paddingRight: "5px", height: "calc(100% - 19px)"}}>
+                            <List sx={{overflowY: "scroll", maxHeight: "100%", width: "100%", height: "100%", padding: "0px"}}>
+                                {createMessageDisplay()}
+                                <li ref={scrollRef}></li>
+                            </List>
+                        </div>
+                    </div>
+                </Resizable>
             </div>
         </Draggable>
     )

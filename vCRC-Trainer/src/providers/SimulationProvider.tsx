@@ -101,7 +101,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                 return !requests.find(request => request.callsign === flightPlan.callsign);
             });
 
-            if(flightsWithRequest.length < 1 + difficulty + 100){
+            if(flightsWithRequest.length < 1 + difficulty){
                 const newFlight = spawnNewFlight();
                 if (newFlight && (newFlight.routeType === "TEC" || newFlight?.routeType === "H")) {
                     printAmendedFlightPlan(newFlight);

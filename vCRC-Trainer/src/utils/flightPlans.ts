@@ -7,14 +7,16 @@ export const VALID_EAST_ALT = ["030", "050", "070", "090", "110", "130", "150", 
 
 export const HIGH_WEST_ALT = ["200", "220", "240", "260", "280", "300", "320", "340", "360", "380", "400", "430"];
 export const HIGH_EAST_ALT = ["210", "230", "250", "270", "290", "310", "330", "350", "370", "390", "410"];
-
 const SPAWNABLE_HIGH_WEST_ALT = ["220", "240", "260", "280", "300", "320", "340", "360", "380"];
 const SPAWNABLE_HIGH_EAST_ALT = ["230", "250", "270", "290", "310", "330", "350", "370"];
 
 export const TEC_WEST_ALT = ["040", "060", "080", "100"];
 export const TEC_EAST_ALT = ["030", "050", "070", "090"];
+const SPAWNABLE_TEC_WEST_ALT = ["060", "080", "100"];
+const SPAWNABLE_TEC_EAST_ALT = ["050", "070", "090"];
 
 export const jetTypes = ["CRJ7", "CRJ9", "CRJX", "B737", "B738", "B739", "B38M", "A220", "A319", "A320", "A321", "A20N", "A21N", "E135", "E145", "E190"];
+export const tecTypes = ["C208", "BE58", "B350", "C414", "P212", "BN2P", "C408", "DHC6"];
 
 export const DEST_TO_DIRECTION_MAP: Record<string, "west" | "east" | undefined> = {
     //H
@@ -352,7 +354,6 @@ function getRandomJetType() {
 }
 
 function getRandomTecType() {
-    const tecTypes = ["C208", "BE58", "B350", "C414", "P212", "BN2P", "C408", "DHC6"];
     return tecTypes[Math.floor(Math.random() * tecTypes.length)];
 }
 
@@ -395,28 +396,28 @@ function getRandomRoute(prefRoutes: PrefRoute[]) {
 function getRandomIFRAltitude(prefRoute: PrefRoute) {
     if(prefRoute.type === "TEC"){
         if(Math.random() < 0.75){
-            const index = Math.floor(Math.random() * TEC_WEST_ALT.length);
-            return TEC_WEST_ALT[index];
+            const index = Math.floor(Math.random() * SPAWNABLE_TEC_WEST_ALT.length);
+            return SPAWNABLE_TEC_WEST_ALT[index];
         }
         const random = Math.random();
         if(random < 0.33){
-            const index = Math.floor(Math.random() * TEC_EAST_ALT.length);
-            return TEC_EAST_ALT[index];
+            const index = Math.floor(Math.random() * SPAWNABLE_TEC_EAST_ALT.length);
+            return SPAWNABLE_TEC_EAST_ALT[index];
         }
         if(random >= 0.33 && random < 0.66){
             const index = Math.floor(Math.random() * SPAWNABLE_HIGH_WEST_ALT.length);
             return SPAWNABLE_HIGH_WEST_ALT[index];
         }
         if(Math.random() < 0.5){
-            const index = Math.floor(Math.random() * TEC_WEST_ALT.length);
-            const alt = `${TEC_WEST_ALT[index]}00`;
+            const index = Math.floor(Math.random() * SPAWNABLE_TEC_WEST_ALT.length);
+            const alt = `${SPAWNABLE_TEC_WEST_ALT[index]}00`;
             if(alt.charAt(0) === "0"){
                 return alt.substring(1);
             }
             return alt;
         }
-        const index = Math.floor(Math.random() * TEC_WEST_ALT.length);
-        return `VFR/${TEC_WEST_ALT[index]}`;
+        const index = Math.floor(Math.random() * SPAWNABLE_TEC_WEST_ALT.length);
+        return `VFR/${SPAWNABLE_TEC_WEST_ALT[index]}`;
     }
 
     if(Math.random() < 0.75){

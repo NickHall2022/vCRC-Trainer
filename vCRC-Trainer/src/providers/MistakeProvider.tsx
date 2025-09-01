@@ -3,7 +3,7 @@ import { useImmer } from "use-immer";
 import type { FlightPlan, Mistake, MistakeDetails, MistakeType } from "../types/common";
 import { MistakeContext } from "../hooks/useMistakes";
 import { useFlightPlans } from "../hooks/useFlightPlans";
-import { DEST_TO_DIRECTION_MAP, HIGH_EAST_ALT, HIGH_WEST_ALT, jetTypes, TEC_EAST_ALT, TEC_WEST_ALT } from "../utils/flightPlans";
+import { DEST_TO_DIRECTION_MAP, HIGH_EAST_ALT, HIGH_WEST_ALT, jetTypes, TEC_EAST_ALT, TEC_WEST_ALT, tecTypes } from "../utils/flightPlans";
 import { usePrefRoutes } from "../hooks/usePrefRoutes";
 
 
@@ -50,7 +50,9 @@ export function MistakeProvider({ children }: { children: ReactNode }){
                 if(flightPlan.routeType === "TEC" && TEC_WEST_ALT.indexOf(flightPlan.altitude) === -1){
                     return addMistake("badIFRAlt", flightPlan.altitude, `${flightPlan.destination}(TEC Route)`)
                 }
-            } else if(flightPlan.routeType === "H" && HIGH_EAST_ALT.indexOf(flightPlan.altitude) === -1){
+                return;
+            }
+            if(flightPlan.routeType === "H" && HIGH_EAST_ALT.indexOf(flightPlan.altitude) === -1){
                 return addMistake("badIFRAlt", flightPlan.altitude, flightPlan.destination)
             }
             if(flightPlan.routeType === "TEC" && TEC_EAST_ALT.indexOf(flightPlan.altitude) === -1){
@@ -61,6 +63,9 @@ export function MistakeProvider({ children }: { children: ReactNode }){
 
     function validateEquipment(flightPlan: FlightPlan){
         if(jetTypes.indexOf(flightPlan.actualAircraftType) > -1 && flightPlan.equipmentCode !== "L"){
+            addMistake("badEquipment", flightPlan.equipmentCode, flightPlan.actualAircraftType);
+        }
+        if(tecTypes.indexOf(flightPlan.actualAircraftType) > -1 && flightPlan.equipmentCode !== "G"){
             addMistake("badEquipment", flightPlan.equipmentCode, flightPlan.actualAircraftType);
         }
     }

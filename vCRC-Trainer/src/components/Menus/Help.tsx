@@ -2,6 +2,7 @@ import { Box, Grid } from "@mui/material";
 import type { Dispatch, SetStateAction } from "react";
 import { useDifficulty } from "../../hooks/useDifficulty";
 import { useSimulation } from "../../hooks/useSimulation";
+import { Guard } from "./Guard";
 
 type Props = {
     setHelpOpen: Dispatch<SetStateAction<boolean>>;
@@ -17,7 +18,7 @@ function Help({setHelpOpen} : Props) {
     }
 
     return (
-        <div style={{backgroundImage: "url(blurredBackground.png)", backgroundSize: "cover", width: "100vw", height: "100vh"}}>
+        <Guard>
             <Box className="welcome" sx={{overflowY: "scroll", maxHeight: "90vh"}}>
                 <h3>How to:</h3>
                 <p>
@@ -86,7 +87,7 @@ function Help({setHelpOpen} : Props) {
                     <button style={{backgroundColor: "#444", padding: "20px", border: "1px solid white"}} onClick={handleResumeClicked}>Resume</button>
                 </div>
             </Box>
-        </div>
+        </Guard>
     )
 }
 

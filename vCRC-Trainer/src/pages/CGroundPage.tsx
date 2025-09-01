@@ -23,16 +23,8 @@ export function CGgroundPage() {
     function handleMistakesClicked(){
         setMistakesOpen(true);
         setPaused(true);
-    }
-
-    if(helpOpen){
-        return <Help setHelpOpen={setHelpOpen}></Help>
-    }
-
-    if(mistakesOpen){
-        return <MistakeTracker setOpen={setMistakesOpen}></MistakeTracker>
-    }
-
+    } 
+    
     return (
         <>
             <Grid container >
@@ -53,6 +45,8 @@ export function CGgroundPage() {
                 &nbsp;
                 <span style={{fontSize: "20px"}}>Help</span>
             </button>
+            {helpOpen && <Help setHelpOpen={setHelpOpen}></Help>}
+            {mistakesOpen && <MistakeTracker setOpen={setMistakesOpen}></MistakeTracker>}
         </>
         
     )

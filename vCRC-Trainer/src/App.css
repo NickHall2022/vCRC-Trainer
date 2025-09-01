@@ -103,7 +103,7 @@ button:disabled {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  z-index: 10001;
+  z-index: 6;
   box-shadow: rgba(0, 0, 0, 0.5) -5px 0px 40px 5px;
   text-align: center;
   align-content: center;
@@ -164,6 +164,7 @@ textarea, input { font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; 
   padding-right: 2vw;
   padding-bottom: 2vh;
   border-radius: 10px;
+  z-index: 10;
 }
 
 .mistakeCounter {

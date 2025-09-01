@@ -55,7 +55,7 @@ function Help({setHelpOpen} : Props) {
 
                 <h3>FAQs:</h3>
                 <ul>
-                    <li><b>How do I...?</b> See the section above</li>
+                    <li><b>How do I...?</b> See the section above.</li>
                     <li><b>Why are the planes not behaving like I expect?</b> This is a simplified simulation, where the planes will assume that you've given them
                     correct instructions. When they send you a request through the message window, do your best to respond to it out loud like you would a to real pilot, 
                     and then click the plane to tell it you are finished.</li>

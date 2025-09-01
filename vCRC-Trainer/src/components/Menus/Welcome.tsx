@@ -35,7 +35,7 @@ function Welcome({setWelcomeOpen} : Props) {
                 <ol>
                     <li>Even though the planes can't hear you, practice actually saying instructions out loud</li>
                     <li>Click the Help menu in the bottom right corner of the screen for controls and FAQs</li>
-                    <li>Check the Mistake Tracker at the end of your session for personalized suggestions</li>
+                    <li>Check the Mistake Tracker for personalized suggestions</li>
                     <li>Spend some time observing on the live network to see how our controllers work</li>
                 </ol>
 

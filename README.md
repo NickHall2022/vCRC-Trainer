@@ -16,3 +16,6 @@ pushes to the `gh-pages` branch, and triggers a github action to deploy to githu
 ```
 npm deploy
 ```
+
+### Monitoring
+A feedback link is located at the bottom of menu pages to this google [form](https://forms.gle/Kr6hm6GaJ3BAKjgr7).

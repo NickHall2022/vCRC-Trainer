@@ -72,7 +72,7 @@ export function CabViewWindow(){
                                 transform: `scale(${zoom}) rotate(${rotate}deg)`
                             }}
                         >
-                            <img src="/vSweatbox/PWM.png" draggable={false} style={{objectFit: "cover", width: `100%`}}></img>
+                            <img src="PWM.png" draggable={false} style={{objectFit: "cover", width: `100%`}}></img>
                             {createAirplanes()}
                             { visualizeTaxiways && <Taxiways></Taxiways> }
                         </div>

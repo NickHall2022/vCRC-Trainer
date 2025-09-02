@@ -47,7 +47,7 @@ export function HandWrittenDividerStrip({stripData}: Props){
     }
 
     const style: React.CSSProperties = {
-        backgroundImage: `url(/vSweatbox/blankDivider.png)`,
+        backgroundImage: `url(blankDivider.png)`,
         width: "550px",
         height: "76px",
         position: "static"

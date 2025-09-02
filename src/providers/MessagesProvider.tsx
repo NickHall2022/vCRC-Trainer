@@ -6,7 +6,7 @@ import useSound from "use-sound";
 import { ATIS } from "../utils/flightPlans";
 
 export function MessagesProvider({ children }: { children: ReactNode }){
-    const [playRadioMessageSound] = useSound("/vSweatbox/RadioMessage.wav");
+    const [playRadioMessageSound] = useSound("RadioMessage.wav");
 
     const [messages, setMessages] = useImmer<Message[]>([
         { content: "Network simulation activated", type: "system", time: Date.now(), callsign: "" },

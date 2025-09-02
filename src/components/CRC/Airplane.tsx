@@ -22,7 +22,7 @@ export function Airplane({flightPlan}: {flightPlan: FlightPlan}){
     return (
         <>
             <div>
-                <img ref={planeRef} src="/vSweatbox/planeIcon.png" draggable={false} id={flightPlan.callsign} onClick={handleClick} style={{
+                <img ref={planeRef} src="planeIcon.png" draggable={false} id={flightPlan.callsign} onClick={handleClick} style={{
                         width: `${flightPlan.size}%`, 
                         position: "absolute", 
                         top: `${flightPlan.positionY}%`, 

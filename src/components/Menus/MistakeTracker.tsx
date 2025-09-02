@@ -23,7 +23,7 @@ function MistakeTracker({setOpen} : Props) {
     return (
         <Guard>
             <Box className="welcome" sx={{overflowY: "scroll", maxHeight: "90vh"}}>
-                <h2 style={{textAlign: "center"}}>Review Your Mistakes</h2>
+                <h2 style={{textAlign: "center"}}>Areas of Improvement</h2>
                 
                 <p>
                     This is <b>not</b> an exhaustive list. vSweatbox cannot track everything that you are doing, such as what you are saying out loud. This tool is only

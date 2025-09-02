@@ -65,7 +65,7 @@ export function Strip({stripData}: Props){
     }
 
     const style: React.CSSProperties = {
-        backgroundImage: stripData.type === "blank" ? "url(/vSweatbox/blankStrip.png)" : "url(/vSweatbox/strip.png)",
+        backgroundImage: stripData.type === "blank" ? "url(blankStrip.png)" : "url(strip.png)",
         color: "black",
         width: "550px",
         height: "76px",

@@ -69,7 +69,7 @@ export function StripsBay({handleDrop, setDraggedStrip, handleStripInsert} : Pro
     
     return (
         <>
-            <img src="/vSweatbox/stripBay.png" draggable={false} style={{width: "550px", height: "100vh", position: "absolute", left: "0px", top: "0px"}} onDrop={handleDrop} onDragOver={handleDragOver} onContextMenu={handleContextMenu}></img>
+            <img src="stripBay.png" draggable={false} style={{width: "550px", height: "100vh", position: "absolute", left: "0px", top: "0px"}} onDrop={handleDrop} onDragOver={handleDragOver} onContextMenu={handleContextMenu}></img>
             <Menu 
                 open={contextMenu !== null}
                 onClose={handleClose}

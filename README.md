@@ -18,4 +18,4 @@ npm deploy
 ```
 
 ### Monitoring
-A feedback link is located at the bottom of menu pages to this google [form](https://forms.gle/Kr6hm6GaJ3BAKjgr7).
+A feedback link is located at the bottom of menu pages to this [google form](https://forms.gle/Kr6hm6GaJ3BAKjgr7).

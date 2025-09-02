@@ -7,7 +7,7 @@ type Props = {
 export function DividerStrip({stripData}: Props){
 
     const style: React.CSSProperties = {
-        backgroundImage: `url(/vSweatbox/${stripData.name}.png)`,
+        backgroundImage: `url(${stripData.name}.png)`,
         width: "550px",
         height: "76px"
     }

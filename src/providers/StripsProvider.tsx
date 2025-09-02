@@ -10,7 +10,7 @@ export function StripsProvider({ children }: { children: ReactNode }){
 
     const { flightPlans } = useFlightPlans();
     const [selectedBay, setSelectedBay] = useState<BayName>("ground");
-    const [playPrintSound] = useSound("/vSweatbox/printer.mp3");
+    const [playPrintSound] = useSound("printer.mp3");
     
     const [strips, setStrips] = useImmer<AbstractStrip[]>((): AbstractStrip[] => {
         const flightStrips: StripData[] = flightPlans.filter(flightPlan => flightPlan.created).map(flightPlan => {

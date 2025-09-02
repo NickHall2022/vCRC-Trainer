@@ -11,7 +11,8 @@ npm run dev
 
 ### Deployment
 This repository is configured with `gh-pages` to automatically deploy through github actions. The `gh-pages` branch is the source of files
-for the statically hosted site.
+for the statically hosted site. It should not be updated manually, it can be updated through the following command, which executes a build,
+pushes to the `gh-pages` branch, and triggers a github action to deploy to github pages.
 ```
 npm deploy
 ```

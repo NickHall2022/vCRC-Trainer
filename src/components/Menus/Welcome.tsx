@@ -1,6 +1,7 @@
 import { Box, Grid } from "@mui/material";
 import type { Dispatch, SetStateAction } from "react";
 import { useDifficulty } from "../../hooks/useDifficulty";
+import { FeedbackLink } from "./FeedbackLink";
 
 type Props = {
     setWelcomeOpen: Dispatch<SetStateAction<boolean>>;
@@ -64,6 +65,7 @@ function Welcome({setWelcomeOpen} : Props) {
                 <div style={{textAlign: "center"}}>
                     <button style={{backgroundColor: "#444", padding: "20px", border: "1px solid white"}} onClick={() => setWelcomeOpen(false)}>Ready for Briefing!</button>
                 </div>
+                <FeedbackLink></FeedbackLink>
                 Created by Nick Hall
                 <br></br>
                 Concept by Jeff Hall

@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { useDifficulty } from "../../hooks/useDifficulty";
 import { useSimulation } from "../../hooks/useSimulation";
 import { Guard } from "./Guard";
+import { FeedbackLink } from "./FeedbackLink";
 
 type Props = {
     setHelpOpen: Dispatch<SetStateAction<boolean>>;
@@ -86,6 +87,7 @@ function Help({setHelpOpen} : Props) {
                 <div style={{textAlign: "center"}}>
                     <button style={{backgroundColor: "#444", padding: "20px", border: "1px solid white"}} onClick={handleResumeClicked}>Resume</button>
                 </div>
+                <FeedbackLink></FeedbackLink>
             </Box>
         </Guard>
     )

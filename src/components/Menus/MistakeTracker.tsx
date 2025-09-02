@@ -4,6 +4,7 @@ import { useSimulation } from "../../hooks/useSimulation";
 import MistakeList from "./MistakeList";
 import { useMistakes } from "../../hooks/useMistakes";
 import { Guard } from "./Guard";
+import { FeedbackLink } from "./FeedbackLink";
 
 type Props = {
     setOpen: Dispatch<SetStateAction<boolean>>;
@@ -38,6 +39,8 @@ function MistakeTracker({setOpen} : Props) {
                 <div style={{textAlign: "center"}}>
                     <button style={{backgroundColor: "#444", padding: "20px", border: "1px solid white"}} onClick={handleResumeClicked}>Resume</button>
                 </div>
+
+                <FeedbackLink></FeedbackLink>
             </Box>
         </Guard>
     )

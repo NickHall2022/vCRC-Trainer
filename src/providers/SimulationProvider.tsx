@@ -117,7 +117,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                 }
             }
 
-            if(Math.floor(timer / 1000) % Math.ceil(90 / difficulty) === 0){
+            if(Math.floor(timer / 1000) % Math.ceil(80 / difficulty) === 0){
                 for(const request of requests){
                     if(request.reminder && request.reminder.sendTime && timer >= request.reminder.sendTime){
                         sendMessage(request.reminder.message, request.callsign, "radio");

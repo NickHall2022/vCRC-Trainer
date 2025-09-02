@@ -62,7 +62,7 @@ function Help({setHelpOpen} : Props) {
                     and then click the plane to tell it you are finished.</li>
                     <li><b>What if I'm not sure I'm doing it right?</b> As you come across things you aren't sure about, make note of those things and go back to review them.
                     The information is very likely in documentation somewhere. Observing the live network can also be a great way to confirm your understanding. Be sure also
-                    to review the Mistake Tracker tool through the button at the bottom right of the screen at the end of your vSweatbox session, which will automatically
+                    to review the Areas for Improvement tool through the button at the bottom right of the screen, which will automatically
                     keep track of some types of errors.</li>
                     <li><b>How can I change the difficulty?</b> You can start over by refreshing the page at any time &#x28;progress will be lost!&#x29;, or adjust the difficulty 
                     right here and keep your progress:</li>

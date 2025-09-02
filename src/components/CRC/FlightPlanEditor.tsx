@@ -5,6 +5,8 @@ import { useState, useEffect, useRef, type RefObject } from "react";
 import Draggable from "react-draggable";
 import { makeEmptyFlightPlan } from "../../utils/flightPlans";
 import { useStrips } from "../../hooks/useStrips";
+import { useImmer } from "use-immer";
+import { ControlledInput } from "../../utils/ControlledInput";
 
 export function FlightPlanEditor(){
     const { selectedFlightPlan, amendFlightPlan, setSelectedFlightPlan, flightPlans } = useFlightPlans();
@@ -12,8 +14,9 @@ export function FlightPlanEditor(){
 
     const draggableRef = useRef<HTMLDivElement>(null);
 
-    const [flightPlan, setFlightPlan] = useState<FlightPlan>(handleNewSelectedFlightPlan(selectedFlightPlan));
+    const [flightPlan, setFlightPlan] = useImmer<FlightPlan>(handleNewSelectedFlightPlan(selectedFlightPlan));
     const [hasBeenEdited, setHasBeenEdited] = useState(false);
+
     const callsignInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -37,11 +40,11 @@ export function FlightPlanEditor(){
     }
 
     function handleTextInput(fieldType: keyof FlightPlan, value: string){
-        setFlightPlan((prev) => {
-            if(prev[fieldType] !== value){
+        setFlightPlan((draft) => {
+            if(draft[fieldType] !== value){
                 setHasBeenEdited(true);
             }
-            return {...prev, [fieldType]: value}
+            draft[fieldType] = value as never;
         })
     }
 
@@ -95,42 +98,42 @@ export function FlightPlanEditor(){
                     <Grid size={"auto"}>
                         AID
                         <br></br>
-                        <input className="flightPlanInput" maxLength={8} ref={callsignInputRef} value={flightPlan?.callsign} onChange={(event)=>handleCallsignChange(event.target.value.toUpperCase())} style={{width: "60px"}}></input>
+                        <ControlledInput className="flightPlanInput" maxLength={7} externalRef={callsignInputRef} value={flightPlan?.callsign} onChange={(event)=>handleCallsignChange(event.target.value.toUpperCase())} style={{width: "60px"}}></ControlledInput>
                     </Grid>
                     <Grid size={"auto"}>
                         BCN
                         <br></br>
-                        <input className="flightPlanInput flightPlanReadonly" disabled={true} maxLength={4} defaultValue={flightPlan.created ? flightPlan?.squawk : ""} style={{width: "40px"}}></input>
+                        <ControlledInput className="flightPlanInput flightPlanReadonly" disabled={true} maxLength={4} value={flightPlan.created ? flightPlan?.squawk : ""} style={{width: "40px"}}></ControlledInput>
                     </Grid>
                     <Grid size={"auto"}>
                         TYP
                         <br></br>
-                        <input className="flightPlanInput" maxLength={4} value={flightPlan?.aircraftType} onChange={(event)=>handleTextInput("aircraftType", event.target.value.toUpperCase())} style={{width: "40px"}}></input>
+                        <ControlledInput className="flightPlanInput" maxLength={4} value={flightPlan?.aircraftType} onChange={(event)=>handleTextInput("aircraftType", event.target.value.toUpperCase())} style={{width: "40px"}}></ControlledInput>
                     </Grid>
                     <Grid size={"auto"}>
                         EQ
                         <br></br>
-                        <input className="flightPlanInput" maxLength={1} value={flightPlan?.equipmentCode} onChange={(event)=>handleTextInput("equipmentCode", event.target.value.toUpperCase())} style={{width: "20px"}}></input>
+                        <ControlledInput className="flightPlanInput" maxLength={1} value={flightPlan?.equipmentCode} onChange={(event)=>handleTextInput("equipmentCode", event.target.value.toUpperCase())} style={{width: "20px"}}></ControlledInput>
                     </Grid>
                     <Grid size={"auto"}>
                         DEP
                         <br></br>
-                        <input className="flightPlanInput" maxLength={4} value={flightPlan?.departure} onChange={(event)=>handleTextInput("departure", event.target.value.toUpperCase())} style={{width: "40px"}}></input>
+                        <ControlledInput className="flightPlanInput" maxLength={4} value={flightPlan?.departure} onChange={(event)=>handleTextInput("departure", event.target.value.toUpperCase())} style={{width: "40px"}}></ControlledInput>
                     </Grid>
                     <Grid size={"auto"}>
                         DEST
                         <br></br>
-                        <input className="flightPlanInput" maxLength={4} value={flightPlan?.destination} onChange={(event)=>handleTextInput("destination", event.target.value.toUpperCase())} style={{width: "40px"}}></input>
+                        <ControlledInput className="flightPlanInput" maxLength={4} value={flightPlan?.destination} onChange={(event)=>handleTextInput("destination", event.target.value.toUpperCase())} style={{width: "40px"}}></ControlledInput>
                     </Grid>
                     <Grid size={"auto"}>
                         SPD
                         <br></br>
-                        <input step="none" className="flightPlanInput" maxLength={4} value={flightPlan?.speed} onChange={(event)=>handleTextInput("speed", event.target.value.replace(/\D/g, ""))} style={{width: "40px"}}></input>
+                        <ControlledInput className="flightPlanInput" maxLength={4} value={flightPlan?.speed} onChange={(event)=>handleTextInput("speed", event.target.value.replace(/\D/g, ""))} style={{width: "40px"}}></ControlledInput>
                     </Grid>
                     <Grid size={"auto"}>
                         ALT
                         <br></br>
-                        <input className="flightPlanInput" maxLength={7} value={flightPlan?.altitude} onChange={(event)=>handleTextInput("altitude", event.target.value.toUpperCase())} style={{width: "60px"}}></input>
+                        <ControlledInput className="flightPlanInput" maxLength={7} value={flightPlan?.altitude} onChange={(event)=>handleTextInput("altitude", event.target.value.toUpperCase())} style={{width: "60px"}}></ControlledInput>
                     </Grid>
                     <Grid size={1}>
                         <button disabled={!editButtonEnabled}  style={{marginTop: "6px"}} className="amendFlightPlanButton" onClick={handleAmendFlightPlan}>{flightPlan.created ? "Amend" : "Create"}</button>
@@ -141,7 +144,7 @@ export function FlightPlanEditor(){
                         RTE
                     </Grid>
                     <Grid size={"grow"}>
-                        <textarea className="flightPlanTextArea" rows={2} value={flightPlan?.route} onChange={(event)=>handleTextInput("route", event.target.value.toUpperCase())} autoComplete="off" autoCorrect="off" spellCheck="false"></textarea>
+                        <ControlledInput isTextArea={true} className="flightPlanTextArea" value={flightPlan?.route} onChange={(event)=>handleTextInput("route", event.target.value.toUpperCase())}></ControlledInput>
                     </Grid>
                 </Grid>
                 <Grid container spacing={0.5}>
@@ -149,7 +152,7 @@ export function FlightPlanEditor(){
                         RMK
                     </Grid>
                     <Grid size={"grow"}>
-                        <textarea className="flightPlanTextArea" rows={2} value={flightPlan?.remarks} onChange={(event)=>handleTextInput("remarks", event.target.value)} autoComplete="off" autoCorrect="off" spellCheck="false"></textarea>
+                        <ControlledInput isTextArea={true} className="flightPlanTextArea" value={flightPlan?.remarks} onChange={(event)=>handleTextInput("remarks", event.target.value)}></ControlledInput>
                     </Grid>
                 </Grid>
             </div>

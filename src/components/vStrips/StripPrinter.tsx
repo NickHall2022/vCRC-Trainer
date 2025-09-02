@@ -7,6 +7,7 @@ import { useStrips } from "../../hooks/useStrips";
 import CloseIcon from '@mui/icons-material/Close';
 import { makeEmptyFlightPlan } from "../../utils/flightPlans";
 import { v4 as uuidv4 } from 'uuid';
+import { ControlledInput } from "../../utils/ControlledInput";
 
 type Props = {
     setDraggedStrip: Dispatch<SetStateAction<AbstractStrip>>;
@@ -94,7 +95,7 @@ export function StripPrinter({setDraggedStrip, handleStripInsert, printerOpen, s
             </p>
             <Grid container style={{marginBottom: "15px"}} spacing={2}>
                 <Grid size={"grow"} textAlign={"right"}>
-                    <input type="text" className="stripPrinterInput" placeholder="AAL123" value={enteredCallsign} maxLength={8} onChange={handleCallsignChange} onKeyUp={handleEnterPressed} style={{height: "42.2px", border:"none", padding: "0px", textAlign: "center"}}></input>
+                    <ControlledInput className="stripPrinterInput" placeholder="AAL123" value={enteredCallsign} maxLength={8} onChange={() => handleCallsignChange} onKeyUp={handleEnterPressed} style={{height: "42.2px", border:"none", padding: "0px", textAlign: "center"}}></ControlledInput>
                 </Grid>
                 <Grid size={"grow"} textAlign={"left"}>
                     <button className="stripPrinterInput" disabled={!selectedFlightPlan} style={{backgroundColor: "rgb(0, 188, 140)"}} onClick={handleRequestStrip}>Request Strip</button>

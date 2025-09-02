@@ -108,7 +108,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                 return !requests.find(request => request.callsign === flightPlan.callsign);
             });
 
-            if(Math.floor(timer / 1000) % 5 === 0){
+            if(Math.floor(timer / 1000) % 15 === 0){
                 if(flightsWithRequest.length < 1 + difficulty){
                     const newFlight = spawnNewFlight();
                     if (newFlight && (newFlight.routeType === "TEC" || newFlight?.routeType === "H")) {
@@ -117,7 +117,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                 }
             }
 
-            if(Math.floor(timer / 1000) % Math.ceil(60 / difficulty) === 0){
+            if(Math.floor(timer / 1000) % Math.ceil(90 / difficulty) === 0){
                 for(const request of requests){
                     if(request.reminder && request.reminder.sendTime && timer >= request.reminder.sendTime){
                         sendMessage(request.reminder.message, request.callsign, "radio");

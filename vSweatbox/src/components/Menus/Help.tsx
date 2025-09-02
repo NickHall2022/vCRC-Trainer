@@ -24,7 +24,7 @@ function Help({setHelpOpen} : Props) {
                 <p>
                     This system is designed to reflect the simplified operation of vStrips and CRC as much as possible. It will be helpful
                     to familiarize yourself with the <a href="https://strips.virtualnas.net/docs/#/" target="_blank">vStrips documentation</a> and  
-                    <a href="https://strips.virtualnas.net/docs/#/" target="_blank"> CRC documentation</a>. Here is a quick list of common commands:
+                    <a href="https://crc.virtualnas.net/docs/#/tower-cab" target="_blank"> CRC documentation</a>. Here is a quick list of common commands:
                 </p>
                 
                 <ul>

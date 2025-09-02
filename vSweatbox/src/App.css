@@ -1,0 +1,177 @@
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  color: white;
+  background-color: rgb(36,36,36);
+}
+
+button {
+  color: white;
+  background-color: rgb(36,36,36);
+}
+
+input {
+  color: white;
+  background-color: rgb(36, 36, 36);
+}
+
+button:disabled {
+  color: rgb(150, 150, 150);
+  background-color: rgb(19, 19, 19);
+}
+
+#root {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.flightPlanInput {
+  color: rgb(116, 157, 211);
+  text-align: center;
+  border-color: rgb(70, 70, 70);
+  background-color: black;
+  border-width: 1px;
+  border-style: solid;
+  font-size: 14px;
+}
+
+.flightPlanReadonly {
+  border: none; 
+  background: none;
+}
+
+.flightPlanTextArea {
+  color: rgb(116, 157, 211);
+  text-align: left;
+  border-color: rgb(70, 70, 70);
+  background-color: black;
+  border-width: 1px;
+  border-style: solid;
+  resize: none;
+  width: 95%;
+  font-size: 14px;
+  line-height: 17px;
+}
+
+.amendFlightPlanButton {
+  border-radius: 0px;
+  border: 1px solid rgb(69, 93, 124);
+}
+
+.dataBlock {
+  position: absolute;
+  background-color: rgba(31, 31, 31, 0.7);
+  color: rgb(0, 230, 0);
+  font-size: 14px;
+  font-family: monospace;
+  margin: 0px;
+  padding: 1px;
+  line-height: 12px;
+}
+
+.preventSelect {
+  -webkit-user-select: none;
+  -ms-user-select: none; 
+  user-select: none;
+}
+
+.stripsBarButton {
+  border-radius: 0px;
+  background-color: rgb(130, 130, 130);
+  outline: 1px solid rgb(230, 230, 230);
+  margin-bottom: 3px;
+}
+
+.selected {
+  outline: 3px solid rgb(230, 230, 230);
+  box-sizing: border-box !important;
+}
+
+.stripsBarPrintButton {
+  border-radius: 0px;
+  background-color: rgb(60, 60, 60);
+  border: 1px solid rgb(230, 230, 230);
+}
+
+.stripPrinter {
+  background-color: rgb(95, 105, 110);
+  width: 700px;
+  max-height: calc(-60px + 100vh);
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  box-shadow: rgba(0, 0, 0, 0.5) -5px 0px 40px 5px;
+  text-align: center;
+  align-content: center;
+}
+
+.stripPrinterInput {
+  width: 150px;
+  font-size: 16px;
+  padding-left: 15px;
+  padding-right: 15px;
+  border-radius: 0.25rem;
+}
+
+.stripTextInput {
+  background: none;
+  border: none;
+  color: black;
+  font-size: 20px;
+  font-family: cursive;
+  outline: none;
+}
+
+.stripTextInputSmall {
+  background: none;
+  border: none;
+  color: black;
+  font-size: 16px;
+  font-family: cursive;
+  outline: none;
+}
+
+.controllersHeader {
+  color: rgb(37, 212, 224);
+  margin: 0px;
+  margin-left: 5px;
+}
+
+.controllersListItem {
+  color: rgb(200, 200, 200);
+}
+
+.controllersListItemActive {
+  color: rgb(15, 160, 170);
+}
+
+textarea, input { font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; }
+
+.welcome {
+  background-color: rgb(58, 58, 58);
+  width: 800px;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: rgba(0, 0, 0, 1.0) -5px 0px 40px 5px;
+  align-content: center;
+  padding-left: 2vw;
+  padding-right: 2vw;
+  padding-bottom: 2vh;
+  border-radius: 10px;
+  z-index: 10;
+}
+
+.mistakeCounter {
+  background-color: red;
+  border-radius: 12.5px;
+  width: 25px;
+  height: 25px;
+  display: block;
+  text-align: center
+}

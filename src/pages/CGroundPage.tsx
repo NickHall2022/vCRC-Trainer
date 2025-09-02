@@ -35,7 +35,7 @@ export function CGgroundPage() {
                     <CabViewWindow></CabViewWindow>
                 </Grid>
             </Grid>
-            {newMistakes.length > 0 && <div style={{position: "fixed", zIndex: 4, right: "250px", bottom: "35px",color: "red"}}><ErrorIcon ></ErrorIcon></div>}
+            {newMistakes.length > 0 && <div style={{position: "fixed", zIndex: 4, right: "315px", bottom: "35px",color: "red"}}><ErrorIcon ></ErrorIcon></div>}
             <button onClick={handleMistakesClicked} style={{backgroundColor: "#444", padding: "8px", border: "1px solid white", position: "fixed", zIndex: 3, right: "110px", bottom: "15px"}}>
                 &nbsp;
                 <span style={{fontSize: "20px"}}>Areas for Improvement</span>

@@ -229,7 +229,7 @@ function buildClearanceRequest(flightPlan: PartialFlightPlan, withPushback: bool
             priority: 1,
             atcMessage: `Readback correct for ${flightPlan.callsign}`,
             callsign: flightPlan.callsign,
-            nextRequestDelay: 150000 + Math.floor(Math.random() * 60000)
+            nextRequestDelay: 90000 + Math.floor(Math.random() * 60000)
         },
         nextStatus: "clearedIFR"
     }
@@ -242,7 +242,7 @@ function buildPusbackRequest(intoRamp: boolean, flightPlan: PartialFlightPlan, g
         atcMessage: `Push approved for ${flightPlan.callsign}`,
         priority: 1,
         callsign: flightPlan.callsign,
-        nextRequestDelay: 120000 + Math.floor(Math.random() * 60000),
+        nextRequestDelay: 90000 + Math.floor(Math.random() * 60000),
         nextStatus: "pushback"
     }
 }

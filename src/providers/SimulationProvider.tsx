@@ -90,7 +90,7 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                     }
                 } else if(flightPlan.status === "departed"){
                     const localStrips = strips.filter(strip => strip.bayName === "local");
-                    const strip = localStrips.find(strip => (strip as StripData).callsign === flightPlan.callsign) as StripData
+                    const strip = localStrips.find(strip => (strip as StripData).callsign === flightPlan.callsign) as StripData;
                     if(strip && (strip.box10 !== "B" || strip.box12 !== ATIS)) {
                         addMistake("stripBox", flightPlan.callsign);
                     }
@@ -108,10 +108,12 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                 return !requests.find(request => request.callsign === flightPlan.callsign);
             });
 
-            if(flightsWithRequest.length < 1 + difficulty){
-                const newFlight = spawnNewFlight();
-                if (newFlight && (newFlight.routeType === "TEC" || newFlight?.routeType === "H")) {
-                    printAmendedFlightPlan(newFlight);
+            if(Math.floor(timer / 1000) % 5 === 0){
+                if(flightsWithRequest.length < 1 + difficulty){
+                    const newFlight = spawnNewFlight();
+                    if (newFlight && (newFlight.routeType === "TEC" || newFlight?.routeType === "H")) {
+                        printAmendedFlightPlan(newFlight);
+                    }
                 }
             }
 
@@ -169,10 +171,14 @@ export function SimulationProvider({ children }: { children: ReactNode }){
             let closestNode = taxiways[0];
             let distanceToClosest = 100;
             for(const node of taxiways){
-                const dist = distance(planeX, planeY, node.x, node.y);
-                if(dist < distanceToClosest){
-                    distanceToClosest = dist;
-                    closestNode = node;
+                const distanceToNode = distance(planeX, planeY, node.x, node.y);
+                if(distanceToNode < distanceToClosest){
+                    const myDistanceToEnd = distance(planeX, planeY, endNode.x, endNode.y);
+                    const otherDistanceToEnd = distance(node.x, node.y, endNode.x, endNode.y);
+                    if(myDistanceToEnd >= otherDistanceToEnd){
+                        distanceToClosest = distanceToNode;
+                        closestNode = node;
+                    }
                 }
             }
 

@@ -291,7 +291,7 @@ function buildVFRDepartureRequest(flightPlan: PartialFlightPlan, flightFollowing
         ...flightPlan,
         requests: [
             {
-                requestMessage: `Type ${flightPlan.actualAircraftType} at the north apron with ${ATIS}, request VFR departure${flightFollowing ? " with flight following" : ""} to the ${direction} at ${altitude}${flightFollowing ? "" : ", negative flight following"}`,
+                requestMessage: `Type ${flightPlan.actualAircraftType} at the north apron with ${ATIS}, request VFR departure${flightFollowing ? " with flight following" : ""} to the ${direction} at ${altitude}`,
                 responseMessage: `Maintain VFR at or below 2500, departure 119.75, squawk ${flightPlan.squawk}`,
                 priority: 1,
                 callsign: flightPlan.callsign,
@@ -368,7 +368,7 @@ function getRandomGAType() {
 function getRandomRoute(prefRoutes: PrefRoute[]) {
     const prefRoute = prefRoutes[Math.floor(Math.random() * prefRoutes.length)];
     let routeString = prefRoute.route.substring(4, prefRoute.route.length - 4);
-
+    
     if(Math.random() > 0.75){
         const random = Math.random();
         if(random < 0.33){

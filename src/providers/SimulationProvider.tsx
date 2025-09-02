@@ -108,8 +108,8 @@ export function SimulationProvider({ children }: { children: ReactNode }){
                 return !requests.find(request => request.callsign === flightPlan.callsign);
             });
 
-            if(Math.floor(timer / 1000) % 15 === 0){
-                if(flightsWithRequest.length < 1 + difficulty){
+            if(Math.floor(timer / 1000) % 1 === 0){
+                if(flightsWithRequest.length < 1 + difficulty + 100){
                     const newFlight = spawnNewFlight();
                     if (newFlight && (newFlight.routeType === "TEC" || newFlight?.routeType === "H")) {
                         printAmendedFlightPlan(newFlight);
@@ -167,18 +167,14 @@ export function SimulationProvider({ children }: { children: ReactNode }){
 
         const dist = flightPlan.taxiwayNodeId ? movePlaneToSavedNode(flightPlan) : 0;
 
-        if(dist < TAXIWAY_NODE_THRESHOLD){
+        if(dist < TAXIWAY_NODE_THRESHOLD && flightPlan.taxiwayNodeId !== "END"){
             let closestNode = taxiways[0];
             let distanceToClosest = 100;
             for(const node of taxiways){
                 const distanceToNode = distance(planeX, planeY, node.x, node.y);
                 if(distanceToNode < distanceToClosest){
-                    const myDistanceToEnd = distance(planeX, planeY, endNode.x, endNode.y);
-                    const otherDistanceToEnd = distance(node.x, node.y, endNode.x, endNode.y);
-                    if(myDistanceToEnd >= otherDistanceToEnd){
-                        distanceToClosest = distanceToNode;
-                        closestNode = node;
-                    }
+                    distanceToClosest = distanceToNode;
+                    closestNode = node;
                 }
             }
 

@@ -21,7 +21,36 @@ export const jetTypes = ["CRJ7", "CRJ9", "CRJX", "B737", "B738", "B739", "B38M",
 export const tecTypes = ["C208", "BE58", "B350", "C414", "P212", "BN2P", "C408", "DHC6", "TBM9"];
 
 const alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+const phonetic_aphabet: Record<typeof alphabet[number], string> = {
+    "A": "Alpha",
+    "B": "Bravo",
+    "C": "Charlie",
+    "D": "Delta",
+    "E": "Echo",
+    "F": "Foxtrot",
+    "G": "Golf",
+    "H": "Hotel",
+    "I": "India",
+    "J": "Juliet",
+    "K": "Kilo",
+    "L": "Lima",
+    "M": "Mike",
+    "N": "November",
+    "O": "Oscar",
+    "P": "Papa",
+    "Q": "Quebec",
+    "R": "Romeo",
+    "S": "Sierra",
+    "T": "Tango",
+    "U": "Uniform",
+    "V": "Victor",
+    "W": "Whiskey",
+    "X": "X-ray",
+    "Y": "Yankee",
+    "Z": "Zulu"
+}
 export const ATIS = alphabet[Math.floor(Math.random() * alphabet.length)];
+export const PHONETIC_ATIS = phonetic_aphabet[ATIS];
 
 export const DEST_TO_DIRECTION_MAP: Record<string, "west" | "east" | undefined> = {
     //H
@@ -225,7 +254,7 @@ function buildClearanceRequest(aircraft: Omit<Aircraft, "requests">, withPushbac
 
 function buildPusbackRequest(intoRamp: boolean, callsign: string, gate: string): AircraftRequest {
     return {
-        requestMessage: `Request pushback with ${ATIS} from gate ${gate}`,
+        requestMessage: `Request pushback with ${PHONETIC_ATIS} from gate ${gate}`,
         responseMessage: intoRamp ? "Pushback into the ramp at our discretion, will call for taxi" : "Pushback approved, will call for taxi",
         atcMessage: `Push approved for ${callsign}`,
         priority: 1,
@@ -237,7 +266,7 @@ function buildPusbackRequest(intoRamp: boolean, callsign: string, gate: string):
 
 function buildTaxiRequest(callsign: string, location?: string, taxiInstruction?: string): AircraftRequest {
     return {
-        requestMessage: `Ready for taxi${location ? ` with ${ATIS} from ${location}` : ""}`,
+        requestMessage: `Ready for taxi${location ? ` with ${PHONETIC_ATIS} from ${location}` : ""}`,
         atcMessage: `Taxi instruction sent to ${callsign}`,
         responseMessage: taxiInstruction ? taxiInstruction : "Runway 29, taxi via A, cross runway 36",
         priority: 2,
@@ -323,7 +352,7 @@ function buildVFRDepartureRequest(aircraft: Omit<UnspawnedVFRAircraft, "requests
         ...aircraft,
         requests: [
             {
-                requestMessage: `Type ${aircraft.actualAircraftType} at the north apron with ${ATIS}, request VFR departure${flightFollowing ? " with flight following" : ""} to the ${direction} at ${altitude}`,
+                requestMessage: `Type ${aircraft.actualAircraftType} at the north apron with ${PHONETIC_ATIS}, request VFR departure${flightFollowing ? " with flight following" : ""} to the ${direction} at ${altitude}`,
                 responseMessage: `Maintain VFR at or below 2500, departure 119.75, squawk ${aircraft.flightPlan.squawk}`,
                 priority: 1,
                 callsign: aircraft.callsign,
@@ -357,7 +386,7 @@ function buildVFRPatternRequest(aircraft: Omit<UnspawnedVFRAircraft, "requests">
         ...aircraft,
         requests: [
             {
-                requestMessage: `Type ${aircraft.actualAircraftType} at the north apron with ${ATIS}, request taxi for pattern work`,
+                requestMessage: `Type ${aircraft.actualAircraftType} at the north apron with ${PHONETIC_ATIS}, request taxi for pattern work`,
                 responseMessage: `Squawk VFR, runway 29, taxi via C, A, cross runway 36`,
                 nextStatus: "taxi",
                 atcMessage: `Taxi instruction sent to ${aircraft.callsign}`,

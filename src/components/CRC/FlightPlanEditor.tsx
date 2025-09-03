@@ -1,5 +1,5 @@
 import { Grid } from "@mui/material";
-import { useFlightPlans } from "../../hooks/useFlightPlans";
+import { useAircraft } from "../../hooks/useAircraft";
 import type { FlightPlan } from "../../types/common";
 import { useState, useEffect, useRef, type RefObject } from "react";
 import Draggable from "react-draggable";
@@ -9,7 +9,7 @@ import { useImmer } from "use-immer";
 import { ControlledInput } from "../../utils/ControlledInput";
 
 export function FlightPlanEditor(){
-    const { selectedFlightPlan, amendFlightPlan, setSelectedFlightPlan, flightPlans } = useFlightPlans();
+    const { selectedFlightPlan, amendFlightPlan, setSelectedFlightPlan, aircrafts } = useAircraft();
     const { printAmendedFlightPlan } = useStrips();
 
     const draggableRef = useRef<HTMLDivElement>(null);
@@ -50,11 +50,12 @@ export function FlightPlanEditor(){
 
     function handleAmendFlightPlan(){
         setHasBeenEdited(false);
-        const latestFlightPlan = flightPlans.find(flight => flight.callsign === flightPlan.callsign);
+        const latestFlightPlan = aircrafts.find(aircraft => aircraft.callsign === flightPlan.callsign)?.flightPlan;
         if(!latestFlightPlan){
             throw new Error("flight plan not properly selected");
         }
-        const amendedFlightPlan: FlightPlan = { ...latestFlightPlan, 
+        const amendedFlightPlan: FlightPlan = { 
+            ...latestFlightPlan, 
             printCount: flightPlan.printCount + 1, 
             created: true,
             aircraftType: flightPlan.aircraftType,

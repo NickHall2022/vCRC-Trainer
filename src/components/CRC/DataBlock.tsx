@@ -1,15 +1,15 @@
 import { useEffect, useRef, type RefObject } from "react";
-import type { FlightPlan } from "../../types/common";
+import type { Aircraft } from "../../types/common";
 import Draggable from "react-draggable";
 
-export function DataBlock({flightPlan}: {flightPlan: FlightPlan}){
+export function DataBlock({aircraft}: {aircraft: Aircraft}){
     const dataBlockRef = useRef<HTMLSpanElement>(null);
     const lineRef = useRef<SVGLineElement>(null);
     const animationRef = useRef<number>(null);
 
     useEffect(() => {
         const updatePosition = () => {
-            const planeRect = document.getElementById(flightPlan.callsign)?.getBoundingClientRect();
+            const planeRect = document.getElementById(aircraft.callsign)?.getBoundingClientRect();
             const dataBlockElement = dataBlockRef.current;
             const dataBlockRect = dataBlockRef.current?.getBoundingClientRect();
             const lineElement = lineRef.current;
@@ -47,7 +47,7 @@ export function DataBlock({flightPlan}: {flightPlan: FlightPlan}){
                 cancelAnimationFrame(animationRef.current);
             }
         }
-    }, [flightPlan.callsign]);
+    }, [aircraft.callsign]);
 
     function handleDataBlockWheel (event: React.WheelEvent){
         const target = event.currentTarget as HTMLElement;
@@ -87,8 +87,8 @@ export function DataBlock({flightPlan}: {flightPlan: FlightPlan}){
         <Draggable nodeRef={dataBlockRef as RefObject<HTMLElement>}  allowAnyClick={true} handle=".inner">
             <span ref={dataBlockRef} className="inner" style={{position: "absolute", cursor: "grab", display: "none"}} onWheel={handleDataBlockWheel}>
                 <div style={{ zIndex: 3, position: "absolute", transform: `translate(-50%, -50%)` }} className="dataBlock inner">
-                    <p style={{margin: "0px"}}>{flightPlan.callsign}</p>
-                    <p style={{margin: "0px"}}>{flightPlan.actualAircraftType}</p>
+                    <p style={{margin: "0px"}}>{aircraft.callsign}</p>
+                    <p style={{margin: "0px"}}>{aircraft.actualAircraftType}</p>
                 </div>
             </span>
         </Draggable>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { useFlightPlans } from "../../hooks/useFlightPlans";
+import { useAircraft } from "../../hooks/useAircraft";
 import { Airplane } from "./Airplane";
 import { ControllerList } from "./ControllerList";
 import { FlightPlanEditor } from "./FlightPlanEditor";
@@ -9,7 +9,7 @@ import { Taxiways } from "../debug/Taxiways";
 import { DataBlock } from "./DataBlock";
 
 export function CabViewWindow(){
-    const {flightPlans} = useFlightPlans();
+    const { aircrafts } = useAircraft();
     const [zoom, setZoom] = useState<number>(1);
     const [rotate, setRotate] = useState<number>(0);
     const draggableRef = useRef<HTMLDivElement>(null);
@@ -36,14 +36,14 @@ export function CabViewWindow(){
     }, []);
 
     function createAirplanes() {
-        return flightPlans.map(flightPlan => {
-            return <Airplane flightPlan={flightPlan} key={flightPlan.callsign}></Airplane>
+        return aircrafts.map(aircraft => {
+            return <Airplane aircraft={aircraft} key={aircraft.callsign}></Airplane>
         })
     }
 
     function createDataBlocks() {
-        return flightPlans.map(flightPlan => {
-            return <DataBlock flightPlan={flightPlan} key={flightPlan.callsign}></DataBlock>
+        return aircrafts.map(aircraft => {
+            return <DataBlock aircraft={aircraft} key={aircraft.callsign}></DataBlock>
         })
     }
 

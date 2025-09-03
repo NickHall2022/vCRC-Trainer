@@ -1,39 +1,39 @@
 import { useState, type ReactNode } from "react";
-import type { FlightPlan, FlightStatus } from "../types/common";
-import { FlightPlanContext } from "../hooks/useFlightPlans";
+import type { Aircraft, FlightPlan, FlightStatus } from "../types/common";
+import { AircraftContext } from "../hooks/useAircraft";
 import { makeEmptyFlightPlan, makeNewFlight } from "../utils/flightPlans";
 import { useImmer } from "use-immer";
 import { usePrefRoutes } from "../hooks/usePrefRoutes";
 import { useParkingSpots } from "../hooks/useParkingSpots";
 
-export function FlightPlanProvider({ children }: { children: ReactNode }){
+export function AircraftProvider({ children }: { children: ReactNode }){
     const { reserveSpot } = useParkingSpots();
 
     const [selectedFlightPlan, setSelectedFlightPlan] = useState<FlightPlan | undefined>(undefined)
     const prefRoutes = usePrefRoutes();
 
-    const [flightPlans, setFlightPlans] = useImmer<FlightPlan[]>([]);
+    const [aircrafts, setAircrafts] = useImmer<Aircraft[]>([]);
 
-    function getFlightByCallsign(callsign: string){
-        const flightPlan = flightPlans.find(flightPlan => flightPlan.callsign === callsign);
-        if(flightPlan){
-            return flightPlan
+    function getFlightPlanByCallsign(callsign: string){
+        const aircraft = aircrafts.find(aircraft => aircraft.callsign === callsign);
+        if(aircraft){
+            return aircraft.flightPlan;
         }
         return { ...makeEmptyFlightPlan(), callsign };
     }
 
     function amendFlightPlan(amendedFlightPlan: FlightPlan){
-        setFlightPlans((draft) => {
-            const replaceIndex = draft.findIndex(flightPlan => flightPlan.callsign === amendedFlightPlan.callsign);
+        setAircrafts((draft) => {
+            const replaceIndex = draft.findIndex(aircraft => aircraft.callsign === amendedFlightPlan.callsign);
             if(replaceIndex !== -1){
-                draft[replaceIndex] = amendedFlightPlan;
+                draft[replaceIndex].flightPlan = amendedFlightPlan;
             }
         })
     }
 
     function removeFirstRequest(callsign: string){
-        setFlightPlans((draft) => {
-            const modifyIndex = draft.findIndex(flightPlan => flightPlan.callsign === callsign);
+        setAircrafts((draft) => {
+            const modifyIndex = draft.findIndex(aircraft => aircraft.callsign === callsign);
             if(modifyIndex !== -1){
                 draft[modifyIndex].requests.splice(0, 1);
             }
@@ -41,8 +41,8 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
     }
 
     function setNextRequestTime(callsign: string, canSendRequestTime: number, timer: number){
-        setFlightPlans((draft) => {
-            const modifyIndex = draft.findIndex(flightPlan => flightPlan.callsign === callsign);
+        setAircrafts((draft) => {
+            const modifyIndex = draft.findIndex(aircraft => aircraft.callsign === callsign);
             if(modifyIndex !== -1){
                 draft[modifyIndex].canSendRequestTime = timer + canSendRequestTime;
             }
@@ -50,8 +50,8 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
     }
 
     function setPlanePosition(callsign: string, x: number, y: number, angle?: number){
-        setFlightPlans((draft) => {
-            const modifyIndex = draft.findIndex(flightPlan => flightPlan.callsign === callsign);
+        setAircrafts((draft) => {
+            const modifyIndex = draft.findIndex(aircraft => aircraft.callsign === callsign);
             if(modifyIndex !== -1){
                 draft[modifyIndex].positionX = x;
                 draft[modifyIndex].positionY = y;
@@ -63,8 +63,8 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
     }
 
     function setTaxiwayNodeId(callsign: string, id: string){
-        setFlightPlans((draft) => {
-            const modifyIndex = draft.findIndex(flightPlan => flightPlan.callsign === callsign);
+        setAircrafts((draft) => {
+            const modifyIndex = draft.findIndex(aircraft => aircraft.callsign === callsign);
             if(modifyIndex !== -1){
                 draft[modifyIndex].taxiwayNodeId = id;
             }
@@ -72,8 +72,8 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
     }
 
     function setPlaneStatus(callsign: string, status: FlightStatus, timer: number){
-        setFlightPlans((draft) => {
-            const modifyIndex = draft.findIndex(flightPlan => flightPlan.callsign === callsign);
+        setAircrafts((draft) => {
+            const modifyIndex = draft.findIndex(aircraft => aircraft.callsign === callsign);
             if(modifyIndex !== -1){
                 draft[modifyIndex].status = status;
                 draft[modifyIndex].statusChangedTime = timer;
@@ -82,33 +82,32 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
     }
 
     function deleteFlightPlan(callsign: string){
-        setFlightPlans((draft) => {
-            const deleteIndex = draft.findIndex(flightPlan => flightPlan.callsign === callsign);
+        setAircrafts((draft) => {
+            const deleteIndex = draft.findIndex(aircraft => aircraft.callsign === callsign);
             if(deleteIndex !== -1){
                 draft.splice(deleteIndex, 1);
             }
         });
     }
 
-    function spawnNewFlight(): FlightPlan | undefined {
+    function spawnNewFlight(): Aircraft | undefined {
         const random = Math.random();
         const flightType = random < 0.5 ? "airline" : (random < 0.7 ? "TEC" : "ga");
 
         const parkingSpot = reserveSpot(flightType);
         if(parkingSpot){
-            const newFlightPlan = makeNewFlight(parkingSpot, prefRoutes);
-            setFlightPlans(draft => {
-                draft.push(newFlightPlan);
+            const newAircraft = makeNewFlight(parkingSpot, prefRoutes);
+            setAircrafts(draft => {
+                draft.push(newAircraft);
             })
-            return newFlightPlan;
+            return newAircraft;
         }
     }
 
     const value = {
-        flightPlans, 
-        getFlightByCallsign,
+        aircrafts, 
         selectedFlightPlan,
-        setSelectedFlightPlan: (callsign: string) => setSelectedFlightPlan(getFlightByCallsign(callsign)),
+        setSelectedFlightPlan: (callsign: string) => setSelectedFlightPlan(getFlightPlanByCallsign(callsign)),
         amendFlightPlan,
         removeFirstRequest,
         setNextRequestTime,
@@ -119,5 +118,5 @@ export function FlightPlanProvider({ children }: { children: ReactNode }){
         setTaxiwayNodeId
     }
 
-    return <FlightPlanContext.Provider value={value}>{children}</FlightPlanContext.Provider>
+    return <AircraftContext.Provider value={value}>{children}</AircraftContext.Provider>
 }

@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import type { AbstractStrip, BayName, DividerData, FlightPlan, StripData, StripsDetails } from "../types/common";
-import { useFlightPlans } from "../hooks/useFlightPlans";
+import { useAircraft } from "../hooks/useAircraft";
 import { useImmer } from "use-immer";
 import { v4 as uuidv4 } from 'uuid';
 import { StripsContext } from "../hooks/useStrips";
@@ -8,9 +8,11 @@ import useSound from "use-sound";
 
 export function StripsProvider({ children }: { children: ReactNode }){
 
-    const { flightPlans } = useFlightPlans();
+    const { aircrafts } = useAircraft();
     const [selectedBay, setSelectedBay] = useState<BayName>("ground");
     const [playPrintSound] = useSound("printer.mp3");
+
+    const flightPlans = aircrafts.map(aircraft => aircraft.flightPlan);
     
     const [strips, setStrips] = useImmer<AbstractStrip[]>((): AbstractStrip[] => {
         const flightStrips: StripData[] = flightPlans.filter(flightPlan => flightPlan.created).map(flightPlan => {

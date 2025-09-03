@@ -3,39 +3,46 @@ import type { Updater } from "use-immer";
 
 export type FlightStatus = "ramp" | "clearedIFR" | "pushback" | "taxi" | "departing" | "handedOff" | "handedOffReminded" | "departed";
 
-export type FlightPlan = {
-    callsign: string;
-    CID: string;
-    squawk: string;
+export type FlightPlan = FlightPlanDefaultIFRAttributes & {
     aircraftType: string;
-    actualAircraftType: string;
     requestedAltitude?: string;
     equipmentCode: string;
-    departure: string;
-    destination: string;
-    plannedTime: string;
     speed: string;
-    size: number;
+    callsign: string;
+    routeType: "TEC" | "H" | "pattern" | "VFR" | "VFRFF";
+}
+
+export type FlightPlanDefaultIFRAttributes = {
     altitude: string;
-    route: string;
+    destination: string;
+    CID: string;
+    plannedTime: string;
+    departure: string;
     remarks: string;
+    printCount: number;
+    created: boolean;
+    route: string;
+    squawk: string;
+}
+
+export type Aircraft = AircraftDefaultAttributes & {
+    callsign: string;
+    flightPlan: FlightPlan;
+    statusChangedTime?: number;
+    taxiwayNodeId?: string;
+    size: number;
+    actualAircraftType: string;
+    requests: AircraftRequest[];
+}
+
+export type AircraftDefaultAttributes = {
+    status: FlightStatus;
+    parkingSpotId: string;
     positionX: number;
     positionY: number;
     rotation: number;
-    printCount: number;
-    routeType: "TEC" | "H" | "pattern" | "VFR" | "VFRFF";
-    requests: AircraftRequest[];
     canSendRequestTime: number;
-    pushbackLocation: { x: number, y: number};
-    status: FlightStatus;
-    statusChangedTime?: number;
-    created: boolean;
-    parkingSpotId: string;
-    taxiwayNodeId?: string;
 }
-
-export type PartialFlightPlan = Omit<FlightPlan, "requests" | "canSendRequestTime" | "printCount" | "CID" | "plannedTime" | "pushbackLocation" | "status" | "parkingSpotId" | "routeTpye">;
-export type PartialFlightPlanWithRequests = PartialFlightPlan & { requests: AircraftRequest[], canSendRequestTime: number };
 
 export type BayName = "ground" | "local" | "spare" | "printer"
 
@@ -55,9 +62,8 @@ export type DividerData = AbstractStrip & {
     name: string;
 }
 
-export type FlightPlanDetails = {
-    flightPlans: FlightPlan[];
-    getFlightByCallsign: (callsign: string) => FlightPlan | undefined;
+export type AircraftDetails = {
+    aircrafts: Aircraft[];
     selectedFlightPlan: FlightPlan | undefined;
     setSelectedFlightPlan: (callsign: string) => void;
     amendFlightPlan: (amendedFlightPlan: FlightPlan) => void
@@ -66,7 +72,7 @@ export type FlightPlanDetails = {
     setPlanePosition: (callsign: string, x: number, y: number, angle?: number) => void;
     setPlaneStatus: (callsign: string, status: FlightStatus, timer: number) => void;
     deleteFlightPlan: (callsign: string) => void;
-    spawnNewFlight: () => FlightPlan | undefined;
+    spawnNewFlight: () => Aircraft | undefined;
     setTaxiwayNodeId: (callsign: string, id: string) => void;
 }
 
@@ -149,7 +155,8 @@ export type ParkingSpot = {
     y: number;
     rotation: number;
     location: string;
-    pushbackIntoRamp?: boolean;
+    pushbackIntoRamp: boolean;
+    pushbackLocation: { x: number, y: number };
     airline?: string;
     available: boolean;
     id: string;
@@ -162,6 +169,7 @@ export type ParkingSpotType = "airline" | "ga" | "TEC";
 export type ParkingSpotMethods = {
     reserveSpot: (type: ParkingSpotType) => ParkingSpot | undefined;
     releaseSpot: (id: string) => void;
+    getPushbackLocation: (id: string) => {x: number, y: number};
 }
 
 export type DifficultyDetails = {

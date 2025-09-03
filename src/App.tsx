@@ -1,6 +1,6 @@
 
 import './App.css'
-import { FlightPlanProvider } from './providers/FlightPlanProvider';
+import { AircraftProvider } from './providers/AircraftProvider';
 import { CGgroundPage } from './pages/CGroundPage';
 import { StripsProvider } from './providers/StripsProvider';
 import { useEffect, useState } from 'react';
@@ -44,7 +44,7 @@ function App() {
     <DifficultyProvider>
       <PrefRoutesProvider loadSilently={false}>
         <ParkingSpotProvider>
-          <FlightPlanProvider>
+          <AircraftProvider>
             <MistakeProvider>
               <StripsProvider>
                 <MessagesProvider>
@@ -54,7 +54,7 @@ function App() {
                 </MessagesProvider>
               </StripsProvider>
             </MistakeProvider>
-          </FlightPlanProvider>
+          </AircraftProvider>
         </ParkingSpotProvider>
       </PrefRoutesProvider>
     </DifficultyProvider>

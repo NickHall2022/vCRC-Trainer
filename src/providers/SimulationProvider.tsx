@@ -16,7 +16,7 @@ import { useDifficulty } from '../hooks/useDifficulty';
 import { useMistakes } from '../hooks/useMistakes';
 
 import type { Node } from '../utils/taxiways';
-import { ATIS } from '../utils/flightPlans';
+import { ATIS } from '../utils/constants/alphabet';
 
 const endNode = taxiways.find((node) => node.id === 'END') as Node;
 const TAXIWAY_NODE_THRESHOLD = 0.5;

@@ -8,247 +8,16 @@ import type {
   AircraftDefaultAttributes,
   FlightPlanDefaultIFRAttributes,
 } from '../types/common';
+import { GA_TYPES, JET_TYPES, TEC_TYPES } from './constants/aircraftTypes';
+import { ALPHABET, PHONETIC_ATIS } from './constants/alphabet';
+import {
+  SPAWNABLE_HIGH_EAST_ALT,
+  SPAWNABLE_HIGH_WEST_ALT,
+  SPAWNABLE_TEC_EAST_ALT,
+  SPAWNABLE_TEC_WEST_ALT,
+} from './constants/altitudes';
 
 type UnspawnedVFRAircraft = Omit<Aircraft, keyof AircraftDefaultAttributes>;
-
-export const VALID_WEST_ALT = [
-  '040',
-  '060',
-  '080',
-  '100',
-  '120',
-  '140',
-  '160',
-  '180',
-  '200',
-  '220',
-  '240',
-  '260',
-  '280',
-  '300',
-  '320',
-  '340',
-  '360',
-  '380',
-  '400',
-  '430',
-];
-export const VALID_EAST_ALT = [
-  '030',
-  '050',
-  '070',
-  '090',
-  '110',
-  '130',
-  '150',
-  '170',
-  '190',
-  '210',
-  '230',
-  '250',
-  '270',
-  '290',
-  '310',
-  '330',
-  '350',
-  '370',
-  '390',
-  '410',
-];
-
-export const HIGH_WEST_ALT = [
-  '200',
-  '220',
-  '240',
-  '260',
-  '280',
-  '300',
-  '320',
-  '340',
-  '360',
-  '380',
-  '400',
-  '430',
-];
-export const HIGH_EAST_ALT = [
-  '210',
-  '230',
-  '250',
-  '270',
-  '290',
-  '310',
-  '330',
-  '350',
-  '370',
-  '390',
-  '410',
-];
-const SPAWNABLE_HIGH_WEST_ALT = [
-  '220',
-  '240',
-  '260',
-  '280',
-  '300',
-  '320',
-  '340',
-  '360',
-  '380',
-];
-const SPAWNABLE_HIGH_EAST_ALT = [
-  '230',
-  '250',
-  '270',
-  '290',
-  '310',
-  '330',
-  '350',
-  '370',
-];
-
-export const TEC_WEST_ALT = ['040', '060', '080', '100'];
-export const TEC_EAST_ALT = ['030', '050', '070', '090'];
-const SPAWNABLE_TEC_WEST_ALT = ['060', '080', '100'];
-const SPAWNABLE_TEC_EAST_ALT = ['050', '070', '090'];
-
-export const jetTypes = [
-  'CRJ7',
-  'CRJ9',
-  'CRJX',
-  'B737',
-  'B738',
-  'B739',
-  'B38M',
-  'A220',
-  'A319',
-  'A320',
-  'A321',
-  'A20N',
-  'A21N',
-  'E135',
-  'E145',
-  'E190',
-];
-export const tecTypes = [
-  'C208',
-  'BE58',
-  'B350',
-  'C414',
-  'P212',
-  'BN2P',
-  'C408',
-  'DHC6',
-  'TBM9',
-];
-
-const alphabet = [
-  'A',
-  'B',
-  'C',
-  'D',
-  'E',
-  'F',
-  'G',
-  'H',
-  'I',
-  'J',
-  'K',
-  'L',
-  'M',
-  'N',
-  'O',
-  'P',
-  'Q',
-  'R',
-  'S',
-  'T',
-  'U',
-  'V',
-  'W',
-  'X',
-  'Y',
-  'Z',
-];
-const phonetic_aphabet: Record<(typeof alphabet)[number], string> = {
-  A: 'Alpha',
-  B: 'Bravo',
-  C: 'Charlie',
-  D: 'Delta',
-  E: 'Echo',
-  F: 'Foxtrot',
-  G: 'Golf',
-  H: 'Hotel',
-  I: 'India',
-  J: 'Juliet',
-  K: 'Kilo',
-  L: 'Lima',
-  M: 'Mike',
-  N: 'November',
-  O: 'Oscar',
-  P: 'Papa',
-  Q: 'Quebec',
-  R: 'Romeo',
-  S: 'Sierra',
-  T: 'Tango',
-  U: 'Uniform',
-  V: 'Victor',
-  W: 'Whiskey',
-  X: 'X-ray',
-  Y: 'Yankee',
-  Z: 'Zulu',
-};
-export const ATIS = alphabet[Math.floor(Math.random() * alphabet.length)];
-export const PHONETIC_ATIS = phonetic_aphabet[ATIS];
-
-export const DEST_TO_DIRECTION_MAP: Record<
-  string,
-  'west' | 'east' | undefined
-> = {
-  //H
-  KBWI: 'west',
-  KCLE: 'west',
-  KCLT: 'west',
-  KCVG: 'west',
-  KDCA: 'west',
-  KDTW: 'west',
-  KEWR: 'west',
-  KHPN: 'west',
-  KIAD: 'west',
-  KJFK: 'west',
-  KLGA: 'west',
-  KMCO: 'west',
-  KMIA: 'west',
-  KMSP: 'west',
-  KORD: 'west',
-  KPBI: 'west',
-  KPHL: 'west',
-  KPIT: 'west',
-  KRDU: 'west',
-  KRSW: 'west',
-  KSRQ: 'west',
-  KTPA: 'west',
-  //TEC
-  KACK: 'west',
-  KALB: 'west',
-  KBDL: 'west',
-  KBDR: 'west',
-  KBED: 'west',
-  KBOS: 'west',
-  KDXR: 'west',
-  KFRG: 'west',
-  KGON: 'west',
-  KHFD: 'west',
-  KHVN: 'west',
-  KHYA: 'west',
-  KISP: 'west',
-  KMVY: 'west',
-  KORH: 'west',
-  KOWD: 'west',
-  KOXC: 'west',
-  KPNE: 'west',
-  KPVC: 'west',
-  KPVD: 'west',
-  KSWF: 'west',
-};
 
 let unspawnedVFRAircraft: UnspawnedVFRAircraft[] = [];
 
@@ -621,16 +390,15 @@ function buildRandomFlightNumber() {
 }
 
 function getRandomJetType() {
-  return jetTypes[Math.floor(Math.random() * jetTypes.length)];
+  return JET_TYPES[Math.floor(Math.random() * JET_TYPES.length)];
 }
 
 function getRandomTecType() {
-  return tecTypes[Math.floor(Math.random() * tecTypes.length)];
+  return TEC_TYPES[Math.floor(Math.random() * TEC_TYPES.length)];
 }
 
 function getRandomGAType() {
-  const gaTypes = ['C152', 'C172', 'C182', 'P28A', 'BE36', 'BE58'];
-  return gaTypes[Math.floor(Math.random() * gaTypes.length)];
+  return GA_TYPES[Math.floor(Math.random() * GA_TYPES.length)];
 }
 
 function getRandomRoute(prefRoutes: PrefRoute[]) {
@@ -733,32 +501,6 @@ function getRandomVFRAltitude(direction: string) {
 function buildRandomNNumber() {
   const numLetters = Math.random() < 0.5 ? 1 : 2;
   const numNumbers = 5 - numLetters;
-  const LETTERS = [
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    'H',
-    'J',
-    'K',
-    'L',
-    'M',
-    'N',
-    'P',
-    'Q',
-    'R',
-    'S',
-    'T',
-    'U',
-    'V',
-    'W',
-    'X',
-    'Y',
-    'Z',
-  ];
   let callsign = '';
   for (let i = 0; i < numNumbers; i++) {
     if (i === 0) {
@@ -768,7 +510,7 @@ function buildRandomNNumber() {
     }
   }
   for (let i = 0; i < numLetters; i++) {
-    callsign += LETTERS[Math.floor(Math.random() * LETTERS.length)];
+    callsign += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
   }
 
   return `N${callsign}`;

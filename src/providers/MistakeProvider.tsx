@@ -8,16 +8,15 @@ import type {
 } from '../types/common';
 import { MistakeContext } from '../hooks/useMistakes';
 import { useAircraft } from '../hooks/useAircraft';
-import {
-  DEST_TO_DIRECTION_MAP,
-  HIGH_EAST_ALT,
-  HIGH_WEST_ALT,
-  jetTypes,
-  TEC_EAST_ALT,
-  TEC_WEST_ALT,
-  tecTypes,
-} from '../utils/flightPlans';
+import { DEST_TO_DIRECTION_MAP } from '../utils/constants/routes';
 import { usePrefRoutes } from '../hooks/usePrefRoutes';
+import { JET_TYPES, TEC_TYPES } from '../utils/constants/aircraftTypes';
+import {
+  HIGH_WEST_ALT,
+  TEC_WEST_ALT,
+  HIGH_EAST_ALT,
+  TEC_EAST_ALT,
+} from '../utils/constants/altitudes';
 
 export function MistakeProvider({ children }: { children: ReactNode }) {
   const [mistakes, setMistakes] = useImmer<Mistake[]>([]);
@@ -116,13 +115,13 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
     actualAircraftType: string
   ) {
     if (
-      jetTypes.indexOf(actualAircraftType) > -1 &&
+      JET_TYPES.indexOf(actualAircraftType) > -1 &&
       flightPlan.equipmentCode !== 'L'
     ) {
       addMistake('badEquipment', flightPlan.equipmentCode, actualAircraftType);
     }
     if (
-      tecTypes.indexOf(actualAircraftType) > -1 &&
+      TEC_TYPES.indexOf(actualAircraftType) > -1 &&
       ['X', 'W', 'P', 'A', 'D', 'B', 'T', 'U'].indexOf(
         flightPlan.equipmentCode
       ) !== -1

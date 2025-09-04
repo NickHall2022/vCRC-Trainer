@@ -3,7 +3,7 @@ import type { Message, MessagesDetails, MessageType } from '../types/common';
 import { MessagesContext } from '../hooks/useMessages';
 import { useImmer } from 'use-immer';
 import useSound from 'use-sound';
-import { PHONETIC_ATIS } from '../utils/flightPlans';
+import { PHONETIC_ATIS } from '../utils/constants/alphabet';
 
 export function MessagesProvider({ children }: { children: ReactNode }) {
   const [playRadioMessageSound] = useSound('RadioMessage.wav');
@@ -34,6 +34,7 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
         });
       });
     }
+
     if (type !== 'self') {
       setTimeout(() => {
         playRadioMessageSound();

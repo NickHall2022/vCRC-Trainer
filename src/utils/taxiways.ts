@@ -41,7 +41,7 @@ const G = [
   { x: 71.75, y: 42, id: 'G36' },
 ];
 
-function joinTaxiway(taxiway: Coordinate[]): Node[] {
+function formTaxiwayFromCoordinates(taxiway: Coordinate[]): Node[] {
   const joinedTaxiway: Node[] = taxiway.map((coord) => {
     return { ...coord, edges: [] };
   });
@@ -53,7 +53,11 @@ function joinTaxiway(taxiway: Coordinate[]): Node[] {
   return joinedTaxiway;
 }
 
-function joinByIds(graph: Node[], firstId: string, secondId: string) {
+function joinTaxiwayIntersectionByIds(
+  graph: Node[],
+  firstId: string,
+  secondId: string
+) {
   const firstNode = graph.find((node) => node.id === firstId) as Node;
   const secondNode = graph.find((node) => node.id === secondId) as Node;
   firstNode.edges.push(secondNode);
@@ -62,13 +66,16 @@ function joinByIds(graph: Node[], firstId: string, secondId: string) {
 }
 
 export const taxiways: Node[] = (() => {
-  let graph: Node[] = joinByIds(
-    joinTaxiway(A).concat(joinTaxiway(C)),
+  let taxiwayNetwork: Node[] = formTaxiwayFromCoordinates(A)
+    .concat(formTaxiwayFromCoordinates(C))
+    .concat(formTaxiwayFromCoordinates(G));
+  taxiwayNetwork = joinTaxiwayIntersectionByIds(
+    taxiwayNetwork,
     'AC',
     'aboveAC'
   );
-  graph = joinByIds(graph.concat(joinTaxiway(G)), 'A36', 'G36');
-  return graph;
+  taxiwayNetwork = joinTaxiwayIntersectionByIds(taxiwayNetwork, 'A36', 'G36');
+  return taxiwayNetwork;
 })();
 
 export function distance(x1: number, y1: number, x2: number, y2: number) {

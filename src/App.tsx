@@ -1,5 +1,4 @@
-
-import './App.css'
+import './App.css';
 import { AircraftProvider } from './providers/AircraftProvider';
 import { CGgroundPage } from './pages/CGroundPage';
 import { StripsProvider } from './providers/StripsProvider';
@@ -12,32 +11,29 @@ import Welcome from './components/Menus/Welcome';
 import { DifficultyProvider } from './providers/DifficultyProvider';
 import { MistakeProvider } from './providers/MistakeProvider';
 
-
 function App() {
   const [welcomeOpen, setWelcomeOpen] = useState(true);
 
   useEffect(() => {
-    function handleWindowUnload(event: any){
+    function handleWindowUnload(event: BeforeUnloadEvent) {
       event.preventDefault();
-      event.returnValue = ""
+      event.returnValue = '';
     }
 
-    window.addEventListener("beforeunload", handleWindowUnload);
+    window.addEventListener('beforeunload', handleWindowUnload);
     return () => {
-        window.removeEventListener("beforeunload", handleWindowUnload);
-    }
+      window.removeEventListener('beforeunload', handleWindowUnload);
+    };
   }, []);
 
-
-  if(welcomeOpen){
-      return (
-          <DifficultyProvider>
-            <PrefRoutesProvider loadSilently={true}>
-              <Welcome setWelcomeOpen={setWelcomeOpen}></Welcome>
-            </PrefRoutesProvider>
-          </DifficultyProvider>
-      )
-      
+  if (welcomeOpen) {
+    return (
+      <DifficultyProvider>
+        <PrefRoutesProvider loadSilently={true}>
+          <Welcome setWelcomeOpen={setWelcomeOpen}></Welcome>
+        </PrefRoutesProvider>
+      </DifficultyProvider>
+    );
   }
 
   return (
@@ -49,7 +45,7 @@ function App() {
               <StripsProvider>
                 <MessagesProvider>
                   <SimulationProvider>
-                    <CGgroundPage/>
+                    <CGgroundPage />
                   </SimulationProvider>
                 </MessagesProvider>
               </StripsProvider>
@@ -58,7 +54,7 @@ function App() {
         </ParkingSpotProvider>
       </PrefRoutesProvider>
     </DifficultyProvider>
-  )
+  );
 }
 
-export default App
+export default App;

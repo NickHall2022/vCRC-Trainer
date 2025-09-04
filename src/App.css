@@ -1,14 +1,15 @@
-html, body {
+html,
+body {
   margin: 0;
   height: 100%;
   overflow: hidden;
   color: white;
-  background-color: rgb(36,36,36);
+  background-color: rgb(36, 36, 36);
 }
 
 button {
   color: white;
-  background-color: rgb(36,36,36);
+  background-color: rgb(36, 36, 36);
 }
 
 input {
@@ -38,7 +39,7 @@ button:disabled {
 }
 
 .flightPlanReadonly {
-  border: none; 
+  border: none;
   background: none;
 }
 
@@ -73,7 +74,7 @@ button:disabled {
 
 .preventSelect {
   -webkit-user-select: none;
-  -ms-user-select: none; 
+  -ms-user-select: none;
   user-select: none;
 }
 
@@ -149,7 +150,10 @@ button:disabled {
   color: rgb(15, 160, 170);
 }
 
-textarea, input { font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; }
+textarea,
+input {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
 
 .welcome {
   background-color: rgb(58, 58, 58);
@@ -158,7 +162,7 @@ textarea, input { font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; 
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  box-shadow: rgba(0, 0, 0, 1.0) -5px 0px 40px 5px;
+  box-shadow: rgba(0, 0, 0, 1) -5px 0px 40px 5px;
   align-content: center;
   padding-left: 2vw;
   padding-right: 2vw;
@@ -173,5 +177,5 @@ textarea, input { font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; 
   width: 25px;
   height: 25px;
   display: block;
-  text-align: center
+  text-align: center;
 }

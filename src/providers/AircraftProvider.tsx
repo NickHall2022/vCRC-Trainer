@@ -1,122 +1,158 @@
-import { useState, type ReactNode } from "react";
-import type { Aircraft, FlightPlan, FlightStatus } from "../types/common";
-import { AircraftContext } from "../hooks/useAircraft";
-import { makeEmptyFlightPlan, makeNewFlight } from "../utils/flightPlans";
-import { useImmer } from "use-immer";
-import { usePrefRoutes } from "../hooks/usePrefRoutes";
-import { useParkingSpots } from "../hooks/useParkingSpots";
+import { useState, type ReactNode } from 'react';
+import type { Aircraft, FlightPlan, FlightStatus } from '../types/common';
+import { AircraftContext } from '../hooks/useAircraft';
+import { makeEmptyFlightPlan, makeNewFlight } from '../utils/flightPlans';
+import { useImmer } from 'use-immer';
+import { usePrefRoutes } from '../hooks/usePrefRoutes';
+import { useParkingSpots } from '../hooks/useParkingSpots';
 
-export function AircraftProvider({ children }: { children: ReactNode }){
-    const { reserveSpot } = useParkingSpots();
+export function AircraftProvider({ children }: { children: ReactNode }) {
+  const { reserveSpot } = useParkingSpots();
 
-    const [selectedFlightPlan, setSelectedFlightPlan] = useState<FlightPlan | undefined>(undefined)
-    const prefRoutes = usePrefRoutes();
+  const [selectedFlightPlan, setSelectedFlightPlan] = useState<
+    FlightPlan | undefined
+  >(undefined);
+  const prefRoutes = usePrefRoutes();
 
-    const [aircrafts, setAircrafts] = useImmer<Aircraft[]>([]);
+  const [aircrafts, setAircrafts] = useImmer<Aircraft[]>([]);
 
-    function getFlightPlanByCallsign(callsign: string){
-        const aircraft = aircrafts.find(aircraft => aircraft.callsign === callsign);
-        if(aircraft){
-            return aircraft.flightPlan;
+  function getFlightPlanByCallsign(callsign: string) {
+    const aircraft = aircrafts.find(
+      (aircraft) => aircraft.callsign === callsign
+    );
+    if (aircraft) {
+      return aircraft.flightPlan;
+    }
+    return { ...makeEmptyFlightPlan(), callsign };
+  }
+
+  function amendFlightPlan(amendedFlightPlan: FlightPlan) {
+    setAircrafts((draft) => {
+      const replaceIndex = draft.findIndex(
+        (aircraft) => aircraft.callsign === amendedFlightPlan.callsign
+      );
+      if (replaceIndex !== -1) {
+        draft[replaceIndex].flightPlan = amendedFlightPlan;
+      }
+    });
+  }
+
+  function removeFirstRequest(callsign: string) {
+    setAircrafts((draft) => {
+      const modifyIndex = draft.findIndex(
+        (aircraft) => aircraft.callsign === callsign
+      );
+      if (modifyIndex !== -1) {
+        draft[modifyIndex].requests.splice(0, 1);
+      }
+    });
+  }
+
+  function setNextRequestTime(
+    callsign: string,
+    canSendRequestTime: number,
+    timer: number
+  ) {
+    setAircrafts((draft) => {
+      const modifyIndex = draft.findIndex(
+        (aircraft) => aircraft.callsign === callsign
+      );
+      if (modifyIndex !== -1) {
+        draft[modifyIndex].canSendRequestTime = timer + canSendRequestTime;
+      }
+    });
+  }
+
+  function setPlanePosition(
+    callsign: string,
+    x: number,
+    y: number,
+    angle?: number
+  ) {
+    setAircrafts((draft) => {
+      const modifyIndex = draft.findIndex(
+        (aircraft) => aircraft.callsign === callsign
+      );
+      if (modifyIndex !== -1) {
+        draft[modifyIndex].positionX = x;
+        draft[modifyIndex].positionY = y;
+        if (angle) {
+          draft[modifyIndex].rotation = angle;
         }
-        return { ...makeEmptyFlightPlan(), callsign };
+      }
+    });
+  }
+
+  function setTaxiwayNodeId(callsign: string, id: string) {
+    setAircrafts((draft) => {
+      const modifyIndex = draft.findIndex(
+        (aircraft) => aircraft.callsign === callsign
+      );
+      if (modifyIndex !== -1) {
+        draft[modifyIndex].taxiwayNodeId = id;
+      }
+    });
+  }
+
+  function setPlaneStatus(
+    callsign: string,
+    status: FlightStatus,
+    timer: number
+  ) {
+    setAircrafts((draft) => {
+      const modifyIndex = draft.findIndex(
+        (aircraft) => aircraft.callsign === callsign
+      );
+      if (modifyIndex !== -1) {
+        draft[modifyIndex].status = status;
+        draft[modifyIndex].statusChangedTime = timer;
+      }
+    });
+  }
+
+  function deleteFlightPlan(callsign: string) {
+    setAircrafts((draft) => {
+      const deleteIndex = draft.findIndex(
+        (aircraft) => aircraft.callsign === callsign
+      );
+      if (deleteIndex !== -1) {
+        draft.splice(deleteIndex, 1);
+      }
+    });
+  }
+
+  function spawnNewFlight(): Aircraft | undefined {
+    const random = Math.random();
+    const flightType = random < 0.5 ? 'airline' : random < 0.7 ? 'TEC' : 'ga';
+
+    const parkingSpot = reserveSpot(flightType);
+    if (parkingSpot) {
+      const newAircraft = makeNewFlight(parkingSpot, prefRoutes);
+      setAircrafts((draft) => {
+        draft.push(newAircraft);
+      });
+      return newAircraft;
     }
+  }
 
-    function amendFlightPlan(amendedFlightPlan: FlightPlan){
-        setAircrafts((draft) => {
-            const replaceIndex = draft.findIndex(aircraft => aircraft.callsign === amendedFlightPlan.callsign);
-            if(replaceIndex !== -1){
-                draft[replaceIndex].flightPlan = amendedFlightPlan;
-            }
-        })
-    }
+  const value = {
+    aircrafts,
+    selectedFlightPlan,
+    setSelectedFlightPlan: (callsign: string) =>
+      setSelectedFlightPlan(getFlightPlanByCallsign(callsign)),
+    amendFlightPlan,
+    removeFirstRequest,
+    setNextRequestTime,
+    setPlanePosition,
+    setPlaneStatus,
+    deleteFlightPlan,
+    spawnNewFlight,
+    setTaxiwayNodeId,
+  };
 
-    function removeFirstRequest(callsign: string){
-        setAircrafts((draft) => {
-            const modifyIndex = draft.findIndex(aircraft => aircraft.callsign === callsign);
-            if(modifyIndex !== -1){
-                draft[modifyIndex].requests.splice(0, 1);
-            }
-        });
-    }
-
-    function setNextRequestTime(callsign: string, canSendRequestTime: number, timer: number){
-        setAircrafts((draft) => {
-            const modifyIndex = draft.findIndex(aircraft => aircraft.callsign === callsign);
-            if(modifyIndex !== -1){
-                draft[modifyIndex].canSendRequestTime = timer + canSendRequestTime;
-            }
-        });
-    }
-
-    function setPlanePosition(callsign: string, x: number, y: number, angle?: number){
-        setAircrafts((draft) => {
-            const modifyIndex = draft.findIndex(aircraft => aircraft.callsign === callsign);
-            if(modifyIndex !== -1){
-                draft[modifyIndex].positionX = x;
-                draft[modifyIndex].positionY = y;
-                if(angle){
-                    draft[modifyIndex].rotation = angle;
-                }
-            }
-        });
-    }
-
-    function setTaxiwayNodeId(callsign: string, id: string){
-        setAircrafts((draft) => {
-            const modifyIndex = draft.findIndex(aircraft => aircraft.callsign === callsign);
-            if(modifyIndex !== -1){
-                draft[modifyIndex].taxiwayNodeId = id;
-            }
-        });
-    }
-
-    function setPlaneStatus(callsign: string, status: FlightStatus, timer: number){
-        setAircrafts((draft) => {
-            const modifyIndex = draft.findIndex(aircraft => aircraft.callsign === callsign);
-            if(modifyIndex !== -1){
-                draft[modifyIndex].status = status;
-                draft[modifyIndex].statusChangedTime = timer;
-            }
-        });
-    }
-
-    function deleteFlightPlan(callsign: string){
-        setAircrafts((draft) => {
-            const deleteIndex = draft.findIndex(aircraft => aircraft.callsign === callsign);
-            if(deleteIndex !== -1){
-                draft.splice(deleteIndex, 1);
-            }
-        });
-    }
-
-    function spawnNewFlight(): Aircraft | undefined {
-        const random = Math.random();
-        const flightType = random < 0.5 ? "airline" : (random < 0.7 ? "TEC" : "ga");
-
-        const parkingSpot = reserveSpot(flightType);
-        if(parkingSpot){
-            const newAircraft = makeNewFlight(parkingSpot, prefRoutes);
-            setAircrafts(draft => {
-                draft.push(newAircraft);
-            })
-            return newAircraft;
-        }
-    }
-
-    const value = {
-        aircrafts, 
-        selectedFlightPlan,
-        setSelectedFlightPlan: (callsign: string) => setSelectedFlightPlan(getFlightPlanByCallsign(callsign)),
-        amendFlightPlan,
-        removeFirstRequest,
-        setNextRequestTime,
-        setPlanePosition,
-        setPlaneStatus,
-        deleteFlightPlan,
-        spawnNewFlight,
-        setTaxiwayNodeId
-    }
-
-    return <AircraftContext.Provider value={value}>{children}</AircraftContext.Provider>
+  return (
+    <AircraftContext.Provider value={value}>
+      {children}
+    </AircraftContext.Provider>
+  );
 }

@@ -56,9 +56,7 @@ export function HandWrittenDividerStrip({ stripData }: Props) {
 
   function handleInputChanged(value: string) {
     setStrips((draft) => {
-      const stripToEdit = draft.find(
-        (strip) => strip.id === stripData.id
-      ) as DividerData;
+      const stripToEdit = draft.find((strip) => strip.id === stripData.id) as DividerData;
       if (stripToEdit) {
         stripToEdit.name = value;
       }
@@ -92,9 +90,7 @@ export function HandWrittenDividerStrip({ stripData }: Props) {
         onClose={handleClose}
         anchorReference="anchorPosition"
         anchorPosition={
-          contextMenu !== null
-            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-            : undefined
+          contextMenu !== null ? { top: contextMenu.mouseY, left: contextMenu.mouseX } : undefined
         }
         transitionDuration={0}
       >

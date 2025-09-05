@@ -5,9 +5,7 @@ type Props = {
   maxLength?: number;
   value: string;
   onChange?: (
-    event:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
+    event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
   ) => void;
   className?: string;
   externalRef?: React.RefObject<HTMLInputElement | HTMLTextAreaElement | null>;
@@ -41,9 +39,7 @@ export function ControlledInput({
   }, [ref, externalRef, cursor, value]);
 
   const handleChange = (
-    event:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
+    event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     setCursor(event.target.selectionStart);
     if (onChange) {
@@ -55,11 +51,7 @@ export function ControlledInput({
     return (
       <textarea
         className={className}
-        ref={
-          (externalRef
-            ? externalRef
-            : ref) as React.RefObject<HTMLTextAreaElement | null>
-        }
+        ref={(externalRef ? externalRef : ref) as React.RefObject<HTMLTextAreaElement | null>}
         rows={2}
         value={value}
         onChange={handleChange}
@@ -75,11 +67,7 @@ export function ControlledInput({
       className={className}
       disabled={disabled}
       maxLength={maxLength}
-      ref={
-        (externalRef
-          ? externalRef
-          : ref) as React.RefObject<HTMLInputElement | null>
-      }
+      ref={(externalRef ? externalRef : ref) as React.RefObject<HTMLInputElement | null>}
       value={value}
       onChange={handleChange}
       style={style}

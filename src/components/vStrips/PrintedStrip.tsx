@@ -9,10 +9,7 @@ type Props = {
 export function PrintedStrip({ stripData }: Props) {
   const { setStrips } = useStrips();
 
-  function handleTextInput(
-    fieldType: keyof Pick<StripData, 'box10' | 'box12'>,
-    value: string
-  ) {
+  function handleTextInput(fieldType: keyof Pick<StripData, 'box10' | 'box12'>, value: string) {
     setStrips((draft) => {
       const editingStrip = draft.find(
         (strip) => strip.id === stripData.id
@@ -31,9 +28,7 @@ export function PrintedStrip({ stripData }: Props) {
         {stripData.callsign}
         <br></br>
         {stripData.aircraftType}
-        {stripData.equipmentCode.length > 0
-          ? `/${stripData.equipmentCode}`
-          : ''}
+        {stripData.equipmentCode.length > 0 ? `/${stripData.equipmentCode}` : ''}
         <br></br>
         {stripData.CID}
       </div>
@@ -44,9 +39,7 @@ export function PrintedStrip({ stripData }: Props) {
         <br></br>
         {stripData.altitude}
       </div>
-      <div style={{ position: 'absolute', left: '173px' }}>
-        {stripData.departure}
-      </div>
+      <div style={{ position: 'absolute', left: '173px' }}>{stripData.departure}</div>
       <div style={{ position: 'absolute', left: '248px' }}>
         {routeLines[0]}
         <br></br>
@@ -103,10 +96,7 @@ function splitIntoThreeParts(stripData: StripData) {
       continue;
     }
 
-    if (
-      (lines[lineIndex] + word).length + (lines[lineIndex] ? 1 : 0) >
-      maxLength
-    ) {
+    if ((lines[lineIndex] + word).length + (lines[lineIndex] ? 1 : 0) > maxLength) {
       if (lineIndex === maxRouteLines - 2) {
         maxLength = 19;
       }

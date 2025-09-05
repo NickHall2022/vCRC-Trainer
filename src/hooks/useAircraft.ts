@@ -1,9 +1,7 @@
 import { createContext, useContext } from 'react';
 import type { AircraftDetails } from '../types/common';
 
-export const AircraftContext = createContext<AircraftDetails>(
-  {} as AircraftDetails
-);
+export const AircraftContext = createContext<AircraftDetails>({} as AircraftDetails);
 
 export function useAircraft() {
   const context = useContext(AircraftContext);

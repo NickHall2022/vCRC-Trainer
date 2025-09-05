@@ -1,9 +1,7 @@
 import { createContext, useContext } from 'react';
 import type { SimulationDetails } from '../types/common';
 
-export const SimulationContext = createContext<SimulationDetails>(
-  {} as SimulationDetails
-);
+export const SimulationContext = createContext<SimulationDetails>({} as SimulationDetails);
 
 export function useSimulation() {
   const context = useContext(SimulationContext);

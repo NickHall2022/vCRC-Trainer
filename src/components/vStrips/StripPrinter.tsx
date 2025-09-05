@@ -1,12 +1,6 @@
 import { Grid } from '@mui/material';
 import type { AbstractStrip } from '../../types/common';
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  type Dispatch,
-  type SetStateAction,
-} from 'react';
+import React, { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { useAircraft } from '../../hooks/useAircraft';
 import { StripPrinterStrip } from './StripPrinterStrip';
 import { useStrips } from '../../hooks/useStrips';
@@ -29,13 +23,7 @@ export function StripPrinter({
   setPrinterOpen,
 }: Props) {
   const { aircrafts, amendFlightPlan } = useAircraft();
-  const {
-    strips,
-    setStrips,
-    printerStrips,
-    printAmendedFlightPlan,
-    printStrip,
-  } = useStrips();
+  const { strips, setStrips, printerStrips, printAmendedFlightPlan, printStrip } = useStrips();
   const [enteredCallsign, setEnteredCallsign] = useState('');
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -46,11 +34,7 @@ export function StripPrinter({
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        printerOpen &&
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node)
-      ) {
+      if (printerOpen && wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
         event.stopPropagation();
         setPrinterOpen(false);
       }

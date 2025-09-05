@@ -77,22 +77,9 @@ export type AircraftDetails = {
   setSelectedFlightPlan: (callsign: string) => void;
   amendFlightPlan: (amendedFlightPlan: FlightPlan) => void;
   removeFirstRequest: (callsign: string) => void;
-  setNextRequestTime: (
-    callsign: string,
-    canSendRequestTime: number,
-    timer: number
-  ) => void;
-  setPlanePosition: (
-    callsign: string,
-    x: number,
-    y: number,
-    angle?: number
-  ) => void;
-  setPlaneStatus: (
-    callsign: string,
-    status: FlightStatus,
-    timer: number
-  ) => void;
+  setNextRequestTime: (callsign: string, canSendRequestTime: number, timer: number) => void;
+  setPlanePosition: (callsign: string, x: number, y: number, angle?: number) => void;
+  setPlaneStatus: (callsign: string, status: FlightStatus, timer: number) => void;
   deleteFlightPlan: (callsign: string) => void;
   spawnNewFlight: () => Aircraft | undefined;
   setTaxiwayNodeId: (callsign: string, id: string) => void;
@@ -125,6 +112,15 @@ export type MessagesDetails = {
 };
 
 export type RequestReminderType = 'readbackIFR' | 'taxiVFR' | 'aircraftHandoff';
+export type RequestType =
+  | 'clearanceIFR'
+  | 'readbackIFR'
+  | 'clearanceVFR'
+  | 'readbackVFR'
+  | 'pattern'
+  | 'pushback'
+  | 'taxi'
+  | 'handoff';
 
 export type AircraftRequest = {
   callsign: string;
@@ -132,6 +128,7 @@ export type AircraftRequest = {
   responseMessage?: string;
   requestMessage?: string;
   subsequentRequest?: AircraftRequest;
+  requestType: RequestType;
   nextRequestDelay: number;
   atcMessage?: string;
   nextStatus?: FlightStatus;
@@ -144,8 +141,11 @@ export type AircraftRequest = {
 };
 
 export type SimulationDetails = {
-  completeRequest: (callsign: string) => void;
+  requests: AircraftRequest[];
+  completeRequest: (callsign: string, completedByVoice?: boolean) => void;
   setPaused: Dispatch<SetStateAction<boolean>>;
+  pushToTalkActive: boolean;
+  setPushToTalkActive: Dispatch<SetStateAction<boolean>>;
 };
 
 export type FaaRouteType = 'L' | 'H' | 'LSD' | 'HSD' | 'SLD' | 'HLD' | 'TEC';
@@ -222,11 +222,7 @@ export type Mistake = {
 
 export type MistakeDetails = {
   mistakes: Mistake[];
-  addMistake: (
-    type: MistakeType,
-    details?: string,
-    secondaryDetails?: string
-  ) => void;
+  addMistake: (type: MistakeType, details?: string, secondaryDetails?: string) => void;
   reviewClearance: (callsign: string) => void;
   newMistakes: MistakeType[];
   setNewMistakes: Dispatch<SetStateAction<MistakeType[]>>;

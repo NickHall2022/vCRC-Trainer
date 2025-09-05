@@ -1,9 +1,7 @@
 import { createContext, useContext } from 'react';
 import type { MessagesDetails } from '../types/common';
 
-export const MessagesContext = createContext<MessagesDetails>(
-  {} as MessagesDetails
-);
+export const MessagesContext = createContext<MessagesDetails>({} as MessagesDetails);
 
 export function useMessages() {
   const context = useContext(MessagesContext);

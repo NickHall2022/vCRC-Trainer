@@ -9,9 +9,7 @@ export function DataBlock({ aircraft }: { aircraft: Aircraft }) {
 
   useEffect(() => {
     const updatePosition = () => {
-      const planeRect = document
-        .getElementById(aircraft.callsign)
-        ?.getBoundingClientRect();
+      const planeRect = document.getElementById(aircraft.callsign)?.getBoundingClientRect();
       const dataBlockElement = dataBlockRef.current;
       const dataBlockRect = dataBlockRef.current?.getBoundingClientRect();
       const lineElement = lineRef.current;

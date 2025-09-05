@@ -8,28 +8,16 @@ import { useStrips } from '../../hooks/useStrips';
 import { StripsBay } from './StripsBay';
 
 export function StripsWindow() {
-  const {
-    setStrips,
-    printerStrips,
-    deleteStrip,
-    selectedBay,
-    setSelectedBay,
-    moveStripToBay,
-  } = useStrips();
+  const { setStrips, printerStrips, deleteStrip, selectedBay, setSelectedBay, moveStripToBay } =
+    useStrips();
 
   const [printerOpen, setPrinterOpen] = useState(false);
-  const [draggedStrip, setDraggedStrip] = useState<AbstractStrip>(
-    {} as AbstractStrip
-  );
+  const [draggedStrip, setDraggedStrip] = useState<AbstractStrip>({} as AbstractStrip);
 
   function handleStripInsert(targetStrip: AbstractStrip) {
     setStrips((draft) => {
-      const draggedIndex = draft.findIndex(
-        (strip) => strip.id === draggedStrip.id
-      );
-      const droppedIndex = draft.findIndex(
-        (strip) => strip.id === targetStrip.id
-      );
+      const draggedIndex = draft.findIndex((strip) => strip.id === draggedStrip.id);
+      const droppedIndex = draft.findIndex((strip) => strip.id === targetStrip.id);
       const [removedStrip] = draft.splice(draggedIndex, 1);
       removedStrip.bayName = selectedBay;
       draft.splice(droppedIndex, 0, removedStrip);
@@ -47,9 +35,7 @@ export function StripsWindow() {
   function handleBayButtonDropped(bayName: BayName) {
     setStrips((draft) => {
       if (draggedStrip.bayName !== bayName) {
-        const updateIndex = draft.findIndex(
-          (strip) => strip.id === draggedStrip.id
-        );
+        const updateIndex = draft.findIndex((strip) => strip.id === draggedStrip.id);
         const removedStrip = draft.splice(updateIndex, 1)[0];
         removedStrip.bayName = bayName;
         removedStrip.offset = false;

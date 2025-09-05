@@ -9,12 +9,7 @@ import { useImmer } from 'use-immer';
 import { ControlledInput } from '../Menus/ControlledInput';
 
 export function FlightPlanEditor() {
-  const {
-    selectedFlightPlan,
-    amendFlightPlan,
-    setSelectedFlightPlan,
-    aircrafts,
-  } = useAircraft();
+  const { selectedFlightPlan, amendFlightPlan, setSelectedFlightPlan, aircrafts } = useAircraft();
   const { printAmendedFlightPlan } = useStrips();
 
   const draggableRef = useRef<HTMLDivElement>(null);
@@ -96,8 +91,7 @@ export function FlightPlanEditor() {
   }
 
   const editButtonEnabled =
-    (flightPlan.created && hasBeenEdited) ||
-    (!flightPlan.created && flightPlan.squawk !== '');
+    (flightPlan.created && hasBeenEdited) || (!flightPlan.created && flightPlan.squawk !== '');
 
   return (
     <Draggable
@@ -127,9 +121,7 @@ export function FlightPlanEditor() {
             marginBottom: '2px',
           }}
         >
-          <p style={{ margin: '0px', marginLeft: '4px', fontSize: '11px' }}>
-            Flight Plan Editor
-          </p>
+          <p style={{ margin: '0px', marginLeft: '4px', fontSize: '11px' }}>Flight Plan Editor</p>
         </div>
         <Grid
           container
@@ -145,9 +137,7 @@ export function FlightPlanEditor() {
               maxLength={7}
               externalRef={callsignInputRef}
               value={flightPlan?.callsign}
-              onChange={(event) =>
-                handleCallsignChange(event.target.value.toUpperCase())
-              }
+              onChange={(event) => handleCallsignChange(event.target.value.toUpperCase())}
               style={{ width: '60px' }}
             ></ControlledInput>
           </Grid>
@@ -170,10 +160,7 @@ export function FlightPlanEditor() {
               maxLength={4}
               value={flightPlan?.aircraftType}
               onChange={(event) =>
-                handleTextInput(
-                  'aircraftType',
-                  event.target.value.toUpperCase()
-                )
+                handleTextInput('aircraftType', event.target.value.toUpperCase())
               }
               style={{ width: '40px' }}
             ></ControlledInput>
@@ -186,10 +173,7 @@ export function FlightPlanEditor() {
               maxLength={1}
               value={flightPlan?.equipmentCode}
               onChange={(event) =>
-                handleTextInput(
-                  'equipmentCode',
-                  event.target.value.toUpperCase()
-                )
+                handleTextInput('equipmentCode', event.target.value.toUpperCase())
               }
               style={{ width: '20px' }}
             ></ControlledInput>
@@ -201,9 +185,7 @@ export function FlightPlanEditor() {
               className="flightPlanInput"
               maxLength={4}
               value={flightPlan?.departure}
-              onChange={(event) =>
-                handleTextInput('departure', event.target.value.toUpperCase())
-              }
+              onChange={(event) => handleTextInput('departure', event.target.value.toUpperCase())}
               style={{ width: '40px' }}
             ></ControlledInput>
           </Grid>
@@ -214,9 +196,7 @@ export function FlightPlanEditor() {
               className="flightPlanInput"
               maxLength={4}
               value={flightPlan?.destination}
-              onChange={(event) =>
-                handleTextInput('destination', event.target.value.toUpperCase())
-              }
+              onChange={(event) => handleTextInput('destination', event.target.value.toUpperCase())}
               style={{ width: '40px' }}
             ></ControlledInput>
           </Grid>
@@ -227,9 +207,7 @@ export function FlightPlanEditor() {
               className="flightPlanInput"
               maxLength={4}
               value={flightPlan?.speed}
-              onChange={(event) =>
-                handleTextInput('speed', event.target.value.replace(/\D/g, ''))
-              }
+              onChange={(event) => handleTextInput('speed', event.target.value.replace(/\D/g, ''))}
               style={{ width: '40px' }}
             ></ControlledInput>
           </Grid>
@@ -240,9 +218,7 @@ export function FlightPlanEditor() {
               className="flightPlanInput"
               maxLength={7}
               value={flightPlan?.altitude}
-              onChange={(event) =>
-                handleTextInput('altitude', event.target.value.toUpperCase())
-              }
+              onChange={(event) => handleTextInput('altitude', event.target.value.toUpperCase())}
               style={{ width: '60px' }}
             ></ControlledInput>
           </Grid>
@@ -266,9 +242,7 @@ export function FlightPlanEditor() {
               isTextArea={true}
               className="flightPlanTextArea"
               value={flightPlan?.route}
-              onChange={(event) =>
-                handleTextInput('route', event.target.value.toUpperCase())
-              }
+              onChange={(event) => handleTextInput('route', event.target.value.toUpperCase())}
             ></ControlledInput>
           </Grid>
         </Grid>
@@ -281,9 +255,7 @@ export function FlightPlanEditor() {
               isTextArea={true}
               className="flightPlanTextArea"
               value={flightPlan?.remarks}
-              onChange={(event) =>
-                handleTextInput('remarks', event.target.value)
-              }
+              onChange={(event) => handleTextInput('remarks', event.target.value)}
             ></ControlledInput>
           </Grid>
         </Grid>
@@ -292,9 +264,7 @@ export function FlightPlanEditor() {
   );
 }
 
-function handleNewSelectedFlightPlan(
-  selectedFlightPlan: FlightPlan | undefined
-) {
+function handleNewSelectedFlightPlan(selectedFlightPlan: FlightPlan | undefined) {
   if (selectedFlightPlan) {
     return { ...selectedFlightPlan };
   }

@@ -37,9 +37,7 @@ export function Strip({ stripData }: Props) {
 
   function handlePushContextMenu(event: React.MouseEvent) {
     setPushContextMenu(
-      pushContextMenu === null && contextMenu !== null
-        ? { ...contextMenu }
-        : null
+      pushContextMenu === null && contextMenu !== null ? { ...contextMenu } : null
     );
 
     setContextMenu(null);
@@ -69,8 +67,7 @@ export function Strip({ stripData }: Props) {
   }
 
   const style: React.CSSProperties = {
-    backgroundImage:
-      stripData.type === 'blank' ? 'url(blankStrip.png)' : 'url(strip.png)',
+    backgroundImage: stripData.type === 'blank' ? 'url(blankStrip.png)' : 'url(strip.png)',
     color: 'black',
     width: '550px',
     height: '76px',
@@ -131,9 +128,7 @@ export function Strip({ stripData }: Props) {
               <MenuItem onClick={() => handlePushToBay('local')}>LC</MenuItem>
             )}
             {selectedBay !== 'spare' && (
-              <MenuItem onClick={() => handlePushToBay('spare')}>
-                SPARE
-              </MenuItem>
+              <MenuItem onClick={() => handlePushToBay('spare')}>SPARE</MenuItem>
             )}
           </Menu>
         </>

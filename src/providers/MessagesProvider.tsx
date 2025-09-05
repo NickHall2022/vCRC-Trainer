@@ -25,6 +25,10 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
 
   function sendMessage(content: string, callsign: string, type: MessageType) {
     function addMessage() {
+      if (type === 'system' && messages[messages.length - 1].content === content) {
+        return;
+      }
+
       setMessages((draft) => {
         draft.push({
           content,
@@ -35,7 +39,7 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       });
     }
 
-    if (type !== 'self') {
+    if (type !== 'self' && type !== 'system') {
       setTimeout(() => {
         playRadioMessageSound();
         addMessage();
@@ -50,9 +54,5 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     sendMessage,
   };
 
-  return (
-    <MessagesContext.Provider value={value}>
-      {children}
-    </MessagesContext.Provider>
-  );
+  return <MessagesContext.Provider value={value}>{children}</MessagesContext.Provider>;
 }

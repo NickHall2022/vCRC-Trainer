@@ -32,17 +32,12 @@ export function ControllerList() {
             marginBottom: '2px',
           }}
         >
-          <p style={{ margin: '0px', marginLeft: '4px', fontSize: '11px' }}>
-            Controllers
-          </p>
+          <p style={{ margin: '0px', marginLeft: '4px', fontSize: '11px' }}>Controllers</p>
         </div>
         <p className="controllersHeader">ZBW - Boston ARTCC</p>
         <Grid container spacing={1}>
           <Grid size={3}>
-            <span
-              className="controllersListItem"
-              style={{ marginLeft: '10px' }}
-            >
+            <span className="controllersListItem" style={{ marginLeft: '10px' }}>
               C37
             </span>
           </Grid>
@@ -56,10 +51,7 @@ export function ControllerList() {
         <p className="controllersHeader">PWM - Portland ATCT/TRACON</p>
         <Grid container spacing={1}>
           <Grid size={3}>
-            <span
-              className="controllersListItem"
-              style={{ marginLeft: '10px' }}
-            >
+            <span className="controllersListItem" style={{ marginLeft: '10px' }}>
               1S
             </span>
           </Grid>
@@ -72,10 +64,7 @@ export function ControllerList() {
         </Grid>
         <Grid container spacing={1}>
           <Grid size={3}>
-            <span
-              className="controllersListItemActive"
-              style={{ marginLeft: '10px' }}
-            >
+            <span className="controllersListItemActive" style={{ marginLeft: '10px' }}>
               G1
             </span>
           </Grid>
@@ -88,10 +77,7 @@ export function ControllerList() {
         </Grid>
         <Grid container spacing={1}>
           <Grid size={3}>
-            <span
-              className="controllersListItem"
-              style={{ marginLeft: '10px' }}
-            >
+            <span className="controllersListItem" style={{ marginLeft: '10px' }}>
               1T
             </span>
           </Grid>
@@ -105,10 +91,7 @@ export function ControllerList() {
         <p className="controllersHeader">ATIS</p>
         <Grid container spacing={1}>
           <Grid size={6}>
-            <span
-              className="controllersListItem"
-              style={{ marginLeft: '10px' }}
-            >
+            <span className="controllersListItem" style={{ marginLeft: '10px' }}>
               PWM ATIS
             </span>
           </Grid>

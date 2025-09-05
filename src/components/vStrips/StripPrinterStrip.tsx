@@ -109,9 +109,7 @@ export function StripPrinterStrip({
           <button
             className="stripPrinterInput"
             style={{ backgroundColor: 'rgb(63, 103, 145)' }}
-            onClick={() =>
-              moveStripToBay(printerStrips[selectedIndex], selectedBay)
-            }
+            onClick={() => moveStripToBay(printerStrips[selectedIndex], selectedBay)}
           >
             Move to Bay
           </button>

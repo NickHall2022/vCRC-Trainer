@@ -53,11 +53,7 @@ function formTaxiwayFromCoordinates(taxiway: Coordinate[]): Node[] {
   return joinedTaxiway;
 }
 
-function joinTaxiwayIntersectionByIds(
-  graph: Node[],
-  firstId: string,
-  secondId: string
-) {
+function joinTaxiwayIntersectionByIds(graph: Node[], firstId: string, secondId: string) {
   const firstNode = graph.find((node) => node.id === firstId) as Node;
   const secondNode = graph.find((node) => node.id === secondId) as Node;
   firstNode.edges.push(secondNode);
@@ -69,11 +65,7 @@ export const taxiways: Node[] = (() => {
   let taxiwayNetwork: Node[] = formTaxiwayFromCoordinates(A)
     .concat(formTaxiwayFromCoordinates(C))
     .concat(formTaxiwayFromCoordinates(G));
-  taxiwayNetwork = joinTaxiwayIntersectionByIds(
-    taxiwayNetwork,
-    'AC',
-    'aboveAC'
-  );
+  taxiwayNetwork = joinTaxiwayIntersectionByIds(taxiwayNetwork, 'AC', 'aboveAC');
   taxiwayNetwork = joinTaxiwayIntersectionByIds(taxiwayNetwork, 'A36', 'G36');
   return taxiwayNetwork;
 })();

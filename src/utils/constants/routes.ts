@@ -1,7 +1,4 @@
-export const DEST_TO_DIRECTION_MAP: Record<
-  string,
-  'west' | 'east' | undefined
-> = {
+export const DEST_TO_DIRECTION_MAP: Record<string, 'west' | 'east' | undefined> = {
   //H
   KBWI: 'west',
   KCLE: 'west',

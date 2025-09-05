@@ -10,6 +10,9 @@ import { ParkingSpotProvider } from './providers/ParkingSpotProvider';
 import Welcome from './components/Menus/Welcome';
 import { DifficultyProvider } from './providers/DifficultyProvider';
 import { MistakeProvider } from './providers/MistakeProvider';
+import { SpeechProvider } from './providers/SpeechProvider.tsx';
+import { SpeechInterpretatonProvider } from './providers/SpeechInterpretationProvider.tsx';
+import { SPEECH_AVAILABLE } from './utils/constants/speech.ts';
 
 function App() {
   const [welcomeOpen, setWelcomeOpen] = useState(true);
@@ -36,6 +39,16 @@ function App() {
     );
   }
 
+  const innerChildren = SPEECH_AVAILABLE ? (
+    <SpeechInterpretatonProvider>
+      <SpeechProvider>
+        <CGgroundPage />
+      </SpeechProvider>
+    </SpeechInterpretatonProvider>
+  ) : (
+    <CGgroundPage />
+  );
+
   return (
     <DifficultyProvider>
       <PrefRoutesProvider loadSilently={false}>
@@ -44,9 +57,7 @@ function App() {
             <MistakeProvider>
               <StripsProvider>
                 <MessagesProvider>
-                  <SimulationProvider>
-                    <CGgroundPage />
-                  </SimulationProvider>
+                  <SimulationProvider>{innerChildren}</SimulationProvider>
                 </MessagesProvider>
               </StripsProvider>
             </MistakeProvider>

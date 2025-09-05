@@ -75,16 +75,12 @@ export function CGgroundPage() {
           bottom: '15px',
         }}
       >
-        <HelpIcon
-          sx={{ fontSize: '20px', position: 'relative', top: '3px' }}
-        ></HelpIcon>
+        <HelpIcon sx={{ fontSize: '20px', position: 'relative', top: '3px' }}></HelpIcon>
         &nbsp;
         <span style={{ fontSize: '20px' }}>Help</span>
       </button>
       {helpOpen && <Help setHelpOpen={setHelpOpen}></Help>}
-      {mistakesOpen && (
-        <MistakeTracker setOpen={setMistakesOpen}></MistakeTracker>
-      )}
+      {mistakesOpen && <MistakeTracker setOpen={setMistakesOpen}></MistakeTracker>}
     </>
   );
 }

@@ -15,11 +15,7 @@ type Props = {
   handleStripInsert: (targetStrip: AbstractStrip) => void;
 };
 
-export function StripsBay({
-  handleDrop,
-  setDraggedStrip,
-  handleStripInsert,
-}: Props) {
+export function StripsBay({ handleDrop, setDraggedStrip, handleStripInsert }: Props) {
   const { strips, selectedBay, setStrips } = useStrips();
   const [contextMenu, setContextMenu] = useState<{
     mouseX: number;
@@ -98,9 +94,7 @@ export function StripsBay({
         onClose={handleClose}
         anchorReference="anchorPosition"
         anchorPosition={
-          contextMenu !== null
-            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-            : undefined
+          contextMenu !== null ? { top: contextMenu.mouseY, left: contextMenu.mouseX } : undefined
         }
         transitionDuration={0}
       >

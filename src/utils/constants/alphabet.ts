@@ -28,33 +28,38 @@ export const ALPHABET = [
 ];
 
 export const PHONETIC_ALPHABET: Record<(typeof ALPHABET)[number], string> = {
-  A: 'Alpha',
-  B: 'Bravo',
-  C: 'Charlie',
-  D: 'Delta',
-  E: 'Echo',
-  F: 'Foxtrot',
-  G: 'Golf',
-  H: 'Hotel',
-  I: 'India',
-  J: 'Juliet',
-  K: 'Kilo',
-  L: 'Lima',
-  M: 'Mike',
-  N: 'November',
-  O: 'Oscar',
-  P: 'Papa',
-  Q: 'Quebec',
-  R: 'Romeo',
-  S: 'Sierra',
-  T: 'Tango',
-  U: 'Uniform',
-  V: 'Victor',
-  W: 'Whiskey',
-  X: 'X-ray',
-  Y: 'Yankee',
-  Z: 'Zulu',
+  A: 'alpha',
+  B: 'bravo',
+  C: 'charlie',
+  D: 'delta',
+  E: 'echo',
+  F: 'foxtrot',
+  G: 'golf',
+  H: 'hotel',
+  I: 'india',
+  J: 'juliet',
+  K: 'kilo',
+  L: 'lima',
+  M: 'mike',
+  N: 'november',
+  O: 'oscar',
+  P: 'papa',
+  Q: 'quebec',
+  R: 'romeo',
+  S: 'sierra',
+  T: 'tango',
+  U: 'uniform',
+  V: 'victor',
+  W: 'whiskey',
+  X: 'x-ray',
+  Y: 'yankee',
+  Z: 'zulu',
 };
+
+export const PHONETIC_ALPHABET_REVERSE: Record<string, keyof typeof PHONETIC_ALPHABET> =
+  Object.fromEntries(
+    Object.entries(PHONETIC_ALPHABET).map(([letter, codeword]) => [codeword, letter])
+  );
 
 export const ATIS = ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
 export const PHONETIC_ATIS = PHONETIC_ALPHABET[ATIS];

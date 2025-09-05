@@ -1,17 +1,10 @@
 import { type ReactNode } from 'react';
-import type {
-  ParkingSpot,
-  ParkingSpotMethods,
-  ParkingSpotType,
-} from '../types/common';
+import type { ParkingSpot, ParkingSpotMethods, ParkingSpotType } from '../types/common';
 import { useImmer } from 'use-immer';
 import { v4 as uuidv4 } from 'uuid';
 import { ParkingSpotContext } from '../hooks/useParkingSpots';
 
-type PartialParkingSpot = Omit<
-  ParkingSpot,
-  'available' | 'id' | 'type' | 'pushbackLocation'
->;
+type PartialParkingSpot = Omit<ParkingSpot, 'available' | 'id' | 'type' | 'pushbackLocation'>;
 
 const AIRLINE_SPOTS: PartialParkingSpot[] = [
   {
@@ -271,9 +264,7 @@ export function ParkingSpotProvider({ children }: { children: ReactNode }) {
   ]);
 
   function reserveSpot(type: ParkingSpotType): ParkingSpot | undefined {
-    const openSpots = parkingSpots.filter(
-      (spot) => spot.available && spot.type === type
-    );
+    const openSpots = parkingSpots.filter((spot) => spot.available && spot.type === type);
     if (openSpots.length === 0) {
       return;
     }
@@ -310,9 +301,5 @@ export function ParkingSpotProvider({ children }: { children: ReactNode }) {
     getPushbackLocation,
   };
 
-  return (
-    <ParkingSpotContext.Provider value={value}>
-      {children}
-    </ParkingSpotContext.Provider>
-  );
+  return <ParkingSpotContext.Provider value={value}>{children}</ParkingSpotContext.Provider>;
 }

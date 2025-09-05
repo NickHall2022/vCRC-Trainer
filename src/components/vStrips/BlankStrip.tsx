@@ -50,9 +50,7 @@ export function BlankStrip({ stripData }: Props) {
           disabled={stripData.bayName === 'printer'}
           maxLength={8}
           value={stripData.aircraftType}
-          onChange={(event) =>
-            handleTextInput('aircraftType', event.target.value)
-          }
+          onChange={(event) => handleTextInput('aircraftType', event.target.value)}
         ></ControlledInput>
       </div>
       <div style={{ position: 'absolute', left: '125px' }}>

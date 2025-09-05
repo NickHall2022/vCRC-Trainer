@@ -1,11 +1,6 @@
 import { type ReactNode } from 'react';
 import { useImmer } from 'use-immer';
-import type {
-  FlightPlan,
-  Mistake,
-  MistakeDetails,
-  MistakeType,
-} from '../types/common';
+import type { FlightPlan, Mistake, MistakeDetails, MistakeType } from '../types/common';
 import { MistakeContext } from '../hooks/useMistakes';
 import { useAircraft } from '../hooks/useAircraft';
 import { DEST_TO_DIRECTION_MAP } from '../utils/constants/routes';
@@ -24,11 +19,7 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
   const prefRoutes = usePrefRoutes();
   const [newMistakes, setNewMistakes] = useImmer<MistakeType[]>([]);
 
-  function addMistake(
-    type: MistakeType,
-    details?: string,
-    secondaryDetails?: string
-  ) {
+  function addMistake(type: MistakeType, details?: string, secondaryDetails?: string) {
     setMistakes((draft) => {
       draft.push({
         type,
@@ -40,9 +31,7 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
   }
 
   function reviewClearance(callsign: string) {
-    const aircraft = aircrafts.find(
-      (aircraft) => aircraft.callsign === callsign
-    );
+    const aircraft = aircrafts.find((aircraft) => aircraft.callsign === callsign);
     if (!aircraft) {
       return;
     }
@@ -65,20 +54,10 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
 
     if (direction) {
       if (direction === 'west') {
-        if (
-          flightPlan.routeType === 'H' &&
-          HIGH_WEST_ALT.indexOf(flightPlan.altitude) === -1
-        ) {
-          return addMistake(
-            'badIFRAlt',
-            flightPlan.altitude,
-            flightPlan.destination
-          );
+        if (flightPlan.routeType === 'H' && HIGH_WEST_ALT.indexOf(flightPlan.altitude) === -1) {
+          return addMistake('badIFRAlt', flightPlan.altitude, flightPlan.destination);
         }
-        if (
-          flightPlan.routeType === 'TEC' &&
-          TEC_WEST_ALT.indexOf(flightPlan.altitude) === -1
-        ) {
+        if (flightPlan.routeType === 'TEC' && TEC_WEST_ALT.indexOf(flightPlan.altitude) === -1) {
           return addMistake(
             'badIFRAlt',
             flightPlan.altitude,
@@ -87,44 +66,22 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
         }
         return;
       }
-      if (
-        flightPlan.routeType === 'H' &&
-        HIGH_EAST_ALT.indexOf(flightPlan.altitude) === -1
-      ) {
-        return addMistake(
-          'badIFRAlt',
-          flightPlan.altitude,
-          flightPlan.destination
-        );
+      if (flightPlan.routeType === 'H' && HIGH_EAST_ALT.indexOf(flightPlan.altitude) === -1) {
+        return addMistake('badIFRAlt', flightPlan.altitude, flightPlan.destination);
       }
-      if (
-        flightPlan.routeType === 'TEC' &&
-        TEC_EAST_ALT.indexOf(flightPlan.altitude) === -1
-      ) {
-        return addMistake(
-          'badIFRAlt',
-          flightPlan.altitude,
-          `${flightPlan.destination}(TEC Route)`
-        );
+      if (flightPlan.routeType === 'TEC' && TEC_EAST_ALT.indexOf(flightPlan.altitude) === -1) {
+        return addMistake('badIFRAlt', flightPlan.altitude, `${flightPlan.destination}(TEC Route)`);
       }
     }
   }
 
-  function validateEquipment(
-    flightPlan: FlightPlan,
-    actualAircraftType: string
-  ) {
-    if (
-      JET_TYPES.indexOf(actualAircraftType) > -1 &&
-      flightPlan.equipmentCode !== 'L'
-    ) {
+  function validateEquipment(flightPlan: FlightPlan, actualAircraftType: string) {
+    if (JET_TYPES.indexOf(actualAircraftType) > -1 && flightPlan.equipmentCode !== 'L') {
       addMistake('badEquipment', flightPlan.equipmentCode, actualAircraftType);
     }
     if (
       TEC_TYPES.indexOf(actualAircraftType) > -1 &&
-      ['X', 'W', 'P', 'A', 'D', 'B', 'T', 'U'].indexOf(
-        flightPlan.equipmentCode
-      ) !== -1
+      ['X', 'W', 'P', 'A', 'D', 'B', 'T', 'U'].indexOf(flightPlan.equipmentCode) !== -1
     ) {
       addMistake('badEquipment', flightPlan.equipmentCode, actualAircraftType);
     }
@@ -151,9 +108,7 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
   }
 
   function reviewVFRDeparture(callsign: string) {
-    const aircraft = aircrafts.find(
-      (aircraft) => aircraft.callsign === callsign
-    );
+    const aircraft = aircrafts.find((aircraft) => aircraft.callsign === callsign);
     if (!aircraft) {
       return;
     }
@@ -162,10 +117,7 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
     reviewVFRRemarks(aircraft.flightPlan);
   }
 
-  function reviewVFRAircraftType(
-    flightPlan: FlightPlan,
-    actualAircraftType: string
-  ) {
+  function reviewVFRAircraftType(flightPlan: FlightPlan, actualAircraftType: string) {
     if (flightPlan.aircraftType !== actualAircraftType) {
       addMistake(
         'badVFRAircraft',
@@ -205,8 +157,7 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
 
   function reviewVFRRemarks(flightPlan: FlightPlan) {
     if (
-      (flightPlan.routeType === 'VFRFF' &&
-        !flightPlan.remarks.toUpperCase().includes('FF')) ||
+      (flightPlan.routeType === 'VFRFF' && !flightPlan.remarks.toUpperCase().includes('FF')) ||
       (flightPlan.routeType === 'VFR' && flightPlan.remarks.includes('FF'))
     ) {
       addMistake('badVFRFF', flightPlan.remarks, flightPlan.callsign);
@@ -222,7 +173,5 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
     reviewVFRDeparture,
   };
 
-  return (
-    <MistakeContext.Provider value={value}>{children}</MistakeContext.Provider>
-  );
+  return <MistakeContext.Provider value={value}>{children}</MistakeContext.Provider>;
 }

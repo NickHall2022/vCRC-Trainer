@@ -11,9 +11,5 @@ export function DifficultyProvider({ children }: { children: ReactNode }) {
     setDifficulty,
   };
 
-  return (
-    <DifficultyContext.Provider value={value}>
-      {children}
-    </DifficultyContext.Provider>
-  );
+  return <DifficultyContext.Provider value={value}>{children}</DifficultyContext.Provider>;
 }

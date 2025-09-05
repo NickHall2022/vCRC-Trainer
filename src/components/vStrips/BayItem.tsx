@@ -10,11 +10,7 @@ type Props = {
   handleStripInsert: (targetStrip: AbstractStrip) => void;
 };
 
-export function BayItem({
-  abstractStripData,
-  setDraggedStrip,
-  handleStripInsert,
-}: Props) {
+export function BayItem({ abstractStripData, setDraggedStrip, handleStripInsert }: Props) {
   function handleDragStart() {
     setDraggedStrip(abstractStripData);
   }
@@ -29,40 +25,23 @@ export function BayItem({
     }
   }
 
-  if (
-    abstractStripData.type === 'strip' ||
-    abstractStripData.type === 'blank'
-  ) {
+  if (abstractStripData.type === 'strip' || abstractStripData.type === 'blank') {
     return (
-      <div
-        onDragStart={handleDragStart}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-      >
+      <div onDragStart={handleDragStart} onDrop={handleDrop} onDragOver={handleDragOver}>
         <Strip stripData={abstractStripData as StripData}></Strip>
       </div>
     );
   }
   if (abstractStripData.type === 'divider') {
     return (
-      <div
-        onDragStart={handleDragStart}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-      >
-        <DividerStrip
-          stripData={abstractStripData as DividerData}
-        ></DividerStrip>
+      <div onDragStart={handleDragStart} onDrop={handleDrop} onDragOver={handleDragOver}>
+        <DividerStrip stripData={abstractStripData as DividerData}></DividerStrip>
       </div>
     );
   }
   if (abstractStripData.type === 'handwrittenDivider') {
     return (
-      <div
-        onDragStart={handleDragStart}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-      >
+      <div onDragStart={handleDragStart} onDrop={handleDrop} onDragOver={handleDragOver}>
         <HandWrittenDividerStrip
           stripData={abstractStripData as DividerData}
         ></HandWrittenDividerStrip>
@@ -70,7 +49,5 @@ export function BayItem({
     );
   }
 
-  throw new Error(
-    `Missing implementation of strip type ${abstractStripData.type}`
-  );
+  throw new Error(`Missing implementation of strip type ${abstractStripData.type}`);
 }

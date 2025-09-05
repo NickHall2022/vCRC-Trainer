@@ -85,16 +85,7 @@ export const SPAWNABLE_HIGH_WEST_ALT = [
   '380',
 ];
 
-export const SPAWNABLE_HIGH_EAST_ALT = [
-  '230',
-  '250',
-  '270',
-  '290',
-  '310',
-  '330',
-  '350',
-  '370',
-];
+export const SPAWNABLE_HIGH_EAST_ALT = ['230', '250', '270', '290', '310', '330', '350', '370'];
 
 export const TEC_WEST_ALT = ['040', '060', '080', '100'];
 export const TEC_EAST_ALT = ['030', '050', '070', '090'];

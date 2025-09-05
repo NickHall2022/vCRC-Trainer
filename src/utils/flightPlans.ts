@@ -9,7 +9,7 @@ import type {
   FlightPlanDefaultIFRAttributes,
 } from '../types/common';
 import { GA_TYPES, JET_TYPES, TEC_TYPES } from './constants/aircraftTypes';
-import { ALPHABET, PHONETIC_ATIS } from './constants/alphabet';
+import { PHONETIC_ATIS } from './constants/alphabet';
 import {
   SPAWNABLE_HIGH_EAST_ALT,
   SPAWNABLE_HIGH_WEST_ALT,
@@ -41,10 +41,7 @@ export function makeEmptyFlightPlan(): FlightPlan {
   };
 }
 
-export function makeNewFlight(
-  parkingSpot: ParkingSpot,
-  prefRoutes: PrefRouteDetails
-): Aircraft {
+export function makeNewFlight(parkingSpot: ParkingSpot, prefRoutes: PrefRouteDetails): Aircraft {
   if (parkingSpot.type === 'airline') {
     return makeNewAirlineFlight(parkingSpot, prefRoutes);
   } else if (parkingSpot.type === 'TEC') {
@@ -81,10 +78,7 @@ export function makeNewAirlineFlight(
   );
 }
 
-function makeNewTecFlight(
-  parkingSpot: ParkingSpot,
-  prefRoutes: PrefRouteDetails
-): Aircraft {
+function makeNewTecFlight(parkingSpot: ParkingSpot, prefRoutes: PrefRouteDetails): Aircraft {
   const type = getRandomTecType();
   const prefRoute = getRandomRoute(prefRoutes.tecRoutes);
 
@@ -112,9 +106,7 @@ function makeNewTecFlight(
   );
 }
 
-function buildDefaultIFRFlightPlanAttributes(
-  prefRoute: PrefRoute
-): FlightPlanDefaultIFRAttributes {
+function buildDefaultIFRFlightPlanAttributes(prefRoute: PrefRoute): FlightPlanDefaultIFRAttributes {
   const CID = generateRandomString(1000, 3);
   const plannedTime = `P12${generateRandomString(60, 2)}`;
   return {
@@ -131,9 +123,7 @@ function buildDefaultIFRFlightPlanAttributes(
   };
 }
 
-function buildDefaultAircraftAttributes(
-  parkingSpot: ParkingSpot
-): AircraftDefaultAttributes {
+function buildDefaultAircraftAttributes(parkingSpot: ParkingSpot): AircraftDefaultAttributes {
   return {
     parkingSpotId: parkingSpot.id,
     positionX: parkingSpot.x,
@@ -185,10 +175,10 @@ function buildClearanceRequest(
     callsign: aircraft.callsign,
     nextRequestDelay: 0,
     atcMessage: `Clearance sent to ${aircraft.callsign}`,
+    requestType: 'clearanceIFR',
     subsequentRequest: {
-      responseMessage: withPushback
-        ? 'Will call for pushback'
-        : 'Will call for taxi',
+      responseMessage: withPushback ? 'Will call for pushback' : 'Will call for taxi',
+      requestType: 'readbackIFR',
       reminder: {
         message: 'Ground, did you copy our readback?',
         type: 'readbackIFR',
@@ -203,13 +193,10 @@ function buildClearanceRequest(
   };
 }
 
-function buildPusbackRequest(
-  intoRamp: boolean,
-  callsign: string,
-  gate: string
-): AircraftRequest {
+function buildPusbackRequest(intoRamp: boolean, callsign: string, gate: string): AircraftRequest {
   return {
     requestMessage: `Request pushback with ${PHONETIC_ATIS} from gate ${gate}`,
+    requestType: 'pushback',
     responseMessage: intoRamp
       ? 'Pushback into the ramp at our discretion, will call for taxi'
       : 'Pushback approved, will call for taxi',
@@ -228,10 +215,9 @@ function buildTaxiRequest(
 ): AircraftRequest {
   return {
     requestMessage: `Ready for taxi${location ? ` with ${PHONETIC_ATIS} from ${location}` : ''}`,
+    requestType: 'taxi',
     atcMessage: `Taxi instruction sent to ${callsign}`,
-    responseMessage: taxiInstruction
-      ? taxiInstruction
-      : 'Runway 29, taxi via A, cross runway 36',
+    responseMessage: taxiInstruction ? taxiInstruction : 'Runway 29, taxi via A, cross runway 36',
     priority: 2,
     callsign: callsign,
     nextRequestDelay: 0,
@@ -328,9 +314,11 @@ function buildVFRDepartureRequest(
         callsign: aircraft.callsign,
         nextRequestDelay: 0,
         atcMessage: `VFR clearance sent to ${aircraft.callsign}`,
+        requestType: 'clearanceVFR',
         subsequentRequest: {
           responseMessage: 'Runway 29, taxi via C, A, cross runway 36',
           atcMessage: `Taxi instruction sent to ${aircraft.callsign}`,
+          requestType: 'readbackVFR',
           reminder: {
             message: 'Ready to taxi',
             type: 'taxiVFR',
@@ -360,6 +348,7 @@ function buildVFRPatternRequest(
       {
         requestMessage: `Type ${aircraft.actualAircraftType} at the north apron with ${PHONETIC_ATIS}, request taxi for pattern work`,
         responseMessage: `Squawk VFR, runway 29, taxi via C, A, cross runway 36`,
+        requestType: 'pattern',
         nextStatus: 'taxi',
         atcMessage: `Taxi instruction sent to ${aircraft.callsign}`,
         priority: 1,
@@ -411,20 +400,12 @@ function getRandomRoute(prefRoutes: PrefRoute[]) {
       const blankRoutes = ['IFR DIRECT', 'DIRECT', ''];
       routeString = blankRoutes[Math.floor(Math.random() * blankRoutes.length)];
     } else if (random >= 0.33 && random < 0.44) {
-      const otherRoutes = prefRoutes.filter(
-        (route) => route.destination !== prefRoute.destination
-      );
-      const randomRoute =
-        otherRoutes[Math.floor(Math.random() * otherRoutes.length)];
-      routeString = randomRoute.route.substring(
-        4,
-        randomRoute.route.length - 4
-      );
+      const otherRoutes = prefRoutes.filter((route) => route.destination !== prefRoute.destination);
+      const randomRoute = otherRoutes[Math.floor(Math.random() * otherRoutes.length)];
+      routeString = randomRoute.route.substring(4, randomRoute.route.length - 4);
     } else {
       const splitRoute = routeString.split(' ');
-      const numElementsToDrop = Math.floor(
-        Math.random() * Math.ceil(splitRoute.length / 2)
-      );
+      const numElementsToDrop = Math.floor(Math.random() * Math.ceil(splitRoute.length / 2));
       if (Math.random() < 0.5) {
         splitRoute.splice(splitRoute.length - numElementsToDrop - 1);
       } else {
@@ -501,6 +482,31 @@ function getRandomVFRAltitude(direction: string) {
 function buildRandomNNumber() {
   const numLetters = Math.random() < 0.5 ? 1 : 2;
   const numNumbers = 5 - numLetters;
+  const LETTERS = [
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'F',
+    'G',
+    'H',
+    'J',
+    'K',
+    'L',
+    'M',
+    'N',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'U',
+    'W',
+    'X',
+    'Y',
+    'Z',
+  ];
   let callsign = '';
   for (let i = 0; i < numNumbers; i++) {
     if (i === 0) {
@@ -510,7 +516,7 @@ function buildRandomNNumber() {
     }
   }
   for (let i = 0; i < numLetters; i++) {
-    callsign += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
+    callsign += LETTERS[Math.floor(Math.random() * LETTERS.length)];
   }
 
   return `N${callsign}`;
@@ -519,16 +525,14 @@ function buildRandomNNumber() {
 function getRandomJetSpeed() {
   const minValue = 390;
   const maxValue = 540;
-  const selectedValue =
-    minValue + Math.floor(Math.random() * (maxValue - minValue));
+  const selectedValue = minValue + Math.floor(Math.random() * (maxValue - minValue));
   return `${selectedValue}`;
 }
 
 function getRandomTecSpeed() {
   const minValue = 150;
   const maxValue = 200;
-  const selectedValue =
-    minValue + Math.floor(Math.random() * (maxValue - minValue));
+  const selectedValue = minValue + Math.floor(Math.random() * (maxValue - minValue));
   return `${selectedValue}`;
 }
 

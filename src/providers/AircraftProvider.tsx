@@ -9,17 +9,13 @@ import { useParkingSpots } from '../hooks/useParkingSpots';
 export function AircraftProvider({ children }: { children: ReactNode }) {
   const { reserveSpot } = useParkingSpots();
 
-  const [selectedFlightPlan, setSelectedFlightPlan] = useState<
-    FlightPlan | undefined
-  >(undefined);
+  const [selectedFlightPlan, setSelectedFlightPlan] = useState<FlightPlan | undefined>(undefined);
   const prefRoutes = usePrefRoutes();
 
   const [aircrafts, setAircrafts] = useImmer<Aircraft[]>([]);
 
   function getFlightPlanByCallsign(callsign: string) {
-    const aircraft = aircrafts.find(
-      (aircraft) => aircraft.callsign === callsign
-    );
+    const aircraft = aircrafts.find((aircraft) => aircraft.callsign === callsign);
     if (aircraft) {
       return aircraft.flightPlan;
     }
@@ -39,40 +35,25 @@ export function AircraftProvider({ children }: { children: ReactNode }) {
 
   function removeFirstRequest(callsign: string) {
     setAircrafts((draft) => {
-      const modifyIndex = draft.findIndex(
-        (aircraft) => aircraft.callsign === callsign
-      );
+      const modifyIndex = draft.findIndex((aircraft) => aircraft.callsign === callsign);
       if (modifyIndex !== -1) {
         draft[modifyIndex].requests.splice(0, 1);
       }
     });
   }
 
-  function setNextRequestTime(
-    callsign: string,
-    canSendRequestTime: number,
-    timer: number
-  ) {
+  function setNextRequestTime(callsign: string, canSendRequestTime: number, timer: number) {
     setAircrafts((draft) => {
-      const modifyIndex = draft.findIndex(
-        (aircraft) => aircraft.callsign === callsign
-      );
+      const modifyIndex = draft.findIndex((aircraft) => aircraft.callsign === callsign);
       if (modifyIndex !== -1) {
         draft[modifyIndex].canSendRequestTime = timer + canSendRequestTime;
       }
     });
   }
 
-  function setPlanePosition(
-    callsign: string,
-    x: number,
-    y: number,
-    angle?: number
-  ) {
+  function setPlanePosition(callsign: string, x: number, y: number, angle?: number) {
     setAircrafts((draft) => {
-      const modifyIndex = draft.findIndex(
-        (aircraft) => aircraft.callsign === callsign
-      );
+      const modifyIndex = draft.findIndex((aircraft) => aircraft.callsign === callsign);
       if (modifyIndex !== -1) {
         draft[modifyIndex].positionX = x;
         draft[modifyIndex].positionY = y;
@@ -85,24 +66,16 @@ export function AircraftProvider({ children }: { children: ReactNode }) {
 
   function setTaxiwayNodeId(callsign: string, id: string) {
     setAircrafts((draft) => {
-      const modifyIndex = draft.findIndex(
-        (aircraft) => aircraft.callsign === callsign
-      );
+      const modifyIndex = draft.findIndex((aircraft) => aircraft.callsign === callsign);
       if (modifyIndex !== -1) {
         draft[modifyIndex].taxiwayNodeId = id;
       }
     });
   }
 
-  function setPlaneStatus(
-    callsign: string,
-    status: FlightStatus,
-    timer: number
-  ) {
+  function setPlaneStatus(callsign: string, status: FlightStatus, timer: number) {
     setAircrafts((draft) => {
-      const modifyIndex = draft.findIndex(
-        (aircraft) => aircraft.callsign === callsign
-      );
+      const modifyIndex = draft.findIndex((aircraft) => aircraft.callsign === callsign);
       if (modifyIndex !== -1) {
         draft[modifyIndex].status = status;
         draft[modifyIndex].statusChangedTime = timer;
@@ -112,9 +85,7 @@ export function AircraftProvider({ children }: { children: ReactNode }) {
 
   function deleteFlightPlan(callsign: string) {
     setAircrafts((draft) => {
-      const deleteIndex = draft.findIndex(
-        (aircraft) => aircraft.callsign === callsign
-      );
+      const deleteIndex = draft.findIndex((aircraft) => aircraft.callsign === callsign);
       if (deleteIndex !== -1) {
         draft.splice(deleteIndex, 1);
       }
@@ -150,9 +121,5 @@ export function AircraftProvider({ children }: { children: ReactNode }) {
     setTaxiwayNodeId,
   };
 
-  return (
-    <AircraftContext.Provider value={value}>
-      {children}
-    </AircraftContext.Provider>
-  );
+  return <AircraftContext.Provider value={value}>{children}</AircraftContext.Provider>;
 }

@@ -4,6 +4,7 @@ import { useDifficulty } from '../../hooks/useDifficulty';
 import { useSimulation } from '../../hooks/useSimulation';
 import { Guard } from './Guard';
 import { FeedbackLink } from './FeedbackLink';
+import { VoiceRecognitionSection } from './VoiceRecognitionSection';
 
 type Props = {
   setHelpOpen: Dispatch<SetStateAction<boolean>>;
@@ -23,9 +24,8 @@ function Help({ setHelpOpen }: Props) {
       <Box className="welcome" sx={{ overflowY: 'scroll', maxHeight: '90vh' }}>
         <h3>How to:</h3>
         <p>
-          This system is designed to reflect the simplified operation of vStrips
-          and CRC as much as possible. It will be helpful to familiarize
-          yourself with the{' '}
+          This system is designed to reflect the simplified operation of vStrips and CRC as much as
+          possible. It will be helpful to familiarize yourself with the{' '}
           <a href="https://strips.virtualnas.net/docs/#/" target="_blank">
             vStrips documentation
           </a>{' '}
@@ -126,32 +126,31 @@ function Help({ setHelpOpen }: Props) {
 
         <hr></hr>
 
+        <VoiceRecognitionSection></VoiceRecognitionSection>
+
         <h3>FAQs:</h3>
         <ul>
           <li>
             <b>How do I...?</b> See the section above.
           </li>
           <li>
-            <b>Why are the planes not behaving like I expect?</b> This is a
-            simplified simulation, where the planes will assume that you've
-            given them correct instructions. When they send you a request
-            through the message window, do your best to respond to it out loud
-            like you would a to real pilot, and then click the plane to tell it
-            you are finished.
+            <b>Why are the planes not behaving like I expect?</b> This is a simplified simulation,
+            where the planes will assume that you've given them correct instructions. When they send
+            you a request through the message window, do your best to respond to it out loud like
+            you would a to real pilot, and then click the plane to tell it you are finished.
           </li>
           <li>
-            <b>What if I'm not sure I'm doing it right?</b> As you come across
-            things you aren't sure about, make note of those things and go back
-            to review them. The information is very likely in documentation
-            somewhere. Observing the live network can also be a great way to
-            confirm your understanding. Be sure also to review the Areas for
-            Improvement tool through the button at the bottom right of the
-            screen, which will automatically keep track of some types of errors.
+            <b>What if I'm not sure I'm doing it right?</b> As you come across things you aren't
+            sure about, make note of those things and go back to review them. The information is
+            very likely in documentation somewhere. Observing the live network can also be a great
+            way to confirm your understanding. Be sure also to review the Areas for Improvement tool
+            through the button at the bottom right of the screen, which will automatically keep
+            track of some types of errors.
           </li>
           <li>
-            <b>How can I change the difficulty?</b> You can start over by
-            refreshing the page at any time &#x28;progress will be lost!&#x29;,
-            or adjust the difficulty right here and keep your progress:
+            <b>How can I change the difficulty?</b> You can start over by refreshing the page at any
+            time &#x28;progress will be lost!&#x29;, or adjust the difficulty right here and keep
+            your progress:
           </li>
         </ul>
 

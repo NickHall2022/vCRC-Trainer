@@ -49,15 +49,12 @@ function createMistakeList(
           </p>
         </Grid>
         <Grid>
-          {newMistakesCount > 0 && (
-            <span className="mistakeCounter">{newMistakesCount}</span>
-          )}
+          {newMistakesCount > 0 && <span className="mistakeCounter">{newMistakesCount}</span>}
         </Grid>
       </Grid>
 
       <p style={{ margin: '0px' }}>
-        {subtitle}. {noteMessage && <i>{noteMessage}. </i>}See{' '}
-        <b>{documentation}</b>
+        {subtitle}. {noteMessage && <i>{noteMessage}. </i>}See <b>{documentation}</b>
       </p>
       <p style={{ margin: '0px' }}>
         {mistakeMessage}: {detailsList}
@@ -71,11 +68,7 @@ function MistakeList() {
   const { mistakes, newMistakes } = useMistakes();
 
   if (mistakes.length === 0) {
-    return (
-      <p style={{ textAlign: 'center' }}>
-        No mistakes detected yet. Good work!
-      </p>
-    );
+    return <p style={{ textAlign: 'center' }}>No mistakes detected yet. Good work!</p>;
   }
 
   const IFRAltFormat = createMistakeList(
@@ -141,8 +134,7 @@ function MistakeList() {
   );
 
   const aircraftHandoff = createMistakeList(
-    newMistakes.filter((mistakeType) => mistakeType === 'aircraftHandoff')
-      .length,
+    newMistakes.filter((mistakeType) => mistakeType === 'aircraftHandoff').length,
     mistakes.filter((mistake) => mistake.type === 'aircraftHandoff'),
     'Handoff to Tower',
     'Aircraft should be handed off to Tower prior to reaching their departure runway',
@@ -169,8 +161,7 @@ function MistakeList() {
   );
 
   const badVFRAircraft = createMistakeList(
-    newMistakes.filter((mistakeType) => mistakeType === 'badVFRAircraft')
-      .length,
+    newMistakes.filter((mistakeType) => mistakeType === 'badVFRAircraft').length,
     mistakes.filter((mistake) => mistake.type === 'badVFRAircraft'),
     'VFR Aircraft Type',
     'VFR flight plans should include the correct aircraft type',

@@ -22,8 +22,7 @@ export function PrefRoutesProvider({
   });
 
   if (!loadSilently && (isLoading || !data)) return <h1>Loading...</h1>;
-  if (error)
-    return <div style={{ textAlign: 'center' }}>Error loading users</div>;
+  if (error) return <div style={{ textAlign: 'center' }}>Error loading users</div>;
 
   const value: PrefRouteDetails = !data
     ? { tecRoutes: [], highRoutes: [] }
@@ -32,9 +31,5 @@ export function PrefRoutesProvider({
         highRoutes: data.filter((route) => route.type === 'H'),
       };
 
-  return (
-    <PrefRouteContext.Provider value={value}>
-      {children}
-    </PrefRouteContext.Provider>
-  );
+  return <PrefRouteContext.Provider value={value}>{children}</PrefRouteContext.Provider>;
 }

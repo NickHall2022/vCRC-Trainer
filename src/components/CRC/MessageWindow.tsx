@@ -71,10 +71,7 @@ export function MessageWindow() {
       allowAnyClick={true}
       handle=".handle"
     >
-      <div
-        ref={draggableRef}
-        style={{ position: 'fixed', bottom: '1%', left: '580px' }}
-      >
+      <div ref={draggableRef} style={{ position: 'fixed', bottom: '1%', left: '580px' }}>
         <Resizable
           defaultSize={{ width: 800, height: 300 }}
           minWidth={400}

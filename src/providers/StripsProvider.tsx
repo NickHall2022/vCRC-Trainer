@@ -90,10 +90,7 @@ export function StripsProvider({ children }: { children: ReactNode }) {
     playPrintSound();
     setStrips((draft) => {
       for (let i = draft.length - 1; i >= 0; i--) {
-        if (
-          draft[i].bayName === 'printer' &&
-          strip.callsign === (draft[i] as StripData).callsign
-        ) {
+        if (draft[i].bayName === 'printer' && strip.callsign === (draft[i] as StripData).callsign) {
           draft.splice(i, 1);
         }
       }
@@ -110,9 +107,7 @@ export function StripsProvider({ children }: { children: ReactNode }) {
 
   function moveStripToBay(stripToAdd: AbstractStrip, bayName: BayName) {
     setStrips((draft) => {
-      const modifiedIndex = draft.findIndex(
-        (strip) => strip.id === stripToAdd.id
-      );
+      const modifiedIndex = draft.findIndex((strip) => strip.id === stripToAdd.id);
       const [removedStrip] = draft.splice(modifiedIndex, 1);
       removedStrip.bayName = bayName;
       removedStrip.offset = false;
@@ -123,9 +118,7 @@ export function StripsProvider({ children }: { children: ReactNode }) {
   const value: StripsDetails = {
     strips,
     setStrips,
-    printerStrips: strips.filter(
-      (strip) => strip.bayName === 'printer'
-    ) as StripData[],
+    printerStrips: strips.filter((strip) => strip.bayName === 'printer') as StripData[],
     printAmendedFlightPlan,
     printStrip,
     deleteStrip,
@@ -134,7 +127,5 @@ export function StripsProvider({ children }: { children: ReactNode }) {
     moveStripToBay,
   };
 
-  return (
-    <StripsContext.Provider value={value}>{children}</StripsContext.Provider>
-  );
+  return <StripsContext.Provider value={value}>{children}</StripsContext.Provider>;
 }

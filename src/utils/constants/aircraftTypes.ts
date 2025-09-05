@@ -17,16 +17,36 @@ export const JET_TYPES = [
   'E190',
 ];
 
-export const TEC_TYPES = [
-  'C208',
-  'BE58',
-  'B350',
-  'C414',
-  'P212',
-  'BN2P',
-  'C408',
-  'DHC6',
-  'TBM9',
-];
+export const TEC_TYPES = ['C208', 'BE58', 'B350', 'C414', 'P212', 'BN2P', 'C408', 'DHC6', 'TBM9'];
 
 export const GA_TYPES = ['C152', 'C172', 'C182', 'P28A', 'BE36', 'BE58'];
+
+export const AIRLINES: Record<string, string> = {
+  'united airlines': 'UAL',
+  united: 'UAL',
+  'southwest airline': 'SWA',
+  southwest: 'SWA',
+  moxie: 'MXY',
+  maxi: 'MXY',
+  microsoft: 'MXY',
+  'frontier flight': 'FFT',
+  'frontier airline': 'FFT',
+  frontier: 'FFT',
+  'D airline': 'DAL',
+  'delta airline': 'DAL',
+  delta: 'DAL',
+  D: 'DAL',
+  'american airline': 'AAL',
+  american: 'AAL',
+  care: 'KAP',
+  'cape air': 'KAP',
+  cara: 'KAP',
+  kara: 'KAP',
+  fedex: 'FDX',
+  'wiggins airways': 'WIG',
+  weekends: 'WIG',
+  weekend: 'WIG',
+  wiggins: 'WIG',
+  wigan: 'WIG',
+  wigging: 'WIG',
+};

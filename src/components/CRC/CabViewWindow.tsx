@@ -7,6 +7,8 @@ import Draggable from 'react-draggable';
 import { MessageWindow } from './MessageWindow';
 import { Taxiways } from '../debug/Taxiways';
 import { DataBlock } from './DataBlock';
+import { VoiceSwitch } from './VoiceSwitch';
+import { SPEECH_AVAILABLE } from '../../utils/constants/speech';
 
 export function CabViewWindow() {
   const { aircrafts } = useAircraft();
@@ -43,9 +45,7 @@ export function CabViewWindow() {
 
   function createDataBlocks() {
     return aircrafts.map((aircraft) => {
-      return (
-        <DataBlock aircraft={aircraft} key={aircraft.callsign}></DataBlock>
-      );
+      return <DataBlock aircraft={aircraft} key={aircraft.callsign}></DataBlock>;
     });
   }
 
@@ -97,6 +97,7 @@ export function CabViewWindow() {
       <FlightPlanEditor></FlightPlanEditor>
       <ControllerList></ControllerList>
       <MessageWindow></MessageWindow>
+      {SPEECH_AVAILABLE && <VoiceSwitch></VoiceSwitch>}
     </div>
   );
 }

@@ -224,7 +224,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     }
 
     const distanceToEnd = distance(planeX, planeY, endNode.x, endNode.y);
-    if (distanceToEnd < 20 && pushToTalkActive) {
+    if (distanceToEnd < 20 && !pushToTalkActive) {
       const aircraft = aircrafts.find((aircraft) => aircraft.callsign === callsign);
       if (aircraft && aircraft.status === 'taxi') {
         addNewRequest({
@@ -335,6 +335,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   const value: SimulationDetails = {
     requests,
     completeRequest,
+    paused,
     setPaused,
     pushToTalkActive,
     setPushToTalkActive,

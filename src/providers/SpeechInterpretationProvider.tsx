@@ -22,8 +22,8 @@ const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
     keywords: ['clear', 'squawk'],
     alternatives: [
       {
-        keywords: [],
-        atLeastOneOf: ['clearance', 'request'],
+        keywords: ['clearance'],
+        atLeastOneOf: ['request'],
         aircraftResponse: '',
       },
       {
@@ -35,7 +35,7 @@ const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
   },
   readbackIFR: { keywords: ['readback correct'] },
   clearanceVFR: { keywords: ['maintain', 'departure', 'squawk'] },
-  readbackVFR: { keywords: ['readback', 'correct', 'taxi'] },
+  readbackVFR: { keywords: ['taxi'] },
   pushback: { keywords: ['push'], atLeastOneOf: ['approved', 'discretion'] },
   taxi: { keywords: ['taxi'] },
   pattern: { keywords: ['taxi'] },
@@ -71,9 +71,7 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
 
     for (const aircraft of aircrafts) {
       if (callsignsApproximatelyMatch(aircraft.callsign, callsign)) {
-        if (checkGlobalAlternativesForAircraft(aircraft.callsign, transcript)) {
-          return;
-        }
+        return checkGlobalAlternativesForAircraft(aircraft.callsign, transcript);
       }
     }
 
@@ -108,11 +106,6 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
       }
     }
 
-    const globalAlternativeSent = checkGlobalAlternativesForAircraft(callsign, transcript);
-    if (globalAlternativeSent) {
-      return;
-    }
-
     sendMessage(`Say again for ${callsign}?`, callsign, 'radio');
   }
 
@@ -123,6 +116,7 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
         return true;
       }
     }
+    sendMessage(`I didn't understand that`, callsign, 'radio');
     return false;
   }
 

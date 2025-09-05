@@ -1,14 +1,35 @@
 import { Grid } from '@mui/material';
-import { SPEECH_AVAILABLE } from '../../utils/constants/speech';
-import { CheckCircleOutline } from '@mui/icons-material';
-import { useEffect, useState } from 'react';
+import { DEFAULT_PTT_KEY, SPEECH_AVAILABLE } from '../../utils/constants/speech';
+import { CheckCircleOutline, MicNone } from '@mui/icons-material';
+import { useEffect, useState, type Dispatch, type ReactElement, type SetStateAction } from 'react';
 
-export function VoiceRecognitionSection() {
-  const [pttButton, setPttButton] = useState(localStorage.getItem('pttButton') || 'Q');
-  const [listening, setListening] = useState(false);
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = SpeechRecognition && new SpeechRecognition();
+recognition.lang = 'en-US';
+
+export function VoiceRecognitionSection({
+  externalSetPttKey,
+}: {
+  externalSetPttKey?: Dispatch<SetStateAction<string>>;
+}) {
+  const [pttButton, setPttButton] = useState(localStorage.getItem('pttButton') || DEFAULT_PTT_KEY);
+  const [listeningForKey, setListeningForKey] = useState(false);
+  const [listeningForVoice, setListeningForVoice] = useState(false);
+  const [micTested, setMicTested] = useState(false);
+  const [speechError, setSpeechError] = useState(false);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyPress);
+    recognition.onspeechstart = () => {
+      setMicTested(true);
+      recognition.stop();
+    };
+
+    recognition.onerror = () => {
+      setListeningForVoice(false);
+      setSpeechError(true);
+      recognition.stop();
+    };
 
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
@@ -16,26 +37,31 @@ export function VoiceRecognitionSection() {
   });
 
   function handleKeyPress(event: KeyboardEvent) {
-    if (listening) {
-      setListening(false);
-      setPttButton(event.key);
-      localStorage.setItem('pttButton', event.key);
+    if (listeningForKey) {
+      setListeningForKey(false);
+      setPttButton(event.code);
+      if (externalSetPttKey) {
+        externalSetPttKey(event.code);
+      }
+      localStorage.setItem('pttButton', event.code);
       event.preventDefault();
     }
   }
 
-  function handleButtonPress() {
-    setListening(true);
+  function handleSetKeyButtonPress() {
+    setListeningForKey(true);
   }
 
-  // let microphonePermissions = navigator.mediaDevices
-  //   .getUserMedia({ audio: true })
-  //   .then(function () {
-  //     console.log('You let me use your mic!');
-  //   })
-  //   .catch(function () {
-  //     console.log('No mic for you!');
-  //   });
+  function handleTestMicButtonPress() {
+    if (!listeningForVoice) {
+      setListeningForVoice(true);
+      setSpeechError(false);
+      recognition.start();
+    } else {
+      setListeningForVoice(false);
+      recognition.stop();
+    }
+  }
 
   if (!SPEECH_AVAILABLE) {
     return (
@@ -57,6 +83,48 @@ export function VoiceRecognitionSection() {
     );
   }
 
+  let testMicText: string | ReactElement = 'Click to test mic';
+  let buttonStyle = {};
+
+  if (listeningForVoice) {
+    testMicText = (
+      <Grid container spacing={1}>
+        <Grid size={'grow'}></Grid>
+        <Grid>Listening</Grid>
+        <Grid>
+          <MicNone></MicNone>
+        </Grid>
+        <Grid size={'grow'}></Grid>
+      </Grid>
+    );
+  }
+  if (speechError) {
+    buttonStyle = {
+      backgroundColor: 'rgba(255, 0, 0, 0.15)',
+      color: 'white',
+      border: '1px solid rgba(255, 93, 93, 1)',
+      textAlign: 'center',
+    };
+  }
+  if (micTested) {
+    testMicText = (
+      <Grid container spacing={1}>
+        <Grid size={'grow'}></Grid>
+        <Grid>Mic verified</Grid>
+        <Grid>
+          <CheckCircleOutline></CheckCircleOutline>
+        </Grid>
+        <Grid size={'grow'}></Grid>
+      </Grid>
+    );
+    buttonStyle = {
+      backgroundColor: 'rgba(0, 255, 0, 0.26)',
+      color: 'white',
+      border: '1px solid rgba(0, 189, 0, 1)',
+      textAlign: 'center',
+    };
+  }
+
   return (
     <>
       <Grid container spacing={4}>
@@ -65,7 +133,7 @@ export function VoiceRecognitionSection() {
         </Grid>
         <Grid
           alignItems="center"
-          display={'flex'}
+          display="flex"
           style={{ color: 'rgba(0, 189, 0, 1)', paddingTop: '20px' }}
         >
           <span style={{ marginRight: '8px' }}>Your browser supports voice recognition</span>
@@ -85,19 +153,45 @@ export function VoiceRecognitionSection() {
         <li>Set up your push to talk button below:</li>
       </ol>
 
-      <Grid container spacing={3} display="flex" alignItems={'center'}>
+      <Grid container spacing={3} display={'flex'} alignItems={'center'}>
         <Grid size={'grow'}></Grid>
-        <Grid>
-          Push to talk button: <b>{pttButton}</b>
+        <Grid sx={{ marginTop: '5px', textAlign: 'center' }}>
+          Push to talk button:
+          <br></br>{' '}
+          <b>
+            <code
+              style={{
+                fontSize: '20px',
+                border: '1px solid white',
+                borderRadius: '5px',
+                padding: '3px',
+              }}
+            >
+              {!pttButton || pttButton === '' ? 'Invalid Key' : pttButton}
+            </code>
+          </b>
         </Grid>
         <Grid>
-          <button onClick={handleButtonPress} style={{ width: '250px' }}>
-            {listening ? 'Press any key' : 'Click to set PTT button'}
+          <button onClick={handleSetKeyButtonPress} style={{ width: '250px' }}>
+            {listeningForKey ? 'Press any key' : 'Click to set PTT button'}
           </button>
+        </Grid>
+        <Grid size={4}>
+          <button
+            onClick={handleTestMicButtonPress}
+            disabled={micTested}
+            style={{ ...buttonStyle, width: '100%', textAlign: 'center', height: '42px' }}
+          >
+            {testMicText}
+          </button>
+          {!micTested && speechError && (
+            <div style={{ textAlign: 'center', color: 'rgba(255, 93, 93, 1)' }}>
+              Speech not detected. Check settings and try again.
+            </div>
+          )}
         </Grid>
         <Grid size={'grow'}></Grid>
       </Grid>
-
       <hr></hr>
     </>
   );

@@ -6,20 +6,19 @@ import { SpeechContext, type SpeechDetails } from '../hooks/useSpeech';
 import useSound from 'use-sound';
 import { useSpeechInterpretation } from '../hooks/useSpeechInterpretation';
 import { useSimulation } from '../hooks/useSimulation';
+import { DEFAULT_PTT_KEY } from '../utils/constants/speech';
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = SpeechRecognition && new SpeechRecognition();
-if (recognition) {
-  recognition.continuous = true;
-  recognition.interimResults = false;
-  recognition.lang = 'en-US';
-}
+recognition.continuous = true;
+recognition.interimResults = false;
+recognition.lang = 'en-US';
 
 export function SpeechProvider({ children }: { children: ReactNode }) {
   const [voiceSwitchEnabled, setVoiceSwitchEnabled] = useState(true);
 
   const { interpretNewSpeech } = useSpeechInterpretation();
-  const { pushToTalkActive, setPushToTalkActive } = useSimulation();
+  const { pushToTalkActive, setPushToTalkActive, paused } = useSimulation();
 
   const { sendMessage } = useMessages();
   const [playErrorSound] = useSound('Error.wav');
@@ -54,8 +53,11 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
   });
 
   function handlePushToTalk(event: KeyboardEvent) {
-    // event.preventDefault();
-    if (!pushToTalkActive && event.key === 'F13') {
+    if (
+      !paused &&
+      !pushToTalkActive &&
+      event.code === (localStorage.getItem('pttButton') || DEFAULT_PTT_KEY)
+    ) {
       if (voiceSwitchEnabled) {
         recognition.start();
       } else {
@@ -67,7 +69,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
   }
 
   function stopSpeaking(event: KeyboardEvent) {
-    if (event.key === 'F13') {
+    if (event.code === (localStorage.getItem('pttButton') || DEFAULT_PTT_KEY)) {
       setPushToTalkActive(false);
       setTimeout(() => recognition.stop(), 250);
     }
@@ -91,7 +93,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('?', '')
       .replaceAll(':', '')
       .replaceAll('-', '')
-      .replaceAll(' or', '')
+      .replaceAll('9 or', '9')
       .replaceAll('niner', '9')
       .replaceAll(' 4th', '4')
       .replaceAll(' 4th ', '4')
@@ -114,11 +116,22 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('maintained', 'maintain')
       .replaceAll('read back', 'readback')
       .replaceAll('read that', 'readback')
+      .replaceAll('reed back', 'readback')
+      .replaceAll('read by', 'readback')
       .replaceAll('rebecca', 'readback')
       .replaceAll('viled', 'filed')
+      .replaceAll('biled', 'filed')
+      .replaceAll('bile', 'filed')
       .replaceAll(' tao', ' tower')
       .replaceAll(' tau', ' tower')
       .replaceAll('texaco', 'taxi')
+      .replaceAll('tax review', 'taxi via')
+      .replaceAll('tuxedo', 'taxi via')
+      .replaceAll('texavia', 'taxi via')
+      .replaceAll('texivia', 'taxi via')
+      .replaceAll('tech cvi', 'taxi via')
+      .replaceAll('texevia', 'taxi via')
+      .replaceAll('texted', 'taxi')
       .replaceAll(' cha', ' check')
       .replaceAll(' chop', ' check')
       .replaceAll(' squad', ' squawk')
@@ -130,18 +143,31 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll(' coffee', ' copy')
       .replaceAll('run by', 'runway')
       .replaceAll('run away', 'runway')
+      .replaceAll('roman', 'runway')
       .replaceAll('runaway', 'runway')
+      .replaceAll('advised', 'advise')
+      .replaceAll('advisory', 'advise ready')
+      .replaceAll('advisor', 'advise ready')
+      .replaceAll('adviser', 'advise')
+      .replaceAll('right directors', 'radar vectors')
+      .replaceAll('rate of rectors', 'radar vectors')
+      .replaceAll('crack', 'correct')
+      .replaceAll('clear ', 'cleared ')
+      .replaceAll('noble', 'nuble')
+      .replaceAll('be the', 'via')
+      .replaceAll('is filed', 'as filed')
+      .replaceAll('hello', '')
       .replaceAll('airlines', 'airline')
       .replaceAll('crowned', 'ground')
       .replaceAll('119 are', '119')
       .replaceAll('119 .75', '119.75')
       .trim();
 
-    if (transcript.startsWith('delta ')) {
-      transcript.replace('delta ', 'DAL');
-    }
     if (transcript.startsWith('KR')) {
-      transcript.replace('KR', 'care');
+      transcript = transcript.replace('KR', 'care');
+    }
+    if (transcript.startsWith('number ')) {
+      transcript = transcript.replace('number ', 'N');
     }
     Object.keys(PHONETIC_ALPHABET_REVERSE).forEach((letter) => {
       transcript = transcript.replaceAll(letter, PHONETIC_ALPHABET_REVERSE[letter]);
@@ -183,6 +209,9 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       let i = 1;
 
       while (i < splitTranscript.length && numLettersFound < CALLSIGN_LENGTH) {
+        if (splitTranscript[i].length + numLettersFound > CALLSIGN_LENGTH) {
+          break;
+        }
         numStrayChunksToMerge++;
         numLettersFound += splitTranscript[i].length;
         splitTranscript[i] = splitTranscript[i].toUpperCase();

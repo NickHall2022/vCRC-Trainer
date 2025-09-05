@@ -1,10 +1,11 @@
 import { Box, Grid } from '@mui/material';
-import type { Dispatch, SetStateAction } from 'react';
+import { useState, type Dispatch, type SetStateAction } from 'react';
 import { useDifficulty } from '../../hooks/useDifficulty';
 import { useSimulation } from '../../hooks/useSimulation';
 import { Guard } from './Guard';
 import { FeedbackLink } from './FeedbackLink';
 import { VoiceRecognitionSection } from './VoiceRecognitionSection';
+import { DEFAULT_PTT_KEY } from '../../utils/constants/speech';
 
 type Props = {
   setHelpOpen: Dispatch<SetStateAction<boolean>>;
@@ -12,7 +13,8 @@ type Props = {
 
 function Help({ setHelpOpen }: Props) {
   const { setPaused } = useSimulation();
-  const { difficulty, setDifficulty } = useDifficulty();
+  const { difficulty, updateDifficulty } = useDifficulty();
+  const [pttKey, setPttKey] = useState(localStorage.getItem('pttButton') || DEFAULT_PTT_KEY);
 
   function handleResumeClicked() {
     setHelpOpen(false);
@@ -46,9 +48,21 @@ function Help({ setHelpOpen }: Props) {
                 padding: '2px',
               }}
             >
+              <b>{`Hold ${pttKey}`}</b>
+            </code>
+            &nbsp;to activate voice recognition and speak normally to send instructions
+          </li>
+          <li>
+            <code
+              style={{
+                border: '1px solid #999',
+                borderRadius: 3,
+                padding: '2px',
+              }}
+            >
               <b>Left Click</b>
             </code>{' '}
-            on a plane or its message to issue it a command
+            {'(if not using voice) '}on a plane or any message sent by it to issue it a command
           </li>
           <li>
             <code
@@ -126,7 +140,7 @@ function Help({ setHelpOpen }: Props) {
 
         <hr></hr>
 
-        <VoiceRecognitionSection></VoiceRecognitionSection>
+        <VoiceRecognitionSection externalSetPttKey={setPttKey}></VoiceRecognitionSection>
 
         <h3>FAQs:</h3>
         <ul>
@@ -136,8 +150,9 @@ function Help({ setHelpOpen }: Props) {
           <li>
             <b>Why are the planes not behaving like I expect?</b> This is a simplified simulation,
             where the planes will assume that you've given them correct instructions. When they send
-            you a request through the message window, do your best to respond to it out loud like
-            you would a to real pilot, and then click the plane to tell it you are finished.
+            you a request through the message window, just press your PTT key and respond to it out
+            loud like you would a to real pilot. If you aren't using voice recognition, still
+            practice saying the instructions, and then click the plane to tell it you are finished.
           </li>
           <li>
             <b>What if I'm not sure I'm doing it right?</b> As you come across things you aren't
@@ -166,7 +181,7 @@ function Help({ setHelpOpen }: Props) {
                 max="4"
                 defaultValue={difficulty}
                 style={{ width: '100%' }}
-                onChange={(event) => setDifficulty(Number(event.target.value))}
+                onChange={(event) => updateDifficulty(Number(event.target.value))}
               ></input>
             </Grid>
             <Grid size={'auto'}>

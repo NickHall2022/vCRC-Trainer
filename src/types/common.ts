@@ -143,6 +143,7 @@ export type AircraftRequest = {
 export type SimulationDetails = {
   requests: AircraftRequest[];
   completeRequest: (callsign: string, completedByVoice?: boolean) => void;
+  paused: boolean;
   setPaused: Dispatch<SetStateAction<boolean>>;
   pushToTalkActive: boolean;
   setPushToTalkActive: Dispatch<SetStateAction<boolean>>;
@@ -196,7 +197,7 @@ export type ParkingSpotMethods = {
 
 export type DifficultyDetails = {
   difficulty: number;
-  setDifficulty: Dispatch<SetStateAction<number>>;
+  updateDifficulty: (newDifficulty: number) => void;
 };
 
 export type MistakeType =

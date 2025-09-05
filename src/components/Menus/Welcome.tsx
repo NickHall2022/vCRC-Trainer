@@ -9,7 +9,7 @@ type Props = {
 };
 
 function Welcome({ setWelcomeOpen }: Props) {
-  const { difficulty, setDifficulty } = useDifficulty();
+  const { difficulty, updateDifficulty } = useDifficulty();
 
   return (
     <div
@@ -74,7 +74,7 @@ function Welcome({ setWelcomeOpen }: Props) {
                 max="4"
                 defaultValue={difficulty}
                 style={{ width: '100%' }}
-                onChange={(event) => setDifficulty(Number(event.target.value))}
+                onChange={(event) => updateDifficulty(Number(event.target.value))}
               ></input>
             </Grid>
             <Grid size={'auto'}>

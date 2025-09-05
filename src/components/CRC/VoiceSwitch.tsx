@@ -1,10 +1,11 @@
 import { Grid } from '@mui/material';
-import { useRef, type RefObject } from 'react';
+import { useRef, type Dispatch, type RefObject, type SetStateAction } from 'react';
 import Draggable from 'react-draggable';
 import { useSpeech } from '../../hooks/useSpeech';
 import { useImmer } from 'use-immer';
 import { useSimulation } from '../../hooks/useSimulation';
 import { useMessages } from '../../hooks/useMessages';
+import useSound from 'use-sound';
 
 type ButtonStates = {
   TX: boolean;
@@ -17,12 +18,15 @@ type ButtonStates = {
 export function VoiceSwitch() {
   const draggableRef = useRef<HTMLDivElement>(null);
 
-  const { setVoiceSwitchEnabled } = useSpeech();
+  const {
+    setVoiceSwitchEnabled,
+  }: { setVoiceSwitchEnabled: Dispatch<SetStateAction<boolean>> | undefined } = useSpeech();
   const { pushToTalkActive } = useSimulation();
-  const { recieveSwitchEnabled, setRecieveSwitchEnabled } = useMessages();
+  const { sendMessage, recieveSwitchEnabled, setRecieveSwitchEnabled } = useMessages();
+  const [playErrorSound] = useSound('Error.wav');
 
   const [buttonStates, setButtonStates] = useImmer({
-    TX: true,
+    TX: !!setVoiceSwitchEnabled,
     RX: recieveSwitchEnabled,
     SPKR: false,
     XC: false,
@@ -37,7 +41,17 @@ export function VoiceSwitch() {
     }
 
     if (buttonType === 'TX') {
-      setVoiceSwitchEnabled(!buttonStates['TX']);
+      if (setVoiceSwitchEnabled) {
+        setVoiceSwitchEnabled(!buttonStates['TX']);
+      } else {
+        playErrorSound();
+        sendMessage(
+          'Voice recognition is not available in your browser. Microsoft Edge is recommended.',
+          '',
+          'system'
+        );
+        return;
+      }
     }
 
     setButtonStates((draft) => {

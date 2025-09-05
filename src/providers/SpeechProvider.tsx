@@ -189,6 +189,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('hello', '')
       .replaceAll('airlines', 'airline')
       .replaceAll('crowned', 'ground')
+      .replaceAll('cough', 'call for')
       .replaceAll('go back', 'q')
       .replaceAll('119 are', '119')
       .replaceAll('119 .75', '119.75')

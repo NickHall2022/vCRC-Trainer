@@ -8,7 +8,6 @@ import { MessageWindow } from './MessageWindow';
 import { Taxiways } from '../debug/Taxiways';
 import { DataBlock } from './DataBlock';
 import { VoiceSwitch } from './VoiceSwitch';
-import { SPEECH_AVAILABLE } from '../../utils/constants/speech';
 
 export function CabViewWindow() {
   const { aircrafts } = useAircraft();
@@ -97,7 +96,7 @@ export function CabViewWindow() {
       <FlightPlanEditor></FlightPlanEditor>
       <ControllerList></ControllerList>
       <MessageWindow></MessageWindow>
-      {SPEECH_AVAILABLE && <VoiceSwitch></VoiceSwitch>}
+      <VoiceSwitch></VoiceSwitch>
     </div>
   );
 }

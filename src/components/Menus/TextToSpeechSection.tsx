@@ -28,10 +28,11 @@ export function TextToSpeechSection() {
         </Grid>
       </Grid>
       <p>
-        By default, vSweatbox will run aircraft messages through text-to-speech and play them out
-        loud for you. You can disable it at any point with the RX button on the voice switch and
-        continue in text mode. You can continue to use voice recognition without using
-        text-to-speech.
+        By default, vSweatbox will run use text-to-speech to play aircraft requests out loud for
+        you. You can disable this at any point by using the RX button on the voice switch, which
+        will cause aircraft requests to show up as text only. Make sure that your volume is turned
+        up and your browser tab is not muted. You can continue to use voice recognition
+        independently of text-to-speech.
       </p>
       {isMicrosoftEdge() ? (
         <></>

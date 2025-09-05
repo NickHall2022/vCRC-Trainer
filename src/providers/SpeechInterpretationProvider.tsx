@@ -71,6 +71,10 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
 
     for (const aircraft of aircrafts) {
       if (callsignsApproximatelyMatch(aircraft.callsign, callsign)) {
+        if (aircraft.status.includes('handed') || aircraft.status === 'departed') {
+          playErrorSound();
+          sendMessage(`Aircraft ${callsign} is no longer on your frequency`, '', 'system');
+        }
         return checkGlobalAlternativesForAircraft(aircraft.callsign, transcript);
       }
     }

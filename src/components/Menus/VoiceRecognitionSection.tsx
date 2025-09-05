@@ -5,7 +5,9 @@ import { useEffect, useState, type Dispatch, type ReactElement, type SetStateAct
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = SpeechRecognition && new SpeechRecognition();
-recognition.lang = 'en-US';
+if (recognition) {
+  recognition.lang = 'en-US';
+}
 
 export function VoiceRecognitionSection({
   externalSetPttKey,
@@ -20,16 +22,19 @@ export function VoiceRecognitionSection({
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyPress);
-    recognition.onspeechstart = () => {
-      setMicTested(true);
-      recognition.stop();
-    };
 
-    recognition.onerror = () => {
-      setListeningForVoice(false);
-      setSpeechError(true);
-      recognition.stop();
-    };
+    if (recognition) {
+      recognition.onspeechstart = () => {
+        setMicTested(true);
+        recognition.stop();
+      };
+
+      recognition.onerror = () => {
+        setListeningForVoice(false);
+        setSpeechError(true);
+        recognition.stop();
+      };
+    }
 
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
@@ -75,6 +80,7 @@ export function VoiceRecognitionSection({
             border: '1px solid red',
             textAlign: 'center',
             lineHeight: '46px',
+            marginTop: '10px',
           }}
         >
           <b>Your browser does not support voice recognition! Try Chrome or Edge.</b>
@@ -150,6 +156,7 @@ export function VoiceRecognitionSection({
           Check your browser microphone settings to make sure you have the right device selected
         </li>
         <li>Begin every transmission with the callsign you are trying to talk to</li>
+        <li>Speak clearly and deliberately to maximize the accuracy of voice recognition</li>
         <li>Set up your push to talk button below:</li>
       </ol>
 

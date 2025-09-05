@@ -92,8 +92,11 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         } else if (aircraft.status === 'taxi' || aircraft.status === 'departing') {
           movePlaneTowardsRunway(aircraft);
         } else if (aircraft.status === 'handedOff') {
-          movePlaneTowardsRunway(aircraft);
-          if (timer - (aircraft.statusChangedTime as number) > 20000) {
+          const dist = movePlaneTowardsRunway(aircraft);
+          if (
+            dist < PLANE_DIST_THRESHOLD &&
+            timer - (aircraft.statusChangedTime as number) > 20000
+          ) {
             const localStrips = strips.filter((strip) => strip.bayName === 'local');
             if (!localStrips.find((strip) => (strip as StripData).callsign === aircraft.callsign)) {
               sendMessage(`Can you pass me the strip for ${aircraft.callsign}?`, 'PWM_TWR', 'ATC');
@@ -224,26 +227,15 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     }
 
     const distanceToEnd = distance(planeX, planeY, endNode.x, endNode.y);
-    if (distanceToEnd < 20 && !pushToTalkActive) {
-      const aircraft = aircrafts.find((aircraft) => aircraft.callsign === callsign);
-      if (aircraft && aircraft.status === 'taxi') {
-        addNewRequest({
-          callsign,
-          priority: 1,
-          responseMessage: 'Contact tower 120.9',
-          nextRequestDelay: 0,
-          nextStatus: 'handedOff',
-          atcMessage: `${aircraft.callsign} handed to tower`,
-          requestType: 'handoff',
-          reminder: {
-            message: 'Ground, should we switch to tower?',
-            type: 'aircraftHandoff',
-            sendDelay: 60000,
-          },
-        });
+    if (aircraft.status === 'taxi') {
+      if (distanceToEnd < PLANE_DIST_THRESHOLD && !pushToTalkActive) {
         setPlaneStatus(callsign, 'departing', timer);
+        addMistake('aircraftHandoff', aircraft.callsign);
+        sendMessage('Ground, should we switch to tower?', aircraft.callsign, 'radio');
       }
     }
+
+    return distanceToEnd;
   }
 
   function movePlaneToSavedNode(aircraft: Aircraft): number {

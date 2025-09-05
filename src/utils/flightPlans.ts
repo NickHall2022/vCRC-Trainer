@@ -222,6 +222,7 @@ function buildTaxiRequest(
     callsign: callsign,
     nextRequestDelay: 0,
     nextStatus: 'taxi',
+    subsequentRequest: handoffRequest(callsign),
   };
 }
 
@@ -326,6 +327,7 @@ function buildVFRDepartureRequest(
           },
           priority: 1,
           nextStatus: 'taxi',
+          subsequentRequest: handoffRequest(aircraft.callsign),
           callsign: aircraft.callsign,
           nextRequestDelay: 0,
         },
@@ -351,6 +353,7 @@ function buildVFRPatternRequest(
         requestType: 'pattern',
         nextStatus: 'taxi',
         atcMessage: `Taxi instruction sent to ${aircraft.callsign}`,
+        subsequentRequest: handoffRequest(aircraft.callsign),
         priority: 1,
         callsign: aircraft.callsign,
         nextRequestDelay: 0,
@@ -555,4 +558,16 @@ function getRandomTecEquipment() {
 function getRandomDepartureDirection() {
   const directions = ['northeast', 'north', 'northwest', 'west', 'southwest'];
   return directions[Math.floor(Math.random() * directions.length)];
+}
+
+function handoffRequest(callsign: string): AircraftRequest {
+  return {
+    callsign,
+    priority: 1,
+    responseMessage: 'Contact tower 120.9',
+    nextRequestDelay: 0,
+    nextStatus: 'handedOff',
+    atcMessage: `${callsign} handed to tower`,
+    requestType: 'handoff',
+  };
 }

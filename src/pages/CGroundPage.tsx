@@ -40,7 +40,7 @@ export function CGgroundPage() {
           style={{
             position: 'fixed',
             zIndex: 4,
-            right: '315px',
+            right: '325px',
             bottom: '35px',
             color: 'red',
           }}

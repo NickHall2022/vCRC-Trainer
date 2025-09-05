@@ -82,6 +82,7 @@ export function FlightPlanEditor() {
 
   function handleEnterPressed(event: React.KeyboardEvent) {
     if (event.key === 'Enter' && hasBeenEdited) {
+      event.preventDefault();
       handleAmendFlightPlan();
     }
   }

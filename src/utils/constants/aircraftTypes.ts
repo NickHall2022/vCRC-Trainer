@@ -23,6 +23,7 @@ export const GA_TYPES = ['C152', 'C172', 'C182', 'P28A', 'BE36', 'BE58'];
 
 export const AIRLINES: Record<string, string> = {
   'united airlines': 'UAL',
+  tonight: 'UAL',
   united: 'UAL',
   'southwest airline': 'SWA',
   southwest: 'SWA',

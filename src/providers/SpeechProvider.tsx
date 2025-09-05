@@ -10,9 +10,11 @@ import { DEFAULT_PTT_KEY } from '../utils/constants/speech';
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = SpeechRecognition && new SpeechRecognition();
-recognition.continuous = true;
-recognition.interimResults = false;
-recognition.lang = 'en-US';
+if (recognition) {
+  recognition.continuous = true;
+  recognition.interimResults = false;
+  recognition.lang = 'en-US';
+}
 
 export function SpeechProvider({ children }: { children: ReactNode }) {
   const [voiceSwitchEnabled, setVoiceSwitchEnabled] = useState(true);
@@ -34,8 +36,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       };
     };
 
-    recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
+    recognition.onerror = () => {
       recognition.stop();
     };
 
@@ -62,7 +63,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
         recognition.start();
       } else {
         playErrorSound();
-        sendMessage('Transmitting is disabled in your voice switch', '', 'system');
+        sendMessage('TX is disabled in your voice switch', '', 'system');
       }
       setPushToTalkActive(true);
     }
@@ -84,7 +85,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
   }
 
   function sanitizeTranscript(transcript: string) {
-    console.log('Raw', transcript);
+    console.debug(transcript);
     transcript = transcript
       .toLowerCase()
       .replaceAll(',', '')
@@ -107,60 +108,88 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll(' 8th ', '8')
       .replaceAll(' 9th', '9')
       .replaceAll(' 9th ', '9')
+      .replaceAll('runway to 9', 'runway 29')
       .replaceAll('via far', 'VFR')
       .replaceAll('via our', 'VFR')
       .replaceAll('november ', 'N')
       .replaceAll('remember ', 'N')
       .replaceAll('charley', 'charlie')
       .replaceAll('gold', 'golf')
+      .replaceAll('minton', 'maintain')
       .replaceAll('maintained', 'maintain')
+      .replaceAll('maintaining', 'maintain')
+      .replaceAll('pushed back', 'pushback')
       .replaceAll('read back', 'readback')
       .replaceAll('read that', 'readback')
       .replaceAll('reed back', 'readback')
+      .replaceAll('remake', 'readback')
       .replaceAll('read by', 'readback')
       .replaceAll('rebecca', 'readback')
       .replaceAll('viled', 'filed')
       .replaceAll('biled', 'filed')
       .replaceAll('bile', 'filed')
+      .replaceAll('file ', 'filed ')
       .replaceAll(' tao', ' tower')
+      .replaceAll('hour', ' tower')
       .replaceAll(' tau', ' tower')
       .replaceAll('texaco', 'taxi')
       .replaceAll('tax review', 'taxi via')
+      .replaceAll('tax ', 'taxi ')
+      .replaceAll('text you', 'taxi via')
+      .replaceAll('text me', 'taxi via')
+      .replaceAll('talks', 'taxi via')
+      .replaceAll('text to be', 'taxi via')
       .replaceAll('tuxedo', 'taxi via')
       .replaceAll('texavia', 'taxi via')
+      .replaceAll('taxavia', 'taxi via')
       .replaceAll('texivia', 'taxi via')
       .replaceAll('tech cvi', 'taxi via')
       .replaceAll('texevia', 'taxi via')
       .replaceAll('texted', 'taxi')
-      .replaceAll(' cha', ' check')
+      .replaceAll('radio cha', 'radio check')
       .replaceAll(' chop', ' check')
       .replaceAll(' squad', ' squawk')
       .replaceAll('squawks', 'squawk')
       .replaceAll(' score', ' squawk')
       .replaceAll(' scorp', ' squawk')
+      .replaceAll('squat', ' squawk')
       .replaceAll(' walk', ' squawk')
       .replaceAll(' guac', ' squawk')
       .replaceAll(' coffee', ' copy')
       .replaceAll('run by', 'runway')
+      .replaceAll('run my', 'runway')
       .replaceAll('run away', 'runway')
       .replaceAll('roman', 'runway')
       .replaceAll('runaway', 'runway')
+      .replaceAll('rampers', 'ramp is')
       .replaceAll('advised', 'advise')
       .replaceAll('advisory', 'advise ready')
       .replaceAll('advisor', 'advise ready')
       .replaceAll('adviser', 'advise')
       .replaceAll('right directors', 'radar vectors')
       .replaceAll('rate of rectors', 'radar vectors')
+      .replaceAll(' mic ', 'm')
       .replaceAll('crack', 'correct')
       .replaceAll('clear ', 'cleared ')
       .replaceAll('noble', 'nuble')
       .replaceAll('be the', 'via')
       .replaceAll('is filed', 'as filed')
+      .replaceAll('has filed', 'as filed')
+      .replaceAll('fox trot', 'f')
+      .replaceAll('foxtr ', 'f ')
+      .replaceAll('fox ', 'f ')
+      .replaceAll('funk straut', 'f')
+      .replaceAll('funk strout', 'f')
       .replaceAll('hello', '')
       .replaceAll('airlines', 'airline')
       .replaceAll('crowned', 'ground')
+      .replaceAll('go back', 'q')
       .replaceAll('119 are', '119')
       .replaceAll('119 .75', '119.75')
+      .replaceAll('120.9er', '120.9')
+      .replaceAll('went to 0', '120')
+      .replaceAll('xray', 'x')
+      .replaceAll('zero', '0')
       .trim();
 
     if (transcript.startsWith('KR')) {
@@ -203,7 +232,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
     }
 
     let numStrayChunksToMerge = 0;
-    if (transcript.startsWith('N')) {
+    if (splitTranscript[0].startsWith('N')) {
       const CALLSIGN_LENGTH = 6;
       let numLettersFound = splitTranscript[0].length;
       let i = 1;

@@ -8,8 +8,8 @@ import type {
   AircraftDefaultAttributes,
   FlightPlanDefaultIFRAttributes,
 } from '../types/common';
-import { GA_TYPES, JET_TYPES, TEC_TYPES } from './constants/aircraftTypes';
-import { PHONETIC_ATIS } from './constants/alphabet';
+import { AIRLINE_CODES, GA_TYPES, JET_TYPES, TEC_TYPES } from './constants/aircraftTypes';
+import { PHONETIC_ALPHABET, PHONETIC_ATIS, PHONETIC_NUMBERS } from './constants/alphabet';
 import {
   SPAWNABLE_HIGH_EAST_ALT,
   SPAWNABLE_HIGH_WEST_ALT,
@@ -131,6 +131,8 @@ function buildDefaultAircraftAttributes(parkingSpot: ParkingSpot): AircraftDefau
     rotation: parkingSpot.rotation,
     status: 'ramp',
     canSendRequestTime: 0,
+    voice: getRandomVoice(),
+    pitch: getRandomPitch(),
   };
 }
 
@@ -170,7 +172,9 @@ function buildClearanceRequest(
   const flightPlan = aircraft.flightPlan;
   return {
     requestMessage: `Request IFR clearance to ${flightPlan.destination}`,
+    requestPhoneticMessage: `Portland ground, ${phoneticizeString(flightPlan.callsign)} request IFR clearance to ${phoneticizeString(flightPlan.destination)}`,
     responseMessage: `Cleared to ${flightPlan.destination}, squawk ${aircraft.flightPlan.squawk}`,
+    responsePhoneticMessage: `${phoneticizeString(flightPlan.callsign)} cleared to ${phoneticizeString(flightPlan.destination)}, squawk ${phoneticizeString(aircraft.flightPlan.squawk)}`,
     priority: 1,
     callsign: aircraft.callsign,
     nextRequestDelay: 0,
@@ -178,9 +182,13 @@ function buildClearanceRequest(
     requestType: 'clearanceIFR',
     subsequentRequest: {
       responseMessage: withPushback ? 'Will call for pushback' : 'Will call for taxi',
+      responsePhoneticMessage: withPushback
+        ? `${phoneticizeString(flightPlan.callsign)} will call for pushback`
+        : `${phoneticizeString(flightPlan.callsign)} will call for taxi`,
       requestType: 'readbackIFR',
       reminder: {
         message: 'Ground, did you copy our readback?',
+        phoneticMessage: `Ground, ${phoneticizeString(flightPlan.callsign)}, did you copy our readback?`,
         type: 'readbackIFR',
         sendDelay: 20000,
       },
@@ -196,10 +204,14 @@ function buildClearanceRequest(
 function buildPusbackRequest(intoRamp: boolean, callsign: string, gate: string): AircraftRequest {
   return {
     requestMessage: `Request pushback with ${PHONETIC_ATIS} from gate ${gate}`,
+    requestPhoneticMessage: `${phoneticizeString(callsign)} request pushback with ${PHONETIC_ATIS} from gate ${gate}`,
     requestType: 'pushback',
     responseMessage: intoRamp
       ? 'Pushback into the ramp at our discretion, will call for taxi'
       : 'Pushback approved, will call for taxi',
+    responsePhoneticMessage: intoRamp
+      ? `${phoneticizeString(callsign)} pushback into the ramp at our discretion, will call for taxi`
+      : `${phoneticizeString(callsign)} pushback approved, will call for taxi`,
     atcMessage: `Push approved for ${callsign}`,
     priority: 1,
     callsign: callsign,
@@ -215,9 +227,13 @@ function buildTaxiRequest(
 ): AircraftRequest {
   return {
     requestMessage: `Ready for taxi${location ? ` with ${PHONETIC_ATIS} from ${location}` : ''}`,
+    requestPhoneticMessage: `${phoneticizeString(callsign)} ready for taxi${location ? ` with ${PHONETIC_ATIS} from ${location}` : ''}`,
     requestType: 'taxi',
     atcMessage: `Taxi instruction sent to ${callsign}`,
     responseMessage: taxiInstruction ? taxiInstruction : 'Runway 29, taxi via A, cross runway 36',
+    responsePhoneticMessage: taxiInstruction
+      ? taxiInstruction
+      : `${phoneticizeString(callsign)} runway two nine, taxi via alpha, cross runway three six`,
     priority: 2,
     callsign: callsign,
     nextRequestDelay: 0,
@@ -310,7 +326,9 @@ function buildVFRDepartureRequest(
     requests: [
       {
         requestMessage: `Type ${aircraft.actualAircraftType} at the north apron with ${PHONETIC_ATIS}, request VFR departure${flightFollowing ? ' with flight following' : ''} to the ${direction} at ${altitude}`,
+        requestPhoneticMessage: `Portland ground, ${phoneticizeString(aircraft.callsign)} type ${aircraft.actualAircraftType} at the north apron with ${PHONETIC_ATIS}, request VFR departure${flightFollowing ? ' with flight following' : ''} to the ${direction} at ${altitude}`,
         responseMessage: `Maintain VFR at or below 2500, departure 119.75, squawk ${aircraft.flightPlan.squawk}`,
+        responsePhoneticMessage: `${phoneticizeString(aircraft.callsign)} maintain VFR at or below 2500, departure one one niner point seven five, squawk ${phoneticizeString(aircraft.flightPlan.squawk)}`,
         priority: 1,
         callsign: aircraft.callsign,
         nextRequestDelay: 0,
@@ -318,10 +336,12 @@ function buildVFRDepartureRequest(
         requestType: 'clearanceVFR',
         subsequentRequest: {
           responseMessage: 'Runway 29, taxi via C, A, cross runway 36',
+          responsePhoneticMessage: `${phoneticizeString(aircraft.callsign)} runway two nine, taxi via charlie, alpha, cross runway three six`,
           atcMessage: `Taxi instruction sent to ${aircraft.callsign}`,
           requestType: 'readbackVFR',
           reminder: {
             message: 'Ready to taxi',
+            phoneticMessage: `${phoneticizeString(aircraft.callsign)} ready to taxi`,
             type: 'taxiVFR',
             sendDelay: 20000,
           },
@@ -349,7 +369,9 @@ function buildVFRPatternRequest(
     requests: [
       {
         requestMessage: `Type ${aircraft.actualAircraftType} at the north apron with ${PHONETIC_ATIS}, request taxi for pattern work`,
+        requestPhoneticMessage: `Portland ground, ${phoneticizeString(aircraft.callsign)} type ${aircraft.actualAircraftType} at the north apron with ${PHONETIC_ATIS}, request taxi for pattern work`,
         responseMessage: `Squawk VFR, runway 29, taxi via C, A, cross runway 36`,
+        responsePhoneticMessage: `${phoneticizeString(aircraft.callsign)} squawk VFR, runway two nine taxi via charlie, alpha, cross runway 36`,
         requestType: 'pattern',
         nextStatus: 'taxi',
         atcMessage: `Taxi instruction sent to ${aircraft.callsign}`,
@@ -565,9 +587,44 @@ function handoffRequest(callsign: string): AircraftRequest {
     callsign,
     priority: 1,
     responseMessage: 'Contact tower 120.9',
+    responsePhoneticMessage: `${phoneticizeString(callsign)} contact tower one two zero point niner`,
     nextRequestDelay: 0,
     nextStatus: 'handedOff',
     atcMessage: `${callsign} handed to tower`,
     requestType: 'handoff',
   };
+}
+
+function getRandomVoice() {
+  const voices = window.speechSynthesis
+    .getVoices()
+    .filter(
+      (voice) =>
+        voice.lang === 'en-US' &&
+        !voice.name.includes('Microsoft David') &&
+        !voice.name.includes('Microsoft Zira')
+    );
+
+  return voices[Math.floor(Math.random() * voices.length)];
+}
+
+function getRandomPitch() {
+  return 0.8 + Math.random() * 0.4;
+}
+
+export function phoneticizeString(text: string): string {
+  text = text.trim().replaceAll(' ', '');
+
+  const airlineCode = text.substring(0, 3);
+  if (AIRLINE_CODES[airlineCode]) {
+    const newText = text.replace(airlineCode, AIRLINE_CODES[airlineCode]);
+    return newText;
+  }
+
+  return text
+    .split('')
+    .map((character) => {
+      return PHONETIC_ALPHABET[character] || PHONETIC_NUMBERS[character];
+    })
+    .join(' ');
 }

@@ -72,7 +72,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
   function stopSpeaking(event: KeyboardEvent) {
     if (event.code === (localStorage.getItem('pttButton') || DEFAULT_PTT_KEY)) {
       setPushToTalkActive(false);
-      setTimeout(() => recognition.stop(), 250);
+      setTimeout(() => recognition.stop(), 500);
     }
   }
 
@@ -122,6 +122,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('read back', 'readback')
       .replaceAll('read that', 'readback')
       .replaceAll('reed back', 'readback')
+      .replaceAll('readback act', 'readback correct')
       .replaceAll('remake', 'readback')
       .replaceAll('read by', 'readback')
       .replaceAll('rebecca', 'readback')
@@ -145,8 +146,12 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('texivia', 'taxi via')
       .replaceAll('tech cvi', 'taxi via')
       .replaceAll('texevia', 'taxi via')
+      .replaceAll('tekstovia', 'taxi via')
+      .replaceAll('texty', 'taxi')
       .replaceAll('texted', 'taxi')
       .replaceAll('radio cha', 'radio check')
+      .replaceAll('radio shack', 'radio check')
+      .replaceAll('radioshack', 'radio check')
       .replaceAll(' chop', ' check')
       .replaceAll(' squad', ' squawk')
       .replaceAll('squawks', 'squawk')

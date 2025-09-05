@@ -50,6 +50,8 @@ export type AircraftDefaultAttributes = {
   positionY: number;
   rotation: number;
   canSendRequestTime: number;
+  voice: SpeechSynthesisVoice;
+  pitch: number;
 };
 
 export type BayName = 'ground' | 'local' | 'spare' | 'printer';
@@ -108,7 +110,14 @@ export type Message = {
 
 export type MessagesDetails = {
   messages: Message[];
-  sendMessage: (content: string, callsign: string, type: MessageType) => void;
+  sendMessage: (
+    content: string,
+    callsign: string,
+    type: MessageType,
+    phoneticMessage?: string
+  ) => void;
+  recieveSwitchEnabled: boolean;
+  setRecieveSwitchEnabled: Dispatch<SetStateAction<boolean>>;
 };
 
 export type RequestReminderType = 'readbackIFR' | 'taxiVFR' | 'aircraftHandoff';
@@ -126,7 +135,9 @@ export type AircraftRequest = {
   callsign: string;
   priority: number;
   responseMessage?: string;
+  responsePhoneticMessage?: string;
   requestMessage?: string;
+  requestPhoneticMessage?: string;
   subsequentRequest?: AircraftRequest;
   requestType: RequestType;
   nextRequestDelay: number;
@@ -134,6 +145,7 @@ export type AircraftRequest = {
   nextStatus?: FlightStatus;
   reminder?: {
     message: string;
+    phoneticMessage: string;
     sendDelay: number;
     type: RequestReminderType;
     sendTime?: number;

@@ -8,6 +8,7 @@ import useSound from 'use-sound';
 import { useMessages } from '../hooks/useMessages';
 import type { AircraftRequest, FlightStatus, RequestType } from '../types/common';
 import { useAircraft } from '../hooks/useAircraft';
+import { phoneticizeString } from '../utils/flightPlans';
 
 type Keywords = {
   keywords: string[];
@@ -103,24 +104,48 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
       for (const alternative of keywords.alternatives) {
         if (keywordsMatchTranscript(alternative, transcript)) {
           if (alternative.aircraftResponse && alternative.aircraftResponse.length > 0) {
-            return sendMessage(alternative.aircraftResponse, callsign, 'radio');
+            return sendMessage(
+              alternative.aircraftResponse,
+              callsign,
+              'radio',
+              `${phoneticizeString(callsign)} ${alternative.aircraftResponse}`
+            );
           }
           return;
         }
       }
     }
 
-    sendMessage(`Say again for ${callsign}?`, callsign, 'radio');
+    if (checkGlobalAlternativesForAircraft(callsign, transcript)) {
+      return;
+    }
+
+    sendMessage(
+      `Say again for ${callsign}?`,
+      callsign,
+      'radio',
+      `Say again for ${phoneticizeString(callsign)}?`
+    );
   }
 
   function checkGlobalAlternativesForAircraft(callsign: string, transcript: string): boolean {
     for (const alternative of GLOBAL_ALTERNATIVES) {
       if (alternative.aircraftResponse && keywordsMatchTranscript(alternative, transcript)) {
-        sendMessage(alternative.aircraftResponse, callsign, 'radio');
+        sendMessage(
+          alternative.aircraftResponse,
+          callsign,
+          'radio',
+          `${phoneticizeString(callsign)} ${alternative.aircraftResponse}`
+        );
         return true;
       }
     }
-    sendMessage(`I didn't understand that`, callsign, 'radio');
+    sendMessage(
+      `I didn't understand that`,
+      callsign,
+      'radio',
+      `${phoneticizeString(callsign)} I didn't understand that`
+    );
     return false;
   }
 

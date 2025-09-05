@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import { useDifficulty } from '../../hooks/useDifficulty';
 import { FeedbackLink } from './FeedbackLink';
 import { VoiceRecognitionSection } from './VoiceRecognitionSection';
+import { TextToSpeechSection } from './TextToSpeechSection';
 
 type Props = {
   setWelcomeOpen: Dispatch<SetStateAction<boolean>>;
@@ -55,6 +56,9 @@ function Welcome({ setWelcomeOpen }: Props) {
         </ol>
         <hr></hr>
         <VoiceRecognitionSection />
+        <hr></hr>
+        <TextToSpeechSection />
+        <hr></hr>
         <h3>Difficulty:</h3>
         <p>
           This setting adjusts how many planes will try to talk to you. Don't panic! If you start to

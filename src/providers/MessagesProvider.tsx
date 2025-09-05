@@ -1,12 +1,19 @@
-import { type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { Message, MessagesDetails, MessageType } from '../types/common';
 import { MessagesContext } from '../hooks/useMessages';
 import { useImmer } from 'use-immer';
 import useSound from 'use-sound';
 import { PHONETIC_ATIS } from '../utils/constants/alphabet';
+import { useAircraft } from '../hooks/useAircraft';
 
 export function MessagesProvider({ children }: { children: ReactNode }) {
   const [playRadioMessageSound] = useSound('RadioMessage.wav');
+  const { aircrafts } = useAircraft();
+  const [recieveSwitchEnabled, setRecieveSwitchEnabled] = useState(
+    localStorage.getItem('rxSwitch') !== 'false'
+  );
+
+  const SpeechSynthesis = window.speechSynthesis;
 
   const [messages, setMessages] = useImmer<Message[]>([
     {
@@ -23,7 +30,12 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     },
   ]);
 
-  function sendMessage(content: string, callsign: string, type: MessageType) {
+  function sendMessage(
+    content: string,
+    callsign: string,
+    type: MessageType,
+    phoneticMessage?: string
+  ) {
     function addMessage() {
       if (type === 'system' && messages[messages.length - 1].content === content) {
         return;
@@ -39,19 +51,51 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       });
     }
 
-    if (type !== 'self' && type !== 'system') {
+    function sendAircraftMessage() {
       setTimeout(() => {
-        playRadioMessageSound();
         addMessage();
+        if (!recieveSwitchEnabled) {
+          playRadioMessageSound();
+        }
       }, 750);
-    } else {
-      addMessage();
+
+      if (!recieveSwitchEnabled) {
+        return;
+      }
+
+      if (!phoneticMessage) {
+        throw 'undefined phonetic message';
+      }
+
+      const aircraft = aircrafts.find((aircraft) => aircraft.callsign === callsign);
+      if (!aircraft) {
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(phoneticMessage);
+      utterance.voice = aircraft.voice;
+      utterance.pitch = aircraft.pitch;
+      utterance.rate = 1.1;
+      SpeechSynthesis.speak(utterance);
     }
+
+    if (type === 'radio') {
+      return sendAircraftMessage();
+    }
+
+    if (type === 'ATC') {
+      addMessage();
+      return playRadioMessageSound();
+    }
+
+    addMessage();
   }
 
   const value: MessagesDetails = {
     messages,
     sendMessage,
+    recieveSwitchEnabled,
+    setRecieveSwitchEnabled,
   };
 
   return <MessagesContext.Provider value={value}>{children}</MessagesContext.Provider>;

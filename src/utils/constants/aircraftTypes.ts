@@ -43,6 +43,7 @@ export const AIRLINES: Record<string, string> = {
   american: 'AAL',
   kerr: 'KAP',
   kr: 'KAP',
+  k: 'KAP',
   care: 'KAP',
   'cape air': 'KAP',
   cara: 'KAP',
@@ -55,4 +56,16 @@ export const AIRLINES: Record<string, string> = {
   wiggins: 'WIG',
   wigan: 'WIG',
   wigging: 'WIG',
+};
+
+export const AIRLINE_CODES: Record<string, string> = {
+  UAL: 'united',
+  SWA: 'southwest',
+  MXY: 'moxie',
+  FFT: 'frontier flight',
+  DAL: 'delta',
+  AAL: 'american',
+  KAP: 'care',
+  FDX: 'fedex',
+  WIG: 'wiggins airways',
 };

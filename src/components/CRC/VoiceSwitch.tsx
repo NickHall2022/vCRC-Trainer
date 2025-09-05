@@ -4,6 +4,7 @@ import Draggable from 'react-draggable';
 import { useSpeech } from '../../hooks/useSpeech';
 import { useImmer } from 'use-immer';
 import { useSimulation } from '../../hooks/useSimulation';
+import { useMessages } from '../../hooks/useMessages';
 
 type ButtonStates = {
   TX: boolean;
@@ -18,10 +19,11 @@ export function VoiceSwitch() {
 
   const { setVoiceSwitchEnabled } = useSpeech();
   const { pushToTalkActive } = useSimulation();
+  const { recieveSwitchEnabled, setRecieveSwitchEnabled } = useMessages();
 
   const [buttonStates, setButtonStates] = useImmer({
     TX: true,
-    RX: true,
+    RX: recieveSwitchEnabled,
     SPKR: false,
     XC: false,
     XCA: false,
@@ -29,7 +31,9 @@ export function VoiceSwitch() {
 
   function handleButtonClick(buttonType: keyof ButtonStates) {
     if (buttonType === 'RX') {
-      return;
+      localStorage.setItem('rxSwitch', `${!buttonStates['RX']}`);
+      setRecieveSwitchEnabled(!buttonStates['RX']);
+      window.speechSynthesis.cancel();
     }
 
     if (buttonType === 'TX') {
@@ -44,6 +48,12 @@ export function VoiceSwitch() {
       if (buttonType === 'XC' && !draft[buttonType]) {
         draft['XCA'] = false;
       }
+      if (buttonType === 'RX' && !draft[buttonType]) {
+        draft['SPKR'] = false;
+      }
+      if (buttonType === 'SPKR' && draft[buttonType]) {
+        draft['RX'] = true;
+      }
     });
   }
 
@@ -53,7 +63,8 @@ export function VoiceSwitch() {
         className={`voiceSwitchButton${buttonStates[buttonType] ? ' active' : ''}`}
         onClick={() => handleButtonClick(buttonType)}
         style={
-          buttonType === 'TX' && pushToTalkActive && buttonStates[buttonType]
+          (buttonType === 'TX' && pushToTalkActive && buttonStates[buttonType]) ||
+          (buttonType === 'RX' && window.speechSynthesis.speaking && buttonStates[buttonType])
             ? { backgroundColor: '#FF8C00' }
             : {}
         }

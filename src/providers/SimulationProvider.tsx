@@ -12,6 +12,7 @@ import { useMistakes } from '../hooks/useMistakes';
 
 import type { Node } from '../utils/taxiways';
 import { ATIS } from '../utils/constants/alphabet';
+import { phoneticizeString } from '../utils/flightPlans';
 
 const endNode = taxiways.find((node) => node.id === 'END') as Node;
 const TAXIWAY_NODE_THRESHOLD = 0.5;
@@ -43,7 +44,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
 
   function addNewRequest(newRequest: AircraftRequest) {
     if (newRequest.requestMessage) {
-      sendMessage(newRequest.requestMessage, newRequest.callsign, 'radio');
+      sendMessage(
+        newRequest.requestMessage,
+        newRequest.callsign,
+        'radio',
+        newRequest.requestPhoneticMessage
+      );
     }
 
     const modifiedRequest = { ...newRequest };
@@ -155,7 +161,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       if (!pushToTalkActive && Math.floor(timer / 1000) % Math.ceil(80 / difficulty) === 0) {
         for (const request of requests) {
           if (request.reminder && request.reminder.sendTime && timer >= request.reminder.sendTime) {
-            sendMessage(request.reminder.message, request.callsign, 'radio');
+            sendMessage(
+              request.reminder.message,
+              request.callsign,
+              'radio',
+              request.reminder.phoneticMessage
+            );
             addMistake(request.reminder.type, request.callsign);
             setRequests((draft) => {
               const modifiedRequest = draft.find(
@@ -231,7 +242,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       if (distanceToEnd < PLANE_DIST_THRESHOLD && !pushToTalkActive) {
         setPlaneStatus(callsign, 'departing', timer);
         addMistake('aircraftHandoff', aircraft.callsign);
-        sendMessage('Ground, should we switch to tower?', aircraft.callsign, 'radio');
+        sendMessage(
+          'Ground, should we switch to tower?',
+          aircraft.callsign,
+          'radio',
+          `Ground, ${phoneticizeString(callsign)}, should we switch to tower?`
+        );
       }
     }
 
@@ -290,11 +306,16 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     }
     const completedRequest = requests[completedRequestIndex];
 
+    if (completedRequest.atcMessage && !completedByVoice) {
+      sendMessage(completedRequest.atcMessage, 'PWM_GND', 'self');
+    }
     if (completedRequest.responseMessage) {
-      if (completedRequest.atcMessage && !completedByVoice) {
-        sendMessage(completedRequest.atcMessage, 'PWM_GND', 'self');
-      }
-      sendMessage(completedRequest.responseMessage, completedRequest.callsign, 'radio');
+      sendMessage(
+        completedRequest.responseMessage,
+        completedRequest.callsign,
+        'radio',
+        completedRequest.responsePhoneticMessage
+      );
     }
 
     setNextRequestTime(completedRequest.callsign, completedRequest.nextRequestDelay, timer);

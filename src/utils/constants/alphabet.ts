@@ -63,3 +63,16 @@ export const PHONETIC_ALPHABET_REVERSE: Record<string, keyof typeof PHONETIC_ALP
 
 export const ATIS = ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
 export const PHONETIC_ATIS = PHONETIC_ALPHABET[ATIS];
+
+export const PHONETIC_NUMBERS: Record<string, string> = {
+  '0': 'zero',
+  '1': 'one',
+  '2': 'two',
+  '3': 'three',
+  '4': 'four',
+  '5': 'five',
+  '6': 'six',
+  '7': 'seven',
+  '8': 'eight',
+  '9': 'nine',
+};

@@ -83,7 +83,9 @@ export function VoiceRecognitionSection({
             marginTop: '10px',
           }}
         >
-          <b>Your browser does not support voice recognition! Try Chrome or Edge.</b>
+          <b>
+            Your browser does not support voice recognition! Using Microsoft Edge is recommended.
+          </b>
         </div>
       </>
     );
@@ -157,6 +159,7 @@ export function VoiceRecognitionSection({
         </li>
         <li>Begin every transmission with the callsign you are trying to talk to</li>
         <li>Speak clearly and deliberately to maximize the accuracy of voice recognition</li>
+        <li>Your browser window must be in focus for the PTT key to be recognized</li>
         <li>Set up your push to talk button below:</li>
       </ol>
 
@@ -199,7 +202,6 @@ export function VoiceRecognitionSection({
         </Grid>
         <Grid size={'grow'}></Grid>
       </Grid>
-      <hr></hr>
     </>
   );
 }

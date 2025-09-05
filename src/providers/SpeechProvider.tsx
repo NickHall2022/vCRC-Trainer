@@ -144,6 +144,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('texavia', 'taxi via')
       .replaceAll('taxavia', 'taxi via')
       .replaceAll('texivia', 'taxi via')
+      .replaceAll('taxivio', 'taxi via')
       .replaceAll('tech cvi', 'taxi via')
       .replaceAll('texevia', 'taxi via')
       .replaceAll('tekstovia', 'taxi via')

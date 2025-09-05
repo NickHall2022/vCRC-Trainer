@@ -16,6 +16,7 @@ import {
   SPAWNABLE_TEC_EAST_ALT,
   SPAWNABLE_TEC_WEST_ALT,
 } from './constants/altitudes';
+import { DEST_TO_NAME_MAP } from './constants/routes';
 
 type UnspawnedVFRAircraft = Omit<Aircraft, keyof AircraftDefaultAttributes>;
 
@@ -171,10 +172,10 @@ function buildClearanceRequest(
 ): AircraftRequest {
   const flightPlan = aircraft.flightPlan;
   return {
-    requestMessage: `Request IFR clearance to ${flightPlan.destination}`,
-    requestPhoneticMessage: `Portland ground, ${phoneticizeString(flightPlan.callsign)} request IFR clearance to ${phoneticizeString(flightPlan.destination)}`,
-    responseMessage: `Cleared to ${flightPlan.destination}, squawk ${aircraft.flightPlan.squawk}`,
-    responsePhoneticMessage: `${phoneticizeString(flightPlan.callsign)} cleared to ${phoneticizeString(flightPlan.destination)}, squawk ${phoneticizeString(aircraft.flightPlan.squawk)}`,
+    requestMessage: `Request IFR clearance to ${phonetizeDestination(flightPlan.destination)}`,
+    requestPhoneticMessage: `Portland ground, ${phoneticizeString(flightPlan.callsign)} request IFR clearance to ${phonetizeDestination(flightPlan.destination)}`,
+    responseMessage: `Cleared to ${phonetizeDestination(flightPlan.destination)}, squawk ${aircraft.flightPlan.squawk}`,
+    responsePhoneticMessage: `${phoneticizeString(flightPlan.callsign)} cleared to ${phonetizeDestination(flightPlan.destination)}, squawk ${phoneticizeString(aircraft.flightPlan.squawk)}`,
     priority: 1,
     callsign: aircraft.callsign,
     nextRequestDelay: 0,
@@ -627,4 +628,8 @@ export function phoneticizeString(text: string): string {
       return PHONETIC_ALPHABET[character] || PHONETIC_NUMBERS[character];
     })
     .join(' ');
+}
+
+function phonetizeDestination(text: string): string {
+  return DEST_TO_NAME_MAP[text] || phoneticizeString(text);
 }

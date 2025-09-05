@@ -1,4 +1,4 @@
-export const DEST_TO_DIRECTION_MAP: Record<string, 'west' | 'east' | undefined> = {
+export const DEST_TO_DIRECTION_MAP: Record<string, 'west' | 'east'> = {
   //H
   KBWI: 'west',
   KCLE: 'west',
@@ -44,4 +44,52 @@ export const DEST_TO_DIRECTION_MAP: Record<string, 'west' | 'east' | undefined> 
   KPVC: 'west',
   KPVD: 'west',
   KSWF: 'west',
+};
+
+export const DEST_TO_NAME_MAP: Record<string, string> = {
+  //H
+  KBWI: 'Baltimore',
+  KCLE: 'Cleveland',
+  KCLT: 'Charlotte',
+  KCVG: 'Cincinatti',
+  KDCA: 'Washington Reagan',
+  KDTW: 'Detroit',
+  KEWR: 'Newark',
+  KHPN: 'Westchester County',
+  KIAD: 'Washington Dulles',
+  KJFK: 'JFK',
+  KLGA: 'LaGuardia',
+  KMCO: 'Orlando',
+  KMIA: 'Miami',
+  KMSP: 'Minneapolis',
+  KORD: "Chicago O'Hare",
+  KPBI: 'Palm Beach',
+  KPHL: 'Philadelphia',
+  KPIT: 'Pittsburgh',
+  KRDU: 'Raleigh',
+  KRSW: 'Fort Myers',
+  KSRQ: 'Sarasota',
+  KTPA: 'Tampa',
+  //TEC
+  KACK: 'Nantucket',
+  KALB: 'Albany',
+  KBDL: 'Bradley',
+  KBDR: 'Stratford',
+  KBED: 'Hanscom',
+  KBOS: 'Boston',
+  KDXR: 'Danbury',
+  KFRG: 'Farmingdale',
+  KGON: 'Groton',
+  KHFD: 'Hartford Brainard',
+  KHVN: 'New Haven',
+  KHYA: 'Barnstable',
+  KISP: 'Long Island',
+  KMVY: "Martha's Vineyard",
+  KORH: 'Worcester',
+  KOWD: 'Norwood',
+  KOXC: 'Oxford',
+  KPNE: 'Northeast Philadelphia',
+  KPVC: 'Provincetown',
+  KPVD: 'Providence',
+  KSWF: 'Newburgh',
 };

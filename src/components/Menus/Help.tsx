@@ -6,6 +6,7 @@ import { Guard } from './Guard';
 import { FeedbackLink } from './FeedbackLink';
 import { VoiceRecognitionSection } from './VoiceRecognitionSection';
 import { DEFAULT_PTT_KEY } from '../../utils/constants/speech';
+import { TextToSpeechSection } from './TextToSpeechSection';
 
 type Props = {
   setHelpOpen: Dispatch<SetStateAction<boolean>>;
@@ -141,6 +142,12 @@ function Help({ setHelpOpen }: Props) {
         <hr></hr>
 
         <VoiceRecognitionSection externalSetPttKey={setPttKey}></VoiceRecognitionSection>
+
+        <hr></hr>
+
+        <TextToSpeechSection />
+
+        <hr></hr>
 
         <h3>FAQs:</h3>
         <ul>

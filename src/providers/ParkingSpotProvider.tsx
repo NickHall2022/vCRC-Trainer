@@ -152,7 +152,10 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     pushbackIntoRamp: false,
     location: 'gate 1A',
     airline: 'KAP',
-    taxiInstruction: 'Runway 29, taxi via C, A, cross runway 36',
+    taxiInstruction: {
+      text: 'Runway 29, taxi via C, A, cross runway 36',
+      phonetic: 'Runway two niner taxi via charlie alpha cross runway three six',
+    },
   },
   {
     x: 63,
@@ -160,7 +163,10 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     rotation: 0,
     pushbackIntoRamp: false,
     location: 'north ramp',
-    taxiInstruction: 'Runway 29, taxi via C, A, cross runway 36',
+    taxiInstruction: {
+      text: 'Runway 29, taxi via C, A, cross runway 36',
+      phonetic: 'Runway two niner taxi via charlie alpha cross runway three six',
+    },
   },
   {
     x: 63,
@@ -168,7 +174,10 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     rotation: 180,
     pushbackIntoRamp: false,
     location: 'north ramp',
-    taxiInstruction: 'Runway 29, taxi via C, A, cross runway 36',
+    taxiInstruction: {
+      text: 'Runway 29, taxi via C, A, cross runway 36',
+      phonetic: 'Runway two niner taxi via charlie alpha cross runway three six',
+    },
   },
   {
     x: 63,
@@ -176,7 +185,10 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     rotation: 0,
     pushbackIntoRamp: false,
     location: 'north ramp',
-    taxiInstruction: 'Runway 29, taxi via C, A, cross runway 36',
+    taxiInstruction: {
+      text: 'Runway 29, taxi via C, A, cross runway 36',
+      phonetic: 'Runway two niner taxi via charlie alpha cross runway three six',
+    },
   },
   {
     x: 63,
@@ -184,7 +196,10 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     rotation: 180,
     pushbackIntoRamp: false,
     location: 'north ramp',
-    taxiInstruction: 'Runway 29, taxi via C, A, cross runway 36',
+    taxiInstruction: {
+      text: 'Runway 29, taxi via C, A, cross runway 36',
+      phonetic: 'Runway two niner taxi via charlie alpha cross runway three six',
+    },
   },
   {
     x: 75,
@@ -193,7 +208,10 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     pushbackIntoRamp: false,
     location: 'cargo ramp',
     airline: 'FDX',
-    taxiInstruction: 'Runway 29, taxi via G, join runway 18, A',
+    taxiInstruction: {
+      text: 'Runway 29, taxi via G, join runway 18, A',
+      phonetic: 'Runway two niner taxi via golf join runway one eight, alpha',
+    },
   },
   {
     x: 76.5,
@@ -202,7 +220,10 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     pushbackIntoRamp: false,
     location: 'cargo ramp',
     airline: 'FDX',
-    taxiInstruction: 'Runway 29, taxi via G, join runway 18, A',
+    taxiInstruction: {
+      text: 'Runway 29, taxi via G, join runway 18, A',
+      phonetic: 'Runway two niner taxi via golf join runway one eight, alpha',
+    },
   },
   {
     x: 78,
@@ -211,7 +232,10 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     pushbackIntoRamp: false,
     location: 'cargo ramp',
     airline: 'WIG',
-    taxiInstruction: 'Runway 29, taxi via G, join runway 18, A',
+    taxiInstruction: {
+      text: 'Runway 29, taxi via G, join runway 18, A',
+      phonetic: 'Runway two niner taxi via golf join runway one eight, alpha',
+    },
   },
   {
     x: 79.5,
@@ -220,7 +244,10 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     pushbackIntoRamp: false,
     location: 'cargo ramp',
     airline: 'WIG',
-    taxiInstruction: 'Runway 29, taxi via G, join runway 18, A',
+    taxiInstruction: {
+      text: 'Runway 29, taxi via G, join runway 18, A',
+      phonetic: 'Runway two niner taxi via golf join runway one eight, alpha',
+    },
   },
 ];
 

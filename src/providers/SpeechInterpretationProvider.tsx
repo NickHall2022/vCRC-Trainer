@@ -6,111 +6,17 @@ import {
 import { useSimulation } from '../hooks/useSimulation';
 import useSound from 'use-sound';
 import { useMessages } from '../hooks/useMessages';
-import type { Aircraft, FlightStatus, RequestType } from '../types/common';
+import type { Aircraft, Keywords } from '../types/common';
 import { useAircraft } from '../hooks/useAircraft';
 import { phoneticizeString } from '../utils/flightPlans';
-import { PHONETIC_ATIS } from '../utils/constants/alphabet';
-
-type Keywords = {
-  keywords: { phrase: string; missingPhraseResponse?: string }[];
-  atLeastOneOf?: string[];
-  alternatives?: Keywords[];
-  aircraftResponse?: string;
-  requiredStatus?: FlightStatus;
-};
-
-const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
-  clearanceIFR: {
-    keywords: [
-      { phrase: 'clear', missingPhraseResponse: 'clearance limit' },
-      { phrase: 'maintain', missingPhraseResponse: 'altitude' },
-      { phrase: '119', missingPhraseResponse: 'departure frequency' },
-      { phrase: 'squawk', missingPhraseResponse: 'squawk' },
-    ],
-    alternatives: [
-      {
-        keywords: [],
-        atLeastOneOf: ['request', 'standby'],
-        aircraftResponse: '',
-      },
-      {
-        keywords: [],
-        atLeastOneOf: ['advise', 'ready', 'copy'],
-        aircraftResponse: 'Ready to copy',
-      },
-    ],
-  },
-  readbackIFR: { keywords: [{ phrase: 'readback correct' }] },
-  clearanceVFR: {
-    keywords: [
-      { phrase: 'maintain', missingPhraseResponse: 'altitude' },
-      { phrase: '119', missingPhraseResponse: 'departure frequency' },
-      { phrase: 'squawk', missingPhraseResponse: 'squawk' },
-    ],
-  },
-  readbackVFR: {
-    keywords: [
-      { phrase: 'taxi' },
-      { phrase: 'runway 29', missingPhraseResponse: 'departure runway' },
-    ],
-    alternatives: [
-      {
-        keywords: [],
-        atLeastOneOf: ['advise', 'ready'],
-        aircraftResponse: 'Ready to taxi',
-      },
-    ],
-  },
-  pushback: { keywords: [{ phrase: 'push' }], atLeastOneOf: ['approved', 'discretion'] },
-  taxi: {
-    keywords: [{ phrase: 'taxi' }, { phrase: 'runway 29', missingPhraseResponse: 'runway' }],
-  },
-  pattern: {
-    keywords: [
-      { phrase: 'taxi' },
-      { phrase: 'runway  29', missingPhraseResponse: 'departure runway' },
-      { phrase: 'squawk', missingPhraseResponse: 'squawk' },
-    ],
-  },
-  handoff: {
-    keywords: [
-      { phrase: 'contact tower' },
-      { phrase: '120', missingPhraseResponse: 'tower frequency' },
-    ],
-  },
-};
-
-const GLOBAL_ALTERNATIVES = function (aircraft: Aircraft): Keywords[] {
-  return [
-    {
-      keywords: [{ phrase: 'radio' }, { phrase: 'check' }],
-      aircraftResponse: 'I read you loud and clear',
-    },
-    {
-      keywords: [{ phrase: 'aircraft type' }],
-      aircraftResponse: `Our aircraft is type ${aircraft.actualAircraftType}`,
-    },
-    {
-      keywords: [{ phrase: 'verify' }],
-      atLeastOneOf: ['atis', 'information'],
-      aircraftResponse: `We have information ${PHONETIC_ATIS}`,
-    },
-    {
-      keywords: [{ phrase: 'confirm' }],
-      atLeastOneOf: ['atis', 'information'],
-      aircraftResponse: `We have information ${PHONETIC_ATIS}`,
-    },
-    {
-      keywords: [{ phrase: 'say' }],
-      atLeastOneOf: ['atis', 'information'],
-      aircraftResponse: `We have information ${PHONETIC_ATIS}`,
-    },
-  ];
-};
+import { findBestMatch } from 'string-similarity';
+import { useMistakes } from '../hooks/useMistakes';
+import { GLOBAL_ALTERNATIVES, REQUEST_KEYWORDS } from '../utils/constants/speech';
 
 export function SpeechInterpretatonProvider({ children }: { children: ReactNode }) {
   const { requests, completeRequest, setRequests } = useSimulation();
-  const { aircrafts } = useAircraft();
+  const { aircrafts, setAircraftHasBeenSpokenTo } = useAircraft();
+  const { addPhraseologyMistake } = useMistakes();
   const { sendMessage } = useMessages();
   const [playErrorSound] = useSound('Error.wav');
 
@@ -118,18 +24,32 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
     sendMessage(transcript, 'PWM_GND', 'self');
 
     const callsign = getCallsign(transcript);
-    for (const aircraft of aircrafts) {
-      if (callsignsApproximatelyMatch(aircraft.callsign, callsign)) {
-        if (aircraft.status.includes('handed') || aircraft.status === 'departed') {
-          playErrorSound();
-          sendMessage(`Aircraft ${callsign} is no longer on your frequency`, '', 'system');
-        }
-        return matchAircraftToTranscript(aircraft, transcript);
-      }
+    const bestCallsignMatch = findBestMatch(
+      callsign,
+      aircrafts.map((aircraft) => aircraft.callsign)
+    );
+
+    if (bestCallsignMatch.bestMatch.rating < 0.5) {
+      playErrorSound();
+      sendMessage(`Could not identify callsign ${callsign}`, '', 'system');
+      return;
     }
 
-    playErrorSound();
-    sendMessage(`Could not identify callsign ${callsign}`, '', 'system');
+    const aircraft = aircrafts[bestCallsignMatch.bestMatchIndex];
+
+    if (aircraft.status.includes('handed') || aircraft.status === 'departed') {
+      playErrorSound();
+      sendMessage(`Aircraft ${callsign} is no longer on your frequency`, '', 'system');
+      return;
+    }
+
+    if (!aircraft.hasBeenSpokenTo) {
+      setAircraftHasBeenSpokenTo(aircraft.callsign);
+      if (!transcript.includes('portland ground')) {
+        addPhraseologyMistake('forgotToIdentify', aircraft.callsign);
+      }
+    }
+    matchAircraftToTranscript(aircraft, transcript);
   }
 
   function getCallsign(transcript: string) {
@@ -241,54 +161,6 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
       }
     }
     return true;
-  }
-
-  function callsignsApproximatelyMatch(actualCallsign: string, voiceToTextCallsign: string) {
-    if (actualCallsign.startsWith('N')) {
-      return matchNNumberCallsigns(actualCallsign, voiceToTextCallsign);
-    }
-    return matchAirlineCallsigns(actualCallsign, voiceToTextCallsign);
-  }
-
-  function matchAirlineCallsigns(actualCallsign: string, voiceToTextCallsign: string) {
-    if (voiceToTextCallsign.length < 5) {
-      return false;
-    }
-    if (actualCallsign.substring(0, 3) !== voiceToTextCallsign.substring(0, 3)) {
-      return false;
-    }
-    let characterMatchCount = 0;
-    for (let i = 3; i < actualCallsign.length && i < voiceToTextCallsign.length; i++) {
-      if (actualCallsign.charAt(i) === voiceToTextCallsign.charAt(i)) {
-        characterMatchCount++;
-      }
-    }
-    return characterMatchCount >= 3;
-  }
-
-  function matchNNumberCallsigns(actualCallsign: string, voiceToTextCallsign: string) {
-    let characterMatchCount = 0;
-    for (let i = 0; i < actualCallsign.length && i < voiceToTextCallsign.length; i++) {
-      if (actualCallsign.charAt(i) === voiceToTextCallsign.charAt(i)) {
-        characterMatchCount++;
-      }
-    }
-    if (characterMatchCount >= 5) {
-      return true;
-    }
-
-    if (voiceToTextCallsign.length < actualCallsign.length) {
-      characterMatchCount = 0;
-      for (let i = 1; i < voiceToTextCallsign.length; i++) {
-        if (
-          actualCallsign.charAt(actualCallsign.length - i) ===
-          voiceToTextCallsign.charAt(voiceToTextCallsign.length - i)
-        ) {
-          characterMatchCount++;
-        }
-      }
-    }
-    return characterMatchCount >= 3;
   }
 
   function appendIfNotDuplicate<T>(items: T[], newItem: T) {

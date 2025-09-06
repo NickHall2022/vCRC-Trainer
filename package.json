@@ -24,6 +24,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-draggable": "^4.4.6",
+    "string-similarity": "^4.0.4",
     "use-immer": "^0.11.0",
     "use-sound": "^5.0.0",
     "uuid": "^11.1.0"
@@ -33,6 +34,7 @@
     "@types/dom-speech-recognition": "^0.0.6",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "@types/string-similarity": "^4.0.2",
     "@vitejs/plugin-react": "^4.4.1",
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",

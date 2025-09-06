@@ -111,7 +111,7 @@ export function StripsBay({ handleDrop, setDraggedStrip, handleStripInsert }: Pr
         <List
           sx={{
             padding: '0px',
-            maxHeight: 'calc(100vh - 55px)',
+            maxHeight: 'calc(100vh - 60px)',
             overflowY: 'scroll',
             width: '570px',
             position: 'fixed',

@@ -15,12 +15,24 @@ import {
 
 export function MistakeProvider({ children }: { children: ReactNode }) {
   const [mistakes, setMistakes] = useImmer<Mistake[]>([]);
+  const [phraseologyMistakes, setPhraseologyMistakes] = useImmer<Mistake[]>([]);
   const { aircrafts } = useAircraft();
   const prefRoutes = usePrefRoutes();
   const [newMistakes, setNewMistakes] = useImmer<MistakeType[]>([]);
 
   function addMistake(type: MistakeType, details?: string, secondaryDetails?: string) {
     setMistakes((draft) => {
+      draft.push({
+        type,
+        details,
+        secondaryDetails,
+      });
+    });
+    setNewMistakes((draft) => [...draft, type]);
+  }
+
+  function addPhraseologyMistake(type: MistakeType, details?: string, secondaryDetails?: string) {
+    setPhraseologyMistakes((draft) => {
       draft.push({
         type,
         details,
@@ -167,6 +179,8 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
   const value: MistakeDetails = {
     mistakes,
     addMistake,
+    phraseologyMistakes,
+    addPhraseologyMistake,
     reviewClearance,
     newMistakes,
     setNewMistakes,

@@ -52,6 +52,7 @@ export type AircraftDefaultAttributes = {
   canSendRequestTime: number;
   voice: SpeechSynthesisVoice;
   pitch: number;
+  hasBeenSpokenTo: boolean;
 };
 
 export type BayName = 'ground' | 'local' | 'spare' | 'printer';
@@ -85,6 +86,7 @@ export type AircraftDetails = {
   deleteFlightPlan: (callsign: string) => void;
   spawnNewFlight: () => Aircraft | undefined;
   setTaxiwayNodeId: (callsign: string, id: string) => void;
+  setAircraftHasBeenSpokenTo: (callsign: string) => void;
 };
 
 export type StripsDetails = {
@@ -198,7 +200,12 @@ export type ParkingSpot = {
   available: boolean;
   id: string;
   type: ParkingSpotType;
-  taxiInstruction?: string;
+  taxiInstruction?: ParkingSpotTaxiInstruction;
+};
+
+export type ParkingSpotTaxiInstruction = {
+  text: string;
+  phonetic: string;
 };
 
 export type ParkingSpotType = 'airline' | 'ga' | 'TEC';
@@ -227,7 +234,8 @@ export type MistakeType =
   | 'VFRAltFormat'
   | 'badVFRAlt'
   | 'badVFRAircraft'
-  | 'badVFRFF';
+  | 'badVFRFF'
+  | 'forgotToIdentify';
 
 export type Mistake = {
   type: MistakeType;
@@ -238,8 +246,18 @@ export type Mistake = {
 export type MistakeDetails = {
   mistakes: Mistake[];
   addMistake: (type: MistakeType, details?: string, secondaryDetails?: string) => void;
+  phraseologyMistakes: Mistake[];
+  addPhraseologyMistake: (type: MistakeType, details?: string, secondaryDetails?: string) => void;
   reviewClearance: (callsign: string) => void;
   newMistakes: MistakeType[];
   setNewMistakes: Dispatch<SetStateAction<MistakeType[]>>;
   reviewVFRDeparture: (callsign: string) => void;
+};
+
+export type Keywords = {
+  keywords: { phrase: string; missingPhraseResponse?: string }[];
+  atLeastOneOf?: string[];
+  alternatives?: Keywords[];
+  aircraftResponse?: string;
+  requiredStatus?: FlightStatus;
 };

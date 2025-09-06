@@ -2,6 +2,7 @@ import { Grid } from '@mui/material';
 import { useMistakes } from '../../hooks/useMistakes';
 import { v4 as uuidv4 } from 'uuid';
 import type { Mistake } from '../../types/common';
+import { SPEECH_AVAILABLE } from '../../utils/constants/speech';
 
 function createMistakeList(
   newMistakesCount: number,
@@ -65,9 +66,9 @@ function createMistakeList(
 }
 
 function MistakeList() {
-  const { mistakes, newMistakes } = useMistakes();
+  const { mistakes, phraseologyMistakes, newMistakes } = useMistakes();
 
-  if (mistakes.length === 0) {
+  if (mistakes.length === 0 && phraseologyMistakes.length === 0) {
     return <p style={{ textAlign: 'center' }}>No mistakes detected yet. Good work!</p>;
   }
 
@@ -203,21 +204,43 @@ function MistakeList() {
     ''
   );
 
+  const forgotToIdentify = createMistakeList(
+    newMistakes.filter((mistakeType) => mistakeType === 'forgotToIdentify').length,
+    phraseologyMistakes.filter((mistake) => mistake.type === 'forgotToIdentify'),
+    'Self-Identification',
+    `You should identify yourself as "Portland Ground" the first time you speak to an aircraft`,
+    'FAA JO 7110.65 2-4-8',
+    'You did not self-identify for the following aircraft',
+    undefined
+  );
+
   return (
     <>
-      {IFRAltFormat}
-      {badIFRAlt}
-      {badEquipment}
-      {badRoute}
-      {readbackIFR}
-      {taxiVFR}
-      {aircraftHandoff}
-      {stripHandoff}
-      {stripBox}
-      {badVFRAircraft}
-      {VFRAltFormat}
-      {badVFRAlt}
-      {badVFRFF}
+      {SPEECH_AVAILABLE && phraseologyMistakes.length > 0 && (
+        <>
+          <h2 style={{ marginTop: '0px', marginBottom: '10px' }}>Radio Phraseology</h2>
+          {forgotToIdentify}
+          {mistakes.length > 0 && <hr></hr>}
+        </>
+      )}
+      {mistakes.length > 0 && (
+        <>
+          <h2 style={{ marginTop: '0px', marginBottom: '10px' }}>Procedures</h2>
+          {IFRAltFormat}
+          {badIFRAlt}
+          {badEquipment}
+          {badRoute}
+          {readbackIFR}
+          {taxiVFR}
+          {aircraftHandoff}
+          {stripHandoff}
+          {stripBox}
+          {badVFRAircraft}
+          {VFRAltFormat}
+          {badVFRAlt}
+          {badVFRFF}
+        </>
+      )}
     </>
   );
 }

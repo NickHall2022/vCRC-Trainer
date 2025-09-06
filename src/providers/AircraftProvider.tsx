@@ -106,6 +106,15 @@ export function AircraftProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  function setAircraftHasBeenSpokenTo(callsign: string) {
+    setAircrafts((draft) => {
+      const aircraft = draft.find((aircraft) => aircraft.callsign === callsign);
+      if (aircraft) {
+        aircraft.hasBeenSpokenTo = true;
+      }
+    });
+  }
+
   const value = {
     aircrafts,
     selectedFlightPlan,
@@ -119,6 +128,7 @@ export function AircraftProvider({ children }: { children: ReactNode }) {
     deleteFlightPlan,
     spawnNewFlight,
     setTaxiwayNodeId,
+    setAircraftHasBeenSpokenTo,
   };
 
   return <AircraftContext.Provider value={value}>{children}</AircraftContext.Provider>;

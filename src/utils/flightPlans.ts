@@ -7,6 +7,7 @@ import type {
   Aircraft,
   AircraftDefaultAttributes,
   FlightPlanDefaultIFRAttributes,
+  ParkingSpotTaxiInstruction,
 } from '../types/common';
 import { AIRLINE_CODES, GA_TYPES, JET_TYPES, TEC_TYPES } from './constants/aircraftTypes';
 import { PHONETIC_ALPHABET, PHONETIC_ATIS, PHONETIC_NUMBERS } from './constants/alphabet';
@@ -135,6 +136,7 @@ function buildDefaultAircraftAttributes(parkingSpot: ParkingSpot): AircraftDefau
     canSendRequestTime: 0,
     voice,
     pitch,
+    hasBeenSpokenTo: false,
   };
 }
 
@@ -156,7 +158,7 @@ function buildIFRWithPushBackRequests(
 function buildIFRWithoutPushBackRequests(
   aircraft: Omit<Aircraft, 'requests'>,
   location: string,
-  taxiInstruction?: string
+  taxiInstruction?: ParkingSpotTaxiInstruction
 ): Aircraft {
   return {
     ...aircraft,
@@ -225,16 +227,18 @@ function buildPusbackRequest(intoRamp: boolean, callsign: string, gate: string):
 function buildTaxiRequest(
   callsign: string,
   location?: string,
-  taxiInstruction?: string
+  taxiInstruction?: ParkingSpotTaxiInstruction
 ): AircraftRequest {
   return {
     requestMessage: `Ready for taxi${location ? ` with ${PHONETIC_ATIS} from ${location}` : ''}`,
     requestPhoneticMessage: `${phoneticizeString(callsign)} ready for taxi${location ? ` with ${PHONETIC_ATIS} from ${location}` : ''}`,
     requestType: 'taxi',
     atcMessage: `Taxi instruction sent to ${callsign}`,
-    responseMessage: taxiInstruction ? taxiInstruction : 'Runway 29, taxi via A, cross runway 36',
+    responseMessage: taxiInstruction
+      ? taxiInstruction.text
+      : 'Runway 29, taxi via A, cross runway 36',
     responsePhoneticMessage: taxiInstruction
-      ? taxiInstruction
+      ? `${phoneticizeString(callsign)} ${taxiInstruction.phonetic}`
       : `${phoneticizeString(callsign)} runway two niner, taxi via alpha, cross runway three six`,
     priority: 2,
     callsign: callsign,
@@ -589,7 +593,7 @@ function handoffRequest(callsign: string): AircraftRequest {
     callsign,
     priority: 1,
     responseMessage: 'Contact tower 120.9',
-    responsePhoneticMessage: `${phoneticizeString(callsign)} contact tower one two zero point niner`,
+    responsePhoneticMessage: `${phoneticizeString(callsign)} contact tower one two zero point niner ${Math.random() < 0.5 ? 'have a good one' : 'good day'}`,
     nextRequestDelay: 0,
     nextStatus: 'handedOff',
     atcMessage: `${callsign} handed to tower`,

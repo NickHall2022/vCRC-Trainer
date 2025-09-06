@@ -23,6 +23,7 @@ npm deploy
 ### Formatting
 
 This repository uses prettier and eslint to enforce coding style. The following commands should be run before committing any code to github.
+This is enforced by pre-commit hooks.
 
 ```
 npm run format

@@ -24,7 +24,7 @@ const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
     keywords: [
       { phrase: 'clear', missingPhraseResponse: 'clearance limit' },
       { phrase: 'maintain', missingPhraseResponse: 'altitude' },
-      { phrase: 'departure', missingPhraseResponse: 'departure frequency' },
+      { phrase: '119', missingPhraseResponse: 'departure frequency' },
       { phrase: 'squawk', missingPhraseResponse: 'squawk' },
     ],
     alternatives: [
@@ -44,7 +44,7 @@ const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
   clearanceVFR: {
     keywords: [
       { phrase: 'maintain', missingPhraseResponse: 'altitude' },
-      { phrase: 'departure', missingPhraseResponse: 'departure frequency' },
+      { phrase: '119', missingPhraseResponse: 'departure frequency' },
       { phrase: 'squawk', missingPhraseResponse: 'squawk' },
     ],
   },
@@ -166,9 +166,8 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
         }
       }
 
-      let matchedKeywords = request.previouslyMatchedKeywords?.slice() || [];
-      console.log(matchedKeywords);
-      let missingPhraseResponses = [];
+      const matchedKeywords = request.previouslyMatchedKeywords?.slice() || [];
+      const missingPhraseResponses = [];
       for (const keyword of keywords.keywords) {
         if (transcript.includes(keyword.phrase)) {
           appendIfNotDuplicate(matchedKeywords, keyword.phrase);

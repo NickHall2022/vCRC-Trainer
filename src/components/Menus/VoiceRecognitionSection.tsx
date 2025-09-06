@@ -91,6 +91,18 @@ export function VoiceRecognitionSection({
     );
   }
 
+  function isMicrosoftEdge() {
+    return navigator.userAgent.includes('Edg/');
+  }
+  function isChrome() {
+    return navigator.userAgent.includes('Chrome');
+  }
+  const browserMicrophoneSettings = isMicrosoftEdge()
+    ? '(edge://settings/?search=microphone)'
+    : isChrome()
+      ? '(chrome://settings/content/microphone)'
+      : '';
+
   let testMicText: string | ReactElement = 'Click to test mic';
   let buttonStyle = {};
 
@@ -155,7 +167,8 @@ export function VoiceRecognitionSection({
       <ol>
         <li>Enable microphone permission for this page</li>
         <li>
-          Check your browser microphone settings to make sure you have the right device selected
+          Check your browser microphone settings to make sure you have the right device selected{' '}
+          {browserMicrophoneSettings}
         </li>
         <li>Begin every transmission with the callsign you are trying to talk to</li>
         <li>Speak clearly and deliberately to maximize the accuracy of voice recognition</li>

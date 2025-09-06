@@ -49,8 +49,8 @@ export function TextToSpeechSection() {
           }}
         >
           <b>
-            Your browser has very limited text-to-speech! Using Microsoft Edge is <b>STRONGLY</b>{' '}
-            recommended.
+            Your browser has limited text-to-speech support! MS Edge is recommended, though not
+            required.
           </b>
         </div>
       )}

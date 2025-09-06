@@ -125,6 +125,7 @@ function buildDefaultIFRFlightPlanAttributes(prefRoute: PrefRoute): FlightPlanDe
 }
 
 function buildDefaultAircraftAttributes(parkingSpot: ParkingSpot): AircraftDefaultAttributes {
+  const { voice, pitch } = getRandomVoice();
   return {
     parkingSpotId: parkingSpot.id,
     positionX: parkingSpot.x,
@@ -132,8 +133,8 @@ function buildDefaultAircraftAttributes(parkingSpot: ParkingSpot): AircraftDefau
     rotation: parkingSpot.rotation,
     status: 'ramp',
     canSendRequestTime: 0,
-    voice: getRandomVoice(),
-    pitch: getRandomPitch(),
+    voice,
+    pitch,
   };
 }
 
@@ -234,7 +235,7 @@ function buildTaxiRequest(
     responseMessage: taxiInstruction ? taxiInstruction : 'Runway 29, taxi via A, cross runway 36',
     responsePhoneticMessage: taxiInstruction
       ? taxiInstruction
-      : `${phoneticizeString(callsign)} runway two nine, taxi via alpha, cross runway three six`,
+      : `${phoneticizeString(callsign)} runway two niner, taxi via alpha, cross runway three six`,
     priority: 2,
     callsign: callsign,
     nextRequestDelay: 0,
@@ -337,7 +338,7 @@ function buildVFRDepartureRequest(
         requestType: 'clearanceVFR',
         subsequentRequest: {
           responseMessage: 'Runway 29, taxi via C, A, cross runway 36',
-          responsePhoneticMessage: `${phoneticizeString(aircraft.callsign)} runway two nine, taxi via charlie, alpha, cross runway three six`,
+          responsePhoneticMessage: `${phoneticizeString(aircraft.callsign)} runway two niner, taxi via charlie, alpha, cross runway three six`,
           atcMessage: `Taxi instruction sent to ${aircraft.callsign}`,
           requestType: 'readbackVFR',
           reminder: {
@@ -372,7 +373,7 @@ function buildVFRPatternRequest(
         requestMessage: `Type ${aircraft.actualAircraftType} at the north apron with ${PHONETIC_ATIS}, request taxi for pattern work`,
         requestPhoneticMessage: `Portland ground, ${phoneticizeString(aircraft.callsign)} type ${aircraft.actualAircraftType} at the north apron with ${PHONETIC_ATIS}, request taxi for pattern work`,
         responseMessage: `Squawk VFR, runway 29, taxi via C, A, cross runway 36`,
-        responsePhoneticMessage: `${phoneticizeString(aircraft.callsign)} squawk VFR, runway two nine taxi via charlie, alpha, cross runway 36`,
+        responsePhoneticMessage: `${phoneticizeString(aircraft.callsign)} squawk VFR, runway two niner taxi via charlie, alpha, cross runway three six`,
         requestType: 'pattern',
         nextStatus: 'taxi',
         atcMessage: `Taxi instruction sent to ${aircraft.callsign}`,
@@ -605,12 +606,8 @@ function getRandomVoice() {
         !voice.name.includes('Microsoft David') &&
         !voice.name.includes('Microsoft Zira')
     );
-
-  return voices[Math.floor(Math.random() * voices.length)];
-}
-
-function getRandomPitch() {
-  return 0.8 + Math.random() * 0.4;
+  const pitch = voices.length < 10 ? 0.8 + Math.random() * 0.4 : 1;
+  return { voice: voices[Math.floor(Math.random() * voices.length)], pitch };
 }
 
 export function phoneticizeString(text: string): string {

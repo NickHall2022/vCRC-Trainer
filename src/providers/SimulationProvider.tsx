@@ -352,6 +352,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     setPaused,
     pushToTalkActive,
     setPushToTalkActive,
+    setRequests,
   };
 
   return <SimulationContext.Provider value={value}>{children}</SimulationContext.Provider>;

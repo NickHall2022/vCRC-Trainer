@@ -95,25 +95,24 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll(':', '')
       .replaceAll('-', '')
       .replaceAll('9 or', '9')
+      .replaceAll('9 and', '9')
       .replaceAll('niner', '9')
       .replaceAll(' 4th', '4')
-      .replaceAll(' 4th ', '4')
       .replaceAll(' 5th', '5')
-      .replaceAll(' 5th ', '5')
       .replaceAll(' 6th', '6')
-      .replaceAll(' 6th ', '6')
       .replaceAll(' 7th', '7')
-      .replaceAll(' 7th ', '7')
       .replaceAll(' 8th', '8')
-      .replaceAll(' 8th ', '8')
       .replaceAll(' 9th', '9')
-      .replaceAll(' 9th ', '9')
       .replaceAll('runway to 9', 'runway 29')
+      .replaceAll('runway 2 9', 'runway 29')
       .replaceAll('via far', 'VFR')
       .replaceAll('via our', 'VFR')
+      .replaceAll('via power', 'VFR')
+      .replaceAll('fiat bar', 'VFR')
       .replaceAll('november ', 'N')
       .replaceAll('remember ', 'N')
       .replaceAll('charley', 'charlie')
+      .replaceAll("Charlie's", 'charlie')
       .replaceAll('gold', 'golf')
       .replaceAll('minton', 'maintain')
       .replaceAll('maintained', 'maintain')
@@ -123,6 +122,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('read that', 'readback')
       .replaceAll('reed back', 'readback')
       .replaceAll('readback act', 'readback correct')
+      .replaceAll('is that correct', 'readback correct')
       .replaceAll('remake', 'readback')
       .replaceAll('read by', 'readback')
       .replaceAll('rebecca', 'readback')
@@ -150,9 +150,11 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('tekstovia', 'taxi via')
       .replaceAll('texty', 'taxi')
       .replaceAll('texted', 'taxi')
+      .replaceAll('out of blow', 'at or below')
       .replaceAll('radio cha', 'radio check')
       .replaceAll('radio shack', 'radio check')
       .replaceAll('radioshack', 'radio check')
+      .replaceAll('limousine', 'ls')
       .replaceAll(' chop', ' check')
       .replaceAll(' squad', ' squawk')
       .replaceAll('squawks', 'squawk')
@@ -196,7 +198,11 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('120.9er', '120.9')
       .replaceAll('went to 0', '120')
       .replaceAll('xray', 'x')
+      .replaceAll('yankees', 'y')
       .replaceAll('zero', '0')
+      .replaceAll('adis', 'atis')
+      .replaceAll('edith', 'atis')
+      .replaceAll('it is', 'atis')
       .trim();
 
     if (transcript.startsWith('KR')) {
@@ -265,9 +271,12 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
   }
 
   function triggerOutput(transcript: string) {
+    const lowerCasedTranscript = transcript.toLowerCase();
     if (
-      transcript.toLowerCase().endsWith('disregard') ||
-      transcript.toLowerCase().endsWith('never mind')
+      lowerCasedTranscript.endsWith('disregard') ||
+      lowerCasedTranscript.endsWith('never mind') ||
+      lowerCasedTranscript.endsWith('stand by') ||
+      lowerCasedTranscript.endsWith('standby')
     ) {
       return;
     }

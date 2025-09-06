@@ -143,6 +143,7 @@ export type AircraftRequest = {
   nextRequestDelay: number;
   atcMessage?: string;
   nextStatus?: FlightStatus;
+  previouslyMatchedKeywords?: string[];
   reminder?: {
     message: string;
     phoneticMessage: string;
@@ -159,6 +160,7 @@ export type SimulationDetails = {
   setPaused: Dispatch<SetStateAction<boolean>>;
   pushToTalkActive: boolean;
   setPushToTalkActive: Dispatch<SetStateAction<boolean>>;
+  setRequests: Updater<AircraftRequest[]>;
 };
 
 export type FaaRouteType = 'L' | 'H' | 'LSD' | 'HSD' | 'SLD' | 'HLD' | 'TEC';

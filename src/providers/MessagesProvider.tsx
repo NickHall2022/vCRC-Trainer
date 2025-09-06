@@ -48,6 +48,9 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
           type,
           time: Date.now(),
         });
+        if (draft.length > 60) {
+          draft.splice(0, draft.length - 60);
+        }
       });
     }
 

@@ -173,7 +173,19 @@ export function VoiceRecognitionSection({
         <li>Begin every transmission with the callsign you are trying to talk to</li>
         <li>Speak clearly and deliberately to maximize the accuracy of voice recognition</li>
         <li>Your browser window must be in focus for the PTT key to be recognized</li>
-        <li>Set up your push to talk button below:</li>
+        <li>You can abort any transmission by saying "disregard"</li>
+        <li>
+          You can make any of the following requests to aircraft: "Say aircraft type", "Verify
+          ATIS/Information", "Radio check"
+        </li>
+        <li>
+          There are additional options for VFR aircraft: "Say intentions", "Say requested direction
+          of flight", "Say requested altitude", "Are you requesting flight following?"
+        </li>
+        <li>
+          You are allowed some flexibility in how you choose to say things, so long as you meet
+          certain keyword requirements
+        </li>
       </ol>
 
       <Grid container spacing={3} display={'flex'} alignItems={'center'}>

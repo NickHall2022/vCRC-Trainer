@@ -154,5 +154,14 @@ export const GLOBAL_ALTERNATIVES = function (aircraft: Aircraft): Keywords[] {
     ]);
   }
 
+  if (aircraft.flightPlan.routeType === 'pattern') {
+    alternativeKeywords = alternativeKeywords.concat([
+      {
+        keywords: [{ phrase: 'intentions' }],
+        aircraftResponse: `Requesting taxi for pattern work'}`,
+      },
+    ]);
+  }
+
   return alternativeKeywords;
 };

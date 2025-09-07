@@ -1,6 +1,14 @@
 import { type ReactNode } from 'react';
 import { useImmer } from 'use-immer';
-import type { FlightPlan, Mistake, MistakeDetails, MistakeType } from '../types/common';
+import type {
+  AircraftRequest,
+  FlightPlan,
+  Mistake,
+  MistakeDetails,
+  MistakeType,
+  PhraseologyMistake,
+  PhraseologyMistakeType,
+} from '../types/common';
 import { MistakeContext } from '../hooks/useMistakes';
 import { useAircraft } from '../hooks/useAircraft';
 import { DEST_TO_DIRECTION_MAP } from '../utils/constants/routes';
@@ -15,10 +23,10 @@ import {
 
 export function MistakeProvider({ children }: { children: ReactNode }) {
   const [mistakes, setMistakes] = useImmer<Mistake[]>([]);
-  const [phraseologyMistakes, setPhraseologyMistakes] = useImmer<Mistake[]>([]);
+  const [phraseologyMistakes, setPhraseologyMistakes] = useImmer<PhraseologyMistake[]>([]);
   const { aircrafts } = useAircraft();
   const prefRoutes = usePrefRoutes();
-  const [newMistakes, setNewMistakes] = useImmer<MistakeType[]>([]);
+  const [newMistakes, setNewMistakes] = useImmer<(MistakeType | PhraseologyMistakeType)[]>([]);
 
   function addMistake(type: MistakeType, details?: string, secondaryDetails?: string) {
     setMistakes((draft) => {
@@ -31,7 +39,11 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
     setNewMistakes((draft) => [...draft, type]);
   }
 
-  function addPhraseologyMistake(type: MistakeType, details?: string, secondaryDetails?: string) {
+  function addPhraseologyMistake(
+    type: PhraseologyMistakeType,
+    details?: string,
+    secondaryDetails?: string
+  ) {
     setPhraseologyMistakes((draft) => {
       draft.push({
         type,
@@ -176,6 +188,30 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  function reviewGeneralPhraseology(transcript: string) {
+    if (transcript.includes('decimal')) {
+      addPhraseologyMistake('usedDecimal', transcript);
+    }
+  }
+
+  function reviewPhraseologyForRequest(transcript: string, request: AircraftRequest) {
+    const phrases = [transcript, ...(request.previousInstructions || [])];
+    console.log(phrases);
+    reviewPhrasesForTaxi(phrases, request);
+  }
+
+  function reviewPhrasesForTaxi(phrases: string[], request: AircraftRequest) {
+    if (request.responseMessage?.includes('cross')) {
+      if (!phrases.find((phrase) => phrase.includes('cross runway'))) {
+        addPhraseologyMistake('forgotCrossing', phrases.join(', '), request.callsign);
+      }
+    }
+    const taxiToPhrase = phrases.find((phrase) => phrase.includes('taxi to runway'));
+    if (taxiToPhrase) {
+      addPhraseologyMistake('taxiToRunway', taxiToPhrase);
+    }
+  }
+
   const value: MistakeDetails = {
     mistakes,
     addMistake,
@@ -185,6 +221,8 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
     newMistakes,
     setNewMistakes,
     reviewVFRDeparture,
+    reviewGeneralPhraseology,
+    reviewPhraseologyForRequest,
   };
 
   return <MistakeContext.Provider value={value}>{children}</MistakeContext.Provider>;

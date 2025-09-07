@@ -146,6 +146,7 @@ export type AircraftRequest = {
   atcMessage?: string;
   nextStatus?: FlightStatus;
   previouslyMatchedKeywords?: string[];
+  previousInstructions?: string[];
   reminder?: {
     message: string;
     phoneticMessage: string;
@@ -234,8 +235,13 @@ export type MistakeType =
   | 'VFRAltFormat'
   | 'badVFRAlt'
   | 'badVFRAircraft'
-  | 'badVFRFF'
-  | 'forgotToIdentify';
+  | 'badVFRFF';
+
+export type PhraseologyMistakeType =
+  | 'forgotToIdentify'
+  | 'usedDecimal'
+  | 'forgotCrossing'
+  | 'taxiToRunway';
 
 export type Mistake = {
   type: MistakeType;
@@ -243,15 +249,27 @@ export type Mistake = {
   secondaryDetails?: string;
 };
 
+export type PhraseologyMistake = {
+  type: PhraseologyMistakeType;
+  details?: string;
+  secondaryDetails?: string;
+};
+
 export type MistakeDetails = {
   mistakes: Mistake[];
   addMistake: (type: MistakeType, details?: string, secondaryDetails?: string) => void;
-  phraseologyMistakes: Mistake[];
-  addPhraseologyMistake: (type: MistakeType, details?: string, secondaryDetails?: string) => void;
+  phraseologyMistakes: PhraseologyMistake[];
+  addPhraseologyMistake: (
+    type: PhraseologyMistakeType,
+    details?: string,
+    secondaryDetails?: string
+  ) => void;
   reviewClearance: (callsign: string) => void;
-  newMistakes: MistakeType[];
-  setNewMistakes: Dispatch<SetStateAction<MistakeType[]>>;
+  newMistakes: (MistakeType | PhraseologyMistakeType)[];
+  setNewMistakes: Updater<(MistakeType | PhraseologyMistakeType)[]>;
   reviewVFRDeparture: (callsign: string) => void;
+  reviewGeneralPhraseology: (transcript: string) => void;
+  reviewPhraseologyForRequest: (transcript: string, request: AircraftRequest) => void;
 };
 
 export type Keywords = {

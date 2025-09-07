@@ -16,11 +16,13 @@ import { GLOBAL_ALTERNATIVES, REQUEST_KEYWORDS } from '../utils/constants/speech
 export function SpeechInterpretatonProvider({ children }: { children: ReactNode }) {
   const { requests, completeRequest, setRequests } = useSimulation();
   const { aircrafts, setAircraftHasBeenSpokenTo } = useAircraft();
-  const { addPhraseologyMistake } = useMistakes();
+  const { addPhraseologyMistake, reviewGeneralPhraseology, reviewPhraseologyForRequest } =
+    useMistakes();
   const { sendMessage } = useMessages();
   const [playErrorSound] = useSound('Error.wav');
 
   function interpretNewSpeech(transcript: string) {
+    reviewGeneralPhraseology(transcript);
     sendMessage(transcript, 'PWM_GND', 'self');
 
     const callsign = getCallsign(transcript);
@@ -67,6 +69,7 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
       const keywords = REQUEST_KEYWORDS[request.requestType];
 
       if (keywordsMatchTranscript(keywords, transcript)) {
+        reviewPhraseologyForRequest(transcript, request);
         return completeRequest(callsign, true);
       }
 
@@ -103,12 +106,16 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
         keywords.atLeastOneOf.find((phrase) => transcript.includes(phrase));
 
       if (matchedKeywords.length === keywords.keywords.length && atLeastOneMatch) {
+        reviewPhraseologyForRequest(transcript, request);
         return completeRequest(callsign, true);
       } else {
         setRequests((draft) => {
           const requestToChange = draft.find((item) => item.callsign === aircraft.callsign);
           if (requestToChange) {
             requestToChange.previouslyMatchedKeywords = [...matchedKeywords];
+            const previousInstructions = [...(request.previousInstructions || [])];
+            previousInstructions.push(transcript);
+            requestToChange.previousInstructions = previousInstructions;
           }
         });
         if (missingPhraseResponses.length > 0) {

@@ -208,3 +208,8 @@ ol,
 ul {
   margin-top: 0;
 }
+
+.messageDisplay {
+  background-color: black;
+  color: rgb(37, 212, 224);
+}

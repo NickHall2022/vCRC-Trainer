@@ -103,8 +103,6 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll(' 7th', '7')
       .replaceAll(' 8th', '8')
       .replaceAll(' 9th', '9')
-      .replaceAll('runway to 9', 'runway 29')
-      .replaceAll('runway 2 9', 'runway 29')
       .replaceAll('via far', 'VFR')
       .replaceAll('via our', 'VFR')
       .replaceAll('via power', 'VFR')
@@ -173,7 +171,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('adviser', 'advise')
       .replaceAll('right directors', 'radar vectors')
       .replaceAll('rate of rectors', 'radar vectors')
-      .replaceAll(' mic ', 'm')
+      .replaceAll('mic', 'm')
       .replaceAll('crack', 'correct')
       .replaceAll('clear ', 'cleared ')
       .replaceAll('concerns ', 'clearance')
@@ -206,6 +204,8 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('adis', 'atis')
       .replaceAll('edith', 'atis')
       .replaceAll('it is', 'atis')
+      .replaceAll('runway to 9', 'runway 29')
+      .replaceAll('runway 2 9', 'runway 29')
       .trim();
 
     if (transcript.startsWith('KR')) {

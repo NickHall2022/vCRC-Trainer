@@ -1,19 +1,20 @@
 import { Grid } from '@mui/material';
 import { useMistakes } from '../../hooks/useMistakes';
 import { v4 as uuidv4 } from 'uuid';
-import type { Mistake } from '../../types/common';
+import type { Mistake, PhraseologyMistake } from '../../types/common';
 import { SPEECH_AVAILABLE } from '../../utils/constants/speech';
 
 function createMistakeList(
   newMistakesCount: number,
-  mistakes: Mistake[],
+  mistakes: (Mistake | PhraseologyMistake)[],
   title: string,
   subtitle: string,
   documentation: string,
   mistakeMessage: string,
   width?: string,
   secondaryMessage?: string,
-  noteMessage?: string
+  noteMessage?: string,
+  formatAsMessage?: boolean
 ) {
   if (mistakes.length === 0) {
     return <></>;
@@ -27,7 +28,7 @@ function createMistakeList(
         </>
       )}
       <span
-        className="flightPlanInput"
+        className={formatAsMessage ? 'messageDisplay' : 'flightPlanInput'}
         style={{
           width: width ? width : 'auto',
           display: 'inline-block',
@@ -208,10 +209,46 @@ function MistakeList() {
     newMistakes.filter((mistakeType) => mistakeType === 'forgotToIdentify').length,
     phraseologyMistakes.filter((mistake) => mistake.type === 'forgotToIdentify'),
     'Self-Identification',
-    `You should identify yourself as "Portland Ground" the first time you speak to an aircraft`,
+    `You should identify yourself as "Portland Ground" the first time you speak to each aircraft`,
     'FAA JO 7110.65 2-4-8',
     'You did not self-identify for the following aircraft',
     undefined
+  );
+
+  const usedDecimal = createMistakeList(
+    newMistakes.filter((mistakeType) => mistakeType === 'usedDecimal').length,
+    phraseologyMistakes.filter((mistake) => mistake.type === 'usedDecimal'),
+    'Use of "Decimal" in Frequency',
+    `In the United States, we use "point" instead of "decimal", such as "one two zero point niner"`,
+    'FAA JO 7110.65 2-4-17(k)',
+    'You used "decimal" in these instructions',
+    undefined
+  );
+
+  const forgotCrossing = createMistakeList(
+    newMistakes.filter((mistakeType) => mistakeType === 'forgotCrossing').length,
+    phraseologyMistakes.filter((mistake) => mistake.type === 'forgotCrossing'),
+    'Use of "Cross Runway"',
+    `Aircraft must be specifically told to "cross" runways to reach their departure runway`,
+    'ATC Handbook 4.9.2',
+    'You forgot crossing instructions for these aircraft',
+    undefined,
+    '',
+    '',
+    true
+  );
+
+  const taxiToRunway = createMistakeList(
+    newMistakes.filter((mistakeType) => mistakeType === 'taxiToRunway').length,
+    phraseologyMistakes.filter((mistake) => mistake.type === 'taxiToRunway'),
+    'Use of "Taxi to Runway"',
+    `Departure taxi instructions should be phrased as "Runway XX, taxi via..." rather than "Taxi to runway XX via..."`,
+    'ATC Handbook 4.7.2',
+    'You said "taxi to runway" in these instructions',
+    undefined,
+    undefined,
+    '',
+    true
   );
 
   return (
@@ -220,6 +257,9 @@ function MistakeList() {
         <>
           <h2 style={{ marginTop: '0px', marginBottom: '10px' }}>Radio Phraseology</h2>
           {forgotToIdentify}
+          {usedDecimal}
+          {forgotCrossing}
+          {taxiToRunway}
           {mistakes.length > 0 && <hr></hr>}
         </>
       )}

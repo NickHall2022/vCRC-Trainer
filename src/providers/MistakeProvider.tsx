@@ -20,11 +20,13 @@ import {
   HIGH_EAST_ALT,
   TEC_EAST_ALT,
 } from '../utils/constants/altitudes';
+import { useParkingSpots } from '../hooks/useParkingSpots';
 
 export function MistakeProvider({ children }: { children: ReactNode }) {
   const [mistakes, setMistakes] = useImmer<Mistake[]>([]);
   const [phraseologyMistakes, setPhraseologyMistakes] = useImmer<PhraseologyMistake[]>([]);
   const { aircrafts } = useAircraft();
+  const { getParkingSpotPushbackIntoRamp } = useParkingSpots();
   const prefRoutes = usePrefRoutes();
   const [newMistakes, setNewMistakes] = useImmer<(MistakeType | PhraseologyMistakeType)[]>([]);
 
@@ -195,20 +197,83 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
   }
 
   function reviewPhraseologyForRequest(transcript: string, request: AircraftRequest) {
-    const phrases = [transcript, ...(request.previousInstructions || [])];
-    console.log(phrases);
+    const phrases = [...(request.previousInstructions || []), transcript];
     reviewPhrasesForTaxi(phrases, request);
+    reviewPhrasesForPushback(phrases, request);
+    reviewPhrasesForIFRClearance(phrases, request);
   }
 
   function reviewPhrasesForTaxi(phrases: string[], request: AircraftRequest) {
-    if (request.responseMessage?.includes('cross')) {
-      if (!phrases.find((phrase) => phrase.includes('cross runway'))) {
-        addPhraseologyMistake('forgotCrossing', phrases.join(', '), request.callsign);
+    if (['taxi', 'readbackVFR', 'pattern'].includes(request.requestType)) {
+      if (request.responseMessage?.includes('cross')) {
+        if (!phrases.find((phrase) => phrase.includes('cross runway'))) {
+          addPhraseologyMistake('forgotCrossing', phrases.join(', '), request.callsign);
+        }
+      }
+      const taxiToPhrase = phrases.find((phrase) => phrase.includes('taxi to runway'));
+      if (taxiToPhrase) {
+        addPhraseologyMistake('taxiToRunway', taxiToPhrase);
       }
     }
-    const taxiToPhrase = phrases.find((phrase) => phrase.includes('taxi to runway'));
-    if (taxiToPhrase) {
-      addPhraseologyMistake('taxiToRunway', taxiToPhrase);
+    if (request.requestType === 'readbackVFR') {
+      if (!phrases.find((phrase) => phrase.includes('readback'))) {
+        addPhraseologyMistake('vfrForgotReadback', phrases.join(', '), request.callsign);
+      }
+    }
+  }
+
+  function reviewPhrasesForPushback(phrases: string[], request: AircraftRequest) {
+    if (request.requestType === 'pushback') {
+      const aircraft = aircrafts.find((aircraft) => aircraft.callsign === request.callsign);
+      if (aircraft) {
+        const isPushIntoRamp = getParkingSpotPushbackIntoRamp(aircraft.parkingSpotId);
+        if (isPushIntoRamp) {
+          if (!phrases.find((phrase) => phrase.includes('discretion'))) {
+            addPhraseologyMistake(
+              'pushbackKeyword',
+              phrases.join(', '),
+              `${request.callsign} (into ramp)`
+            );
+          }
+        } else {
+          if (!phrases.find((phrase) => phrase.includes('approved'))) {
+            addPhraseologyMistake(
+              'pushbackKeyword',
+              phrases.join(', '),
+              `${request.callsign} (onto taxiway)`
+            );
+          }
+        }
+      }
+    }
+  }
+
+  function reviewPhrasesForIFRClearance(phrases: string[], request: AircraftRequest) {
+    console.log(phrases);
+    if (request.requestType === 'clearanceIFR') {
+      const aircraft = aircrafts.find((aircraft) => aircraft.callsign === request.callsign);
+      if (aircraft) {
+        if (aircraft.flightPlan.route.startsWith('HSKEL')) {
+          if (!phrases.find((phrase) => phrase.includes('transition'))) {
+            addPhraseologyMistake(
+              'sidTransition',
+              phrases.join(', '),
+              `${request.callsign} (HSKEL#)`
+            );
+          }
+        } else if (aircraft.flightPlan.route.startsWith('NUBLE')) {
+          if (!phrases.find((phrase) => phrase.includes('transition'))) {
+            addPhraseologyMistake(
+              'sidTransition',
+              phrases.join(', '),
+              `${request.callsign} (NUBLE#)`
+            );
+          }
+        }
+      }
+      if (!phrases.find((phrase) => phrase.includes('airport'))) {
+        addPhraseologyMistake('clearanceLimitAirport', phrases.join(', '), request.callsign);
+      }
     }
   }
 

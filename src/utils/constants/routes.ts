@@ -46,6 +46,8 @@ export const DEST_TO_DIRECTION_MAP: Record<string, 'west' | 'east'> = {
   KSWF: 'west',
 };
 
+export const DIRECTIONS = ['northeast', 'north', 'northwest', 'west', 'southwest'];
+
 export const DEST_TO_NAME_MAP: Record<string, string> = {
   //H
   KBWI: 'Baltimore',

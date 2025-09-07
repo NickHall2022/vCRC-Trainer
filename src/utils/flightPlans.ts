@@ -17,7 +17,7 @@ import {
   SPAWNABLE_TEC_EAST_ALT,
   SPAWNABLE_TEC_WEST_ALT,
 } from './constants/altitudes';
-import { DEST_TO_NAME_MAP } from './constants/routes';
+import { DEST_TO_NAME_MAP, DIRECTIONS } from './constants/routes';
 
 type UnspawnedVFRAircraft = Omit<Aircraft, keyof AircraftDefaultAttributes>;
 
@@ -306,6 +306,7 @@ function createVFRFlightPlan(callsign: string): FlightPlan {
     squawk: buildRandomSquawk(),
     CID: generateRandomString(1000, 3),
     plannedTime: `P12${generateRandomString(60, 2)}`,
+    direction: getRandomDepartureDirection(),
   };
 }
 
@@ -584,8 +585,7 @@ function getRandomTecEquipment() {
 }
 
 function getRandomDepartureDirection() {
-  const directions = ['northeast', 'north', 'northwest', 'west', 'southwest'];
-  return directions[Math.floor(Math.random() * directions.length)];
+  return DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
 }
 
 function handoffRequest(callsign: string): AircraftRequest {

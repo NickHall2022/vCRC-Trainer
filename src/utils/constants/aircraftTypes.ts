@@ -27,6 +27,7 @@ export const AIRLINES: Record<string, string> = {
   tonight: 'UAL',
   united: 'UAL',
   'southwest airline': 'SWA',
+  'so 1st': 'SWA',
   southwest: 'SWA',
   "moxie's": 'MXY',
   moxie: 'MXY',

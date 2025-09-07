@@ -141,13 +141,15 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
 
   function checkGlobalAlternativesForAircraft(aircraft: Aircraft, transcript: string): boolean {
     for (const alternative of GLOBAL_ALTERNATIVES(aircraft)) {
-      if (alternative.aircraftResponse && keywordsMatchTranscript(alternative, transcript)) {
-        sendMessage(
-          alternative.aircraftResponse,
-          aircraft.callsign,
-          'radio',
-          `${phoneticizeString(aircraft.callsign)} ${alternative.aircraftResponse}`
-        );
+      if (keywordsMatchTranscript(alternative, transcript)) {
+        if (alternative.aircraftResponse) {
+          sendMessage(
+            alternative.aircraftResponse,
+            aircraft.callsign,
+            'radio',
+            `${phoneticizeString(aircraft.callsign)} ${alternative.aircraftResponse}`
+          );
+        }
         return true;
       }
     }

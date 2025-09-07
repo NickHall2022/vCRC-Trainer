@@ -10,13 +10,13 @@ export const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
     keywords: [
       { phrase: 'clear', missingPhraseResponse: 'clearance limit' },
       { phrase: 'maintain', missingPhraseResponse: 'altitude' },
-      { phrase: '119', missingPhraseResponse: 'departure frequency' },
+      { phrase: 'frequency', missingPhraseResponse: 'departure frequency' },
       { phrase: 'squawk', missingPhraseResponse: 'squawk' },
     ],
     alternatives: [
       {
         keywords: [],
-        atLeastOneOf: ['request', 'standby'],
+        atLeastOneOf: ['on request', 'standby'],
         aircraftResponse: '',
       },
       {
@@ -30,7 +30,7 @@ export const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
   clearanceVFR: {
     keywords: [
       { phrase: 'maintain', missingPhraseResponse: 'altitude' },
-      { phrase: '119', missingPhraseResponse: 'departure frequency' },
+      { phrase: 'frequency', missingPhraseResponse: 'departure frequency' },
       { phrase: 'squawk', missingPhraseResponse: 'squawk' },
     ],
   },
@@ -47,7 +47,17 @@ export const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
       },
     ],
   },
-  pushback: { keywords: [{ phrase: 'push' }], atLeastOneOf: ['approved', 'discretion'] },
+  pushback: {
+    keywords: [{ phrase: 'push' }],
+    atLeastOneOf: ['approved', 'discretion', 'risk'],
+    alternatives: [
+      {
+        keywords: [],
+        atLeastOneOf: ['advise', 'ready'],
+        aircraftResponse: 'Ready for pushback',
+      },
+    ],
+  },
   taxi: {
     keywords: [
       { phrase: 'taxi' },
@@ -84,7 +94,7 @@ export const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
 };
 
 export const GLOBAL_ALTERNATIVES = function (aircraft: Aircraft): Keywords[] {
-  return [
+  let alternativeKeywords = [
     {
       keywords: [{ phrase: 'radio' }, { phrase: 'check' }],
       aircraftResponse: 'I read you loud and clear',
@@ -109,4 +119,40 @@ export const GLOBAL_ALTERNATIVES = function (aircraft: Aircraft): Keywords[] {
       aircraftResponse: `We have information ${PHONETIC_ATIS}`,
     },
   ];
+
+  if (aircraft.flightPlan.routeType.includes('VFR')) {
+    const isFlightFollowing = aircraft.flightPlan.routeType.includes('ff');
+    alternativeKeywords = alternativeKeywords.concat([
+      {
+        keywords: [{ phrase: 'say' }],
+        atLeastOneOf: ['direction', 'destination'],
+        aircraftResponse: `We are departing to the ${aircraft.flightPlan.direction}${isFlightFollowing ? ' with flight following' : ''}`,
+      },
+      {
+        keywords: [{ phrase: 'repeat' }],
+        atLeastOneOf: ['direction', 'destination'],
+        aircraftResponse: `We are departing to the ${aircraft.flightPlan.direction}${isFlightFollowing ? ' with flight following' : ''}`,
+      },
+      {
+        keywords: [{ phrase: 'say' }],
+        atLeastOneOf: ['altitude'],
+        aircraftResponse: `We are planning ${aircraft.flightPlan.requestedAltitude} feet`,
+      },
+      {
+        keywords: [{ phrase: 'repeat' }],
+        atLeastOneOf: ['altitude'],
+        aircraftResponse: `We are planning ${aircraft.flightPlan.requestedAltitude} feet`,
+      },
+      {
+        keywords: [{ phrase: 'intentions' }],
+        aircraftResponse: `Requesting VFR departure to the ${aircraft.flightPlan.direction} at ${aircraft.flightPlan.requestedAltitude} feet${isFlightFollowing ? ' with flight following' : ''}`,
+      },
+      {
+        keywords: [{ phrase: 'flight following' }],
+        aircraftResponse: `${isFlightFollowing ? 'Affirmative, request flight following' : 'Negative flight following'}`,
+      },
+    ]);
+  }
+
+  return alternativeKeywords;
 };

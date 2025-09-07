@@ -172,7 +172,8 @@ input {
 }
 
 .mistakeCounter {
-  background-color: red;
+  background-color: yellow;
+  color: black;
   border-radius: 12.5px;
   width: 25px;
   height: 25px;

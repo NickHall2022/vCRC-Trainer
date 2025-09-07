@@ -75,7 +75,6 @@ export function DataBlock({ aircraft }: { aircraft: Aircraft }) {
       target.style.pointerEvents = 'auto';
     }, 0);
 
-    event.preventDefault();
     event.stopPropagation();
   }
 

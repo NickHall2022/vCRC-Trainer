@@ -31,6 +31,7 @@ export type FlightPlanDefaultIFRAttributes = {
   created: boolean;
   route: string;
   squawk: string;
+  direction?: string;
 };
 
 export type Aircraft = AircraftDefaultAttributes & {
@@ -215,6 +216,7 @@ export type ParkingSpotMethods = {
   reserveSpot: (type: ParkingSpotType) => ParkingSpot | undefined;
   releaseSpot: (id: string) => void;
   getPushbackLocation: (id: string) => { x: number; y: number };
+  getParkingSpotPushbackIntoRamp: (id: string) => boolean;
 };
 
 export type DifficultyDetails = {
@@ -241,7 +243,11 @@ export type PhraseologyMistakeType =
   | 'forgotToIdentify'
   | 'usedDecimal'
   | 'forgotCrossing'
-  | 'taxiToRunway';
+  | 'taxiToRunway'
+  | 'pushbackKeyword'
+  | 'vfrForgotReadback'
+  | 'sidTransition'
+  | 'clearanceLimitAirport';
 
 export type Mistake = {
   type: MistakeType;

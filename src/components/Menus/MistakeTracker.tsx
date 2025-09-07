@@ -26,10 +26,9 @@ function MistakeTracker({ setOpen }: Props) {
         <h2 style={{ textAlign: 'center' }}>Areas of Improvement</h2>
 
         <p>
-          This is <b>not</b> an exhaustive list. vSweatbox cannot track everything that you are
-          doing, such as what you are saying out loud. This tool is only designed to help point out
-          some things you can improve upon. Be sure to refer to other sources of documentation to
-          clarify correct procedures.
+          This is <b>not</b> an exhaustive list. This tool is only designed to help point out some
+          things you can improve upon. Be sure to refer to other sources of documentation to clarify
+          correct procedures.
         </p>
 
         <hr></hr>

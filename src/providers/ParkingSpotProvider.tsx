@@ -322,10 +322,19 @@ export function ParkingSpotProvider({ children }: { children: ReactNode }) {
     return spot.pushbackLocation;
   }
 
+  function getParkingSpotPushbackIntoRamp(id: string) {
+    const spot = parkingSpots.find((spot) => spot.id === id);
+    if (!spot) {
+      throw 'Incorrectly defined parking spot id';
+    }
+    return spot.pushbackIntoRamp;
+  }
+
   const value: ParkingSpotMethods = {
     reserveSpot,
     releaseSpot,
     getPushbackLocation,
+    getParkingSpotPushbackIntoRamp,
   };
 
   return <ParkingSpotContext.Provider value={value}>{children}</ParkingSpotContext.Provider>;

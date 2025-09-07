@@ -42,7 +42,7 @@ export function CGgroundPage() {
             zIndex: 4,
             right: '325px',
             bottom: '35px',
-            color: 'red',
+            color: 'yellow',
           }}
         >
           <ErrorIcon></ErrorIcon>

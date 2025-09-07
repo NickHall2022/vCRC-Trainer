@@ -22,6 +22,7 @@ function createMistakeList(
 
   const detailsList = mistakes.map((mistake) => (
     <span key={uuidv4()}>
+      {formatAsMessage && <br></br>}
       {secondaryMessage !== undefined && (
         <>
           {secondaryMessage} <b>{mistake.secondaryDetails}: </b>
@@ -220,7 +221,7 @@ function MistakeList() {
     phraseologyMistakes.filter((mistake) => mistake.type === 'usedDecimal'),
     'Use of "Decimal" in Frequency',
     `In the United States, we use "point" instead of "decimal", such as "one two zero point niner"`,
-    'FAA JO 7110.65 2-4-17(k)',
+    'FAA JO 7110.65 2-4-17.k',
     'You used "decimal" in these instructions',
     undefined
   );
@@ -251,6 +252,58 @@ function MistakeList() {
     true
   );
 
+  const pushbackKeyword = createMistakeList(
+    newMistakes.filter((mistakeType) => mistakeType === 'pushbackKeyword').length,
+    phraseologyMistakes.filter((mistake) => mistake.type === 'pushbackKeyword'),
+    'Pushback Instruction use of "Approved" and "Discretion"',
+    `Aircraft that will push into a movement area should be told "Push approved". Aircraft requesting pushback onto a non-movement area should be told "Pushback your discretion"`,
+    'ATC Handbook 4.6',
+    'You used the incorrect phrasing in these instructions',
+    undefined,
+    '',
+    '',
+    true
+  );
+
+  const vfrForgotReadback = createMistakeList(
+    newMistakes.filter((mistakeType) => mistakeType === 'vfrForgotReadback').length,
+    phraseologyMistakes.filter((mistake) => mistake.type === 'vfrForgotReadback'),
+    'Use of "Readback Correct" for VFR Departures',
+    `VFR departures must be told "Readback Correct" and then taxi instructions`,
+    'ATC Handbook 3.12.2',
+    'You forgot "Readback Correct" in these instructions',
+    undefined,
+    '',
+    '',
+    true
+  );
+
+  const clearanceLimitAirport = createMistakeList(
+    newMistakes.filter((mistakeType) => mistakeType === 'clearanceLimitAirport').length,
+    phraseologyMistakes.filter((mistake) => mistake.type === 'clearanceLimitAirport'),
+    'Clearance Limit "Airport"',
+    `You must include the word "airport" when a clearance limit is an airport, such as "Cleared to the Boston airport"`,
+    'FAA JO 7110.65 4-3-2.b(1)',
+    'You forgot "airport" in these instructions',
+    undefined,
+    '',
+    '',
+    true
+  );
+
+  const sidTransition = createMistakeList(
+    newMistakes.filter((mistakeType) => mistakeType === 'sidTransition').length,
+    phraseologyMistakes.filter((mistake) => mistake.type === 'sidTransition'),
+    'Use of "Transition" for Pilot Nav SIDs',
+    `You must include the word "transition" for departure clearances including a pilot navigated SID with multiple transitions`,
+    'FAA JO 7110.65 4-3-2.c(4)',
+    'You forgot "transition" in these instructions',
+    undefined,
+    '',
+    '',
+    true
+  );
+
   return (
     <>
       {SPEECH_AVAILABLE && phraseologyMistakes.length > 0 && (
@@ -260,6 +313,10 @@ function MistakeList() {
           {usedDecimal}
           {forgotCrossing}
           {taxiToRunway}
+          {pushbackKeyword}
+          {vfrForgotReadback}
+          {clearanceLimitAirport}
+          {sidTransition}
           {mistakes.length > 0 && <hr></hr>}
         </>
       )}

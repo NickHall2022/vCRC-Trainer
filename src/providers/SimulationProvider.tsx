@@ -36,6 +36,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     setPlaneStatus,
     deleteFlightPlan,
     spawnNewFlight,
+    holdPosition,
   } = useAircraft();
   const { releaseSpot, getPushbackLocation } = useParkingSpots();
   const { printAmendedFlightPlan } = useStrips();
@@ -81,7 +82,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       setTimer(timer + 1000);
 
       for (const aircraft of aircrafts) {
-        if (aircraft.status === 'pushback') {
+        if (aircraft.status === 'pushback' && !aircraft.holdingPosition) {
           const angleAsRadians = (aircraft.rotation * Math.PI) / 180;
           const pushbackLocation = getPushbackLocation(aircraft.parkingSpotId);
           const diffX =
@@ -100,6 +101,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         } else if (aircraft.status === 'handedOff') {
           const dist = movePlaneTowardsRunway(aircraft);
           if (
+            dist &&
             dist < PLANE_DIST_THRESHOLD &&
             timer - (aircraft.statusChangedTime as number) > 20000
           ) {
@@ -211,6 +213,10 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   });
 
   function movePlaneTowardsRunway(aircraft: Aircraft) {
+    if (aircraft.holdingPosition) {
+      return;
+    }
+
     const planeX = aircraft.positionX;
     const planeY = aircraft.positionY;
     const callsign = aircraft.callsign;
@@ -335,6 +341,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       const aircraft = aircrafts.find((aircraft) => aircraft.callsign === callsign);
       if (aircraft) {
         releaseSpot(aircraft.parkingSpotId);
+        holdPosition(aircraft.callsign, false, timer);
       }
     } else if (completedRequest.nextStatus === 'clearedIFR') {
       reviewClearance(callsign);
@@ -353,6 +360,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     pushToTalkActive,
     setPushToTalkActive,
     setRequests,
+    timer,
   };
 
   return <SimulationContext.Provider value={value}>{children}</SimulationContext.Provider>;

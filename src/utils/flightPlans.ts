@@ -137,6 +137,7 @@ function buildDefaultAircraftAttributes(parkingSpot: ParkingSpot): AircraftDefau
     voice,
     pitch,
     hasBeenSpokenTo: false,
+    holdingPosition: false,
   };
 }
 

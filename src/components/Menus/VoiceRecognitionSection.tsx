@@ -175,8 +175,8 @@ export function VoiceRecognitionSection({
         <li>Your browser window must be in focus for the PTT key to be recognized</li>
         <li>You can abort any transmission by saying "disregard"</li>
         <li>
-          You can make any of the following requests to aircraft: "Say aircraft type", "Verify
-          ATIS/Information", "Radio check"
+          You can make the following requests to any aircraft: "Say aircraft type", "Verify
+          ATIS/Information", "Radio check", "Hold Position"/"Continue"
         </li>
         <li>
           There are additional options for VFR aircraft: "Say intentions", "Say requested direction
@@ -184,7 +184,7 @@ export function VoiceRecognitionSection({
         </li>
         <li>
           You are allowed some flexibility in how you choose to say things, so long as you meet
-          certain keyword requirements
+          phraseology requirements
         </li>
       </ol>
 

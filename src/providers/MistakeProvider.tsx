@@ -249,7 +249,6 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
   }
 
   function reviewPhrasesForIFRClearance(phrases: string[], request: AircraftRequest) {
-    console.log(phrases);
     if (request.requestType === 'clearanceIFR') {
       const aircraft = aircrafts.find((aircraft) => aircraft.callsign === request.callsign);
       if (aircraft) {
@@ -273,6 +272,42 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
       }
       if (!phrases.find((phrase) => phrase.includes('airport'))) {
         addPhraseologyMistake('clearanceLimitAirport', phrases.join(', '), request.callsign);
+      }
+
+      reviewCRAFTOrder(phrases, request);
+    }
+  }
+
+  function reviewCRAFTOrder(phrases: string[], request: AircraftRequest) {
+    let longestPhrase = phrases[0];
+    let longestPhraseCount = 0;
+
+    for (let i = 0; i < phrases.length; i++) {
+      let phraseCount = 0;
+      ['clear', 'departure', 'maintain', 'frequency', 'squawk'].forEach((keyword) => {
+        if (phrases[i].includes(keyword)) {
+          phraseCount++;
+        }
+      });
+      if (phraseCount > longestPhraseCount) {
+        longestPhraseCount = phraseCount;
+        longestPhrase = phrases[i];
+      }
+    }
+
+    const phraseOrder = ['clear', 'departure', 'maintain', 'frequency', 'squawk'].map((keyword) =>
+      longestPhrase.indexOf(keyword)
+    );
+
+    if (phraseOrder.find((index) => index === -1)) {
+      addPhraseologyMistake('craftOrder', phrases.join(', '), request.callsign);
+      return;
+    }
+
+    for (let i = 0; i < phraseOrder.length - 1; i++) {
+      if (phraseOrder[i] > phraseOrder[i + 1]) {
+        addPhraseologyMistake('craftOrder', phrases.join(', '), request.callsign);
+        return;
       }
     }
   }

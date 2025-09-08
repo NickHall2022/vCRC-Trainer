@@ -145,7 +145,7 @@ export const GLOBAL_ALTERNATIVES = function (aircraft: Aircraft): Keywords[] {
       },
       {
         keywords: [{ phrase: 'intentions' }],
-        aircraftResponse: `Requesting VFR departure to the ${aircraft.flightPlan.direction} at ${aircraft.flightPlan.requestedAltitude} feet${isFlightFollowing ? ' with flight following' : ''}`,
+        aircraftResponse: `Requesting VFR departure to the ${aircraft.flightPlan.direction} at ${aircraft.flightPlan.requestedAltitude}${isFlightFollowing ? ' with flight following' : ''}`,
       },
       {
         keywords: [{ phrase: 'flight following' }],
@@ -158,7 +158,7 @@ export const GLOBAL_ALTERNATIVES = function (aircraft: Aircraft): Keywords[] {
     alternativeKeywords = alternativeKeywords.concat([
       {
         keywords: [{ phrase: 'intentions' }],
-        aircraftResponse: `Requesting taxi for pattern work'}`,
+        aircraftResponse: `Requesting taxi for pattern work`,
       },
     ]);
   }

@@ -115,6 +115,18 @@ export function AircraftProvider({ children }: { children: ReactNode }) {
     });
   }
 
+  function holdPosition(callsign: string, value: boolean, timer: number) {
+    setAircrafts((draft) => {
+      const aircraft = draft.find((aircraft) => aircraft.callsign === callsign);
+      if (aircraft) {
+        aircraft.holdingPosition = value;
+        if (aircraft.status === 'pushback') {
+          aircraft.canSendRequestTime = value ? Number.MAX_SAFE_INTEGER : timer + 90000;
+        }
+      }
+    });
+  }
+
   const value = {
     aircrafts,
     selectedFlightPlan,
@@ -129,6 +141,7 @@ export function AircraftProvider({ children }: { children: ReactNode }) {
     spawnNewFlight,
     setTaxiwayNodeId,
     setAircraftHasBeenSpokenTo,
+    holdPosition,
   };
 
   return <AircraftContext.Provider value={value}>{children}</AircraftContext.Provider>;

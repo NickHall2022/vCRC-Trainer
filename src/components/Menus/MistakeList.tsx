@@ -304,19 +304,33 @@ function MistakeList() {
     true
   );
 
+  const craftOrder = createMistakeList(
+    newMistakes.filter((mistakeType) => mistakeType === 'craftOrder').length,
+    phraseologyMistakes.filter((mistake) => mistake.type === 'craftOrder'),
+    'IFR "CRAFT" Clearance',
+    `Every IFR clearance should include the 5 elements of CRAFT in the correct order `,
+    'ATC Handbook 3.3.1',
+    'You did not properly apply CRAFT in these instructions',
+    undefined,
+    '',
+    '',
+    true
+  );
+
   return (
     <>
       {SPEECH_AVAILABLE && phraseologyMistakes.length > 0 && (
         <>
           <h2 style={{ marginTop: '0px', marginBottom: '10px' }}>Radio Phraseology</h2>
           {forgotToIdentify}
-          {usedDecimal}
-          {forgotCrossing}
-          {taxiToRunway}
-          {pushbackKeyword}
-          {vfrForgotReadback}
+          {craftOrder}
           {clearanceLimitAirport}
           {sidTransition}
+          {usedDecimal}
+          {pushbackKeyword}
+          {vfrForgotReadback}
+          {taxiToRunway}
+          {forgotCrossing}
           {mistakes.length > 0 && <hr></hr>}
         </>
       )}

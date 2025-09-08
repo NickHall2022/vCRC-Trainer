@@ -54,6 +54,7 @@ export type AircraftDefaultAttributes = {
   voice: SpeechSynthesisVoice;
   pitch: number;
   hasBeenSpokenTo: boolean;
+  holdingPosition: boolean;
 };
 
 export type BayName = 'ground' | 'local' | 'spare' | 'printer';
@@ -88,6 +89,7 @@ export type AircraftDetails = {
   spawnNewFlight: () => Aircraft | undefined;
   setTaxiwayNodeId: (callsign: string, id: string) => void;
   setAircraftHasBeenSpokenTo: (callsign: string) => void;
+  holdPosition: (callsign: string, value: boolean, timer: number) => void;
 };
 
 export type StripsDetails = {
@@ -165,6 +167,7 @@ export type SimulationDetails = {
   pushToTalkActive: boolean;
   setPushToTalkActive: Dispatch<SetStateAction<boolean>>;
   setRequests: Updater<AircraftRequest[]>;
+  timer: number;
 };
 
 export type FaaRouteType = 'L' | 'H' | 'LSD' | 'HSD' | 'SLD' | 'HLD' | 'TEC';
@@ -247,7 +250,8 @@ export type PhraseologyMistakeType =
   | 'pushbackKeyword'
   | 'vfrForgotReadback'
   | 'sidTransition'
-  | 'clearanceLimitAirport';
+  | 'clearanceLimitAirport'
+  | 'craftOrder';
 
 export type Mistake = {
   type: MistakeType;

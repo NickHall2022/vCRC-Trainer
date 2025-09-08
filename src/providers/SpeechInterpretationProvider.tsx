@@ -14,8 +14,8 @@ import { useMistakes } from '../hooks/useMistakes';
 import { GLOBAL_ALTERNATIVES, REQUEST_KEYWORDS } from '../utils/constants/speech';
 
 export function SpeechInterpretatonProvider({ children }: { children: ReactNode }) {
-  const { requests, completeRequest, setRequests } = useSimulation();
-  const { aircrafts, setAircraftHasBeenSpokenTo } = useAircraft();
+  const { requests, completeRequest, setRequests, timer } = useSimulation();
+  const { aircrafts, setAircraftHasBeenSpokenTo, holdPosition } = useAircraft();
   const { addPhraseologyMistake, reviewGeneralPhraseology, reviewPhraseologyForRequest } =
     useMistakes();
   const { sendMessage } = useMessages();
@@ -61,6 +61,10 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
   function matchAircraftToTranscript(aircraft: Aircraft, transcript: string) {
     const callsign = aircraft.callsign;
     if (checkGlobalAlternativesForAircraft(aircraft, transcript)) {
+      return;
+    }
+
+    if (checkHoldPositionContinueForAircraft(aircraft, transcript)) {
       return;
     }
 
@@ -150,6 +154,31 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
             `${phoneticizeString(aircraft.callsign)} ${alternative.aircraftResponse}`
           );
         }
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function checkHoldPositionContinueForAircraft(aircraft: Aircraft, transcript: string): boolean {
+    const callsign = aircraft.callsign;
+    if (
+      aircraft.status === 'pushback' ||
+      aircraft.status === 'taxi' ||
+      aircraft.status === 'departing'
+    ) {
+      if (transcript.includes('hold position')) {
+        holdPosition(callsign, true, timer);
+        sendMessage(
+          'Holding position',
+          callsign,
+          'radio',
+          `${phoneticizeString(callsign)} holding position`
+        );
+        return true;
+      } else if (transcript.includes('continue')) {
+        holdPosition(callsign, false, timer);
+        sendMessage('Continuing', callsign, 'radio', `${phoneticizeString(callsign)} continuing`);
         return true;
       }
     }

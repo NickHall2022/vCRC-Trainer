@@ -1,7 +1,7 @@
 import { Grid } from '@mui/material';
 import { useAircraft } from '../../hooks/useAircraft';
 import type { FlightPlan } from '../../types/common';
-import { useState, useEffect, useRef, type RefObject, useMemo } from 'react';
+import { useState, useEffect, useRef, type RefObject, useMemo, useCallback } from 'react';
 import Draggable from 'react-draggable';
 import { makeEmptyFlightPlan } from '../../utils/flightPlans';
 import { useStrips } from '../../hooks/useStrips';
@@ -9,48 +9,60 @@ import { useImmer } from 'use-immer';
 import { ControlledInput } from '../Menus/ControlledInput';
 
 export function FlightPlanEditor() {
-  const { selectedFlightPlan, amendFlightPlan, setSelectedFlightPlan, aircrafts } = useAircraft();
+  const { amendFlightPlan, aircrafts } = useAircraft();
   const { printAmendedFlightPlan } = useStrips();
 
   const draggableRef = useRef<HTMLDivElement>(null);
 
-  const [flightPlan, setFlightPlan] = useImmer<FlightPlan>(
-    handleNewSelectedFlightPlan(selectedFlightPlan)
-  );
+  const [flightPlan, setFlightPlan] = useImmer<FlightPlan>(makeEmptyFlightPlan());
   const [hasBeenEdited, setHasBeenEdited] = useState(false);
-
   const callsignInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    setFlightPlan(handleNewSelectedFlightPlan(selectedFlightPlan));
-    setHasBeenEdited(false);
-  }, [setFlightPlan, selectedFlightPlan, setHasBeenEdited]);
+  const handleCallsignChange = useCallback(
+    (callsign: string) => {
+      const aircraft = aircrafts.find((aircraft) => aircraft.callsign === callsign);
+      setHasBeenEdited(false);
+      if (aircraft) {
+        setFlightPlan({ ...aircraft.flightPlan });
+      } else {
+        setFlightPlan({ ...makeEmptyFlightPlan(), callsign });
+      }
+    },
+    [setHasBeenEdited, setFlightPlan, aircrafts]
+  );
 
   useEffect(() => {
     function handleControlF(event: KeyboardEvent) {
       if (event.key === 'f' && event.ctrlKey) {
         event.preventDefault();
-        setFlightPlan(handleNewSelectedFlightPlan(undefined));
+        setFlightPlan(makeEmptyFlightPlan());
         callsignInputRef.current?.focus();
+        setHasBeenEdited(false);
       }
     }
 
+    function handleSelectAirplane(event: CustomEventInit) {
+      handleCallsignChange(event.detail.callsign);
+    }
+
     document.addEventListener('keydown', handleControlF);
+    document.addEventListener('selectairplane', handleSelectAirplane);
     return () => {
       document.removeEventListener('keydown', handleControlF);
+      document.removeEventListener('selectairplane', handleSelectAirplane);
     };
-  }, [setFlightPlan]);
+  }, [setFlightPlan, handleCallsignChange]);
 
   function handleAmendFlightPlan() {
     setHasBeenEdited(false);
-    const latestFlightPlan = aircrafts.find(
+    const existingFlightPlan = aircrafts.find(
       (aircraft) => aircraft.callsign === flightPlan.callsign
     )?.flightPlan;
-    if (!latestFlightPlan) {
+    if (!existingFlightPlan) {
       throw new Error('flight plan not properly selected');
     }
     const amendedFlightPlan: FlightPlan = {
-      ...latestFlightPlan,
+      ...existingFlightPlan,
       printCount: flightPlan.printCount + 1,
       created: true,
       aircraftType: flightPlan.aircraftType,
@@ -76,10 +88,6 @@ export function FlightPlanEditor() {
       event.preventDefault();
       handleAmendFlightPlan();
     }
-  }
-
-  function handleCallsignChange(callsign: string) {
-    setSelectedFlightPlan(callsign);
   }
 
   const editButtonEnabled =
@@ -278,11 +286,4 @@ export function FlightPlanEditor() {
       </div>
     </Draggable>
   );
-}
-
-function handleNewSelectedFlightPlan(selectedFlightPlan: FlightPlan | undefined) {
-  if (selectedFlightPlan) {
-    return { ...selectedFlightPlan };
-  }
-  return makeEmptyFlightPlan();
 }

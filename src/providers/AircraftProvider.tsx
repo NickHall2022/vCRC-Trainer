@@ -1,26 +1,16 @@
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import type { Aircraft, FlightPlan, FlightStatus } from '../types/common';
 import { AircraftContext } from '../hooks/useAircraft';
-import { makeEmptyFlightPlan, makeNewFlight } from '../utils/flightPlans';
+import { makeNewFlight } from '../utils/flightPlans';
 import { useImmer } from 'use-immer';
 import { usePrefRoutes } from '../hooks/usePrefRoutes';
 import { useParkingSpots } from '../hooks/useParkingSpots';
 
 export function AircraftProvider({ children }: { children: ReactNode }) {
   const { reserveSpot } = useParkingSpots();
-
-  const [selectedFlightPlan, setSelectedFlightPlan] = useState<FlightPlan | undefined>(undefined);
   const prefRoutes = usePrefRoutes();
 
   const [aircrafts, setAircrafts] = useImmer<Aircraft[]>([]);
-
-  function getFlightPlanByCallsign(callsign: string) {
-    const aircraft = aircrafts.find((aircraft) => aircraft.callsign === callsign);
-    if (aircraft) {
-      return aircraft.flightPlan;
-    }
-    return { ...makeEmptyFlightPlan(), callsign };
-  }
 
   function amendFlightPlan(amendedFlightPlan: FlightPlan) {
     setAircrafts((draft) => {
@@ -129,9 +119,6 @@ export function AircraftProvider({ children }: { children: ReactNode }) {
 
   const value = {
     aircrafts,
-    selectedFlightPlan,
-    setSelectedFlightPlan: (callsign: string) =>
-      setSelectedFlightPlan(getFlightPlanByCallsign(callsign)),
     amendFlightPlan,
     removeFirstRequest,
     setNextRequestTime,

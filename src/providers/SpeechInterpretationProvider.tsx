@@ -12,9 +12,10 @@ import { phoneticizeString } from '../utils/flightPlans';
 import { findBestMatch } from 'string-similarity';
 import { useMistakes } from '../hooks/useMistakes';
 import { GLOBAL_ALTERNATIVES, REQUEST_KEYWORDS } from '../utils/constants/speech';
+import { fireCompleteRequestEvent } from '../utils/constants/customEvents';
 
 export function SpeechInterpretatonProvider({ children }: { children: ReactNode }) {
-  const { requests, completeRequest, setRequests, timer } = useSimulation();
+  const { requests, setRequests, timer } = useSimulation();
   const { aircrafts, setAircraftHasBeenSpokenTo, holdPosition } = useAircraft();
   const { addPhraseologyMistake, reviewGeneralPhraseology, reviewPhraseologyForRequest } =
     useMistakes();
@@ -74,7 +75,7 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
 
       if (keywordsMatchTranscript(keywords, transcript)) {
         reviewPhraseologyForRequest(transcript, request);
-        return completeRequest(callsign, true);
+        return fireCompleteRequestEvent(callsign, true);
       }
 
       if (keywords.alternatives) {
@@ -111,7 +112,7 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
 
       if (matchedKeywords.length === keywords.keywords.length && atLeastOneMatch) {
         reviewPhraseologyForRequest(transcript, request);
-        return completeRequest(callsign, true);
+        return fireCompleteRequestEvent(callsign, true);
       } else {
         setRequests((draft) => {
           const requestToChange = draft.find((item) => item.callsign === aircraft.callsign);

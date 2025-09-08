@@ -1,39 +1,40 @@
-import { useAircraft } from '../../hooks/useAircraft';
-import { useSimulation } from '../../hooks/useSimulation';
+import { useMemo } from 'react';
 import type { Aircraft } from '../../types/common';
+import {
+  fireCompleteRequestEvent,
+  fireSelectAircraftEvent,
+} from '../../utils/constants/customEvents';
 
 export function Airplane({ aircraft }: { aircraft: Aircraft }) {
-  const { setSelectedFlightPlan } = useAircraft();
+  return useMemo(() => {
+    function handleClick(event: React.MouseEvent) {
+      if (event.ctrlKey) {
+        fireSelectAircraftEvent(aircraft.callsign);
+        return;
+      }
 
-  const { completeRequest } = useSimulation();
-
-  function handleClick(event: React.MouseEvent) {
-    if (event.ctrlKey) {
-      setSelectedFlightPlan(aircraft.callsign);
-      return;
+      fireCompleteRequestEvent(aircraft.callsign);
     }
 
-    completeRequest(aircraft.callsign);
-  }
-
-  return (
-    <>
-      <div>
-        <img
-          src="planeIcon.png"
-          draggable={false}
-          id={aircraft.callsign}
-          onClick={handleClick}
-          style={{
-            width: `${aircraft.size}%`,
-            position: 'absolute',
-            top: `${aircraft.positionY}%`,
-            left: `${aircraft.positionX}%`,
-            transform: ` translate(-50%, -50%) rotate(${-aircraft.rotation}deg)`,
-            cursor: 'pointer',
-          }}
-        ></img>
-      </div>
-    </>
-  );
+    return (
+      <>
+        <div>
+          <img
+            src="planeIcon.png"
+            draggable={false}
+            id={aircraft.callsign}
+            onClick={handleClick}
+            style={{
+              width: `${aircraft.size}%`,
+              position: 'absolute',
+              top: `${aircraft.positionY}%`,
+              left: `${aircraft.positionX}%`,
+              transform: ` translate(-50%, -50%) rotate(${-aircraft.rotation}deg)`,
+              cursor: 'pointer',
+            }}
+          ></img>
+        </div>
+      </>
+    );
+  }, [aircraft]);
 }

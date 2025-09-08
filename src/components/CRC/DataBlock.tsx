@@ -1,4 +1,4 @@
-import { useEffect, useRef, type RefObject } from 'react';
+import { useEffect, useMemo, useRef, type RefObject } from 'react';
 import type { Aircraft } from '../../types/common';
 import Draggable from 'react-draggable';
 
@@ -78,49 +78,52 @@ export function DataBlock({ aircraft }: { aircraft: Aircraft }) {
     event.stopPropagation();
   }
 
-  return (
-    <>
-      <svg
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none',
-        }}
-      >
-        <line
-          ref={lineRef}
-          stroke={'rgba(41, 255, 41, 1)'}
-          strokeWidth={1}
-          style={{ display: 'none' }}
-        />
-      </svg>
-      <Draggable
-        nodeRef={dataBlockRef as RefObject<HTMLElement>}
-        allowAnyClick={true}
-        handle=".inner"
-      >
-        <span
-          ref={dataBlockRef}
-          className="inner"
-          style={{ position: 'absolute', cursor: 'grab', display: 'none' }}
-          onWheel={handleDataBlockWheel}
+  return useMemo(() => {
+    console.log('datablock');
+    return (
+      <>
+        <svg
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
+          }}
         >
-          <div
-            style={{
-              zIndex: 3,
-              position: 'absolute',
-              transform: `translate(-50%, -50%)`,
-            }}
-            className="dataBlock inner"
+          <line
+            ref={lineRef}
+            stroke={'rgba(41, 255, 41, 1)'}
+            strokeWidth={1}
+            style={{ display: 'none' }}
+          />
+        </svg>
+        <Draggable
+          nodeRef={dataBlockRef as RefObject<HTMLElement>}
+          allowAnyClick={true}
+          handle=".inner"
+        >
+          <span
+            ref={dataBlockRef}
+            className="inner"
+            style={{ position: 'absolute', cursor: 'grab', display: 'none' }}
+            onWheel={handleDataBlockWheel}
           >
-            <p style={{ margin: '0px' }}>{aircraft.callsign}</p>
-            <p style={{ margin: '0px' }}>{aircraft.actualAircraftType}</p>
-          </div>
-        </span>
-      </Draggable>
-    </>
-  );
+            <div
+              style={{
+                zIndex: 3,
+                position: 'absolute',
+                transform: `translate(-50%, -50%)`,
+              }}
+              className="dataBlock inner"
+            >
+              <p style={{ margin: '0px' }}>{aircraft.callsign}</p>
+              <p style={{ margin: '0px' }}>{aircraft.actualAircraftType}</p>
+            </div>
+          </span>
+        </Draggable>
+      </>
+    );
+  }, [aircraft.callsign, aircraft.actualAircraftType]);
 }

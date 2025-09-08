@@ -78,8 +78,6 @@ export type DividerData = AbstractStrip & {
 
 export type AircraftDetails = {
   aircrafts: Aircraft[];
-  selectedFlightPlan: FlightPlan | undefined;
-  setSelectedFlightPlan: (callsign: string) => void;
   amendFlightPlan: (amendedFlightPlan: FlightPlan) => void;
   removeFirstRequest: (callsign: string) => void;
   setNextRequestTime: (callsign: string, canSendRequestTime: number, timer: number) => void;
@@ -111,6 +109,7 @@ export type Message = {
   time: number;
   content: string;
   type: MessageType;
+  id: string;
 };
 
 export type MessagesDetails = {
@@ -161,7 +160,6 @@ export type AircraftRequest = {
 
 export type SimulationDetails = {
   requests: AircraftRequest[];
-  completeRequest: (callsign: string, completedByVoice?: boolean) => void;
   paused: boolean;
   setPaused: Dispatch<SetStateAction<boolean>>;
   pushToTalkActive: boolean;

@@ -13,6 +13,7 @@ import { useMistakes } from '../hooks/useMistakes';
 import type { Node } from '../utils/taxiways';
 import { ATIS } from '../utils/constants/alphabet';
 import { phoneticizeString } from '../utils/flightPlans';
+import type { CompleteRequestEventDetails } from '../utils/constants/customEvents';
 
 const endNode = taxiways.find((node) => node.id === 'END') as Node;
 const TAXIWAY_NODE_THRESHOLD = 0.5;
@@ -42,6 +43,64 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   const { printAmendedFlightPlan } = useStrips();
 
   const { sendMessage } = useMessages();
+
+  useEffect(() => {
+    function handleCompleteRequest(event: CustomEventInit<CompleteRequestEventDetails>) {
+      completeRequest(event.detail!.callsign, event.detail!.completedByVoice);
+    }
+
+    function completeRequest(callsign: string, completedByVoice: boolean = false) {
+      const completedRequestIndex = requests.findIndex((request) => request.callsign === callsign);
+      if (completedRequestIndex === -1) {
+        return;
+      }
+      const completedRequest = requests[completedRequestIndex];
+
+      if (completedRequest.atcMessage && !completedByVoice) {
+        sendMessage(completedRequest.atcMessage, 'PWM_GND', 'self');
+      }
+      if (completedRequest.responseMessage) {
+        sendMessage(
+          completedRequest.responseMessage,
+          completedRequest.callsign,
+          'radio',
+          completedRequest.responsePhoneticMessage
+        );
+      }
+
+      setNextRequestTime(completedRequest.callsign, completedRequest.nextRequestDelay, timer);
+
+      if (completedRequest.subsequentRequest) {
+        addNewRequest(completedRequest.subsequentRequest);
+      } else {
+        setRequests((draft) => {
+          draft.splice(completedRequestIndex, 1);
+          if (completedRequest.subsequentRequest) {
+            draft.push(completedRequest.subsequentRequest);
+          }
+        });
+      }
+
+      if (completedRequest.nextStatus === 'handedOff') {
+        const aircraft = aircrafts.find((aircraft) => aircraft.callsign === callsign);
+        if (aircraft) {
+          releaseSpot(aircraft.parkingSpotId);
+          holdPosition(aircraft.callsign, false, timer);
+        }
+      } else if (completedRequest.nextStatus === 'clearedIFR') {
+        reviewClearance(callsign);
+      }
+
+      if (completedRequest.nextStatus) {
+        setPlaneStatus(completedRequest.callsign, completedRequest.nextStatus, timer);
+      }
+    }
+
+    document.addEventListener('completerequest', handleCompleteRequest);
+    return () => {
+      document.removeEventListener('completerequest', handleCompleteRequest);
+    };
+  });
 
   function addNewRequest(newRequest: AircraftRequest) {
     if (newRequest.requestMessage) {
@@ -305,56 +364,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     return dist;
   }
 
-  function completeRequest(callsign: string, completedByVoice: boolean = false) {
-    const completedRequestIndex = requests.findIndex((request) => request.callsign === callsign);
-    if (completedRequestIndex === -1) {
-      return;
-    }
-    const completedRequest = requests[completedRequestIndex];
-
-    if (completedRequest.atcMessage && !completedByVoice) {
-      sendMessage(completedRequest.atcMessage, 'PWM_GND', 'self');
-    }
-    if (completedRequest.responseMessage) {
-      sendMessage(
-        completedRequest.responseMessage,
-        completedRequest.callsign,
-        'radio',
-        completedRequest.responsePhoneticMessage
-      );
-    }
-
-    setNextRequestTime(completedRequest.callsign, completedRequest.nextRequestDelay, timer);
-
-    if (completedRequest.subsequentRequest) {
-      addNewRequest(completedRequest.subsequentRequest);
-    } else {
-      setRequests((draft) => {
-        draft.splice(completedRequestIndex, 1);
-        if (completedRequest.subsequentRequest) {
-          draft.push(completedRequest.subsequentRequest);
-        }
-      });
-    }
-
-    if (completedRequest.nextStatus === 'handedOff') {
-      const aircraft = aircrafts.find((aircraft) => aircraft.callsign === callsign);
-      if (aircraft) {
-        releaseSpot(aircraft.parkingSpotId);
-        holdPosition(aircraft.callsign, false, timer);
-      }
-    } else if (completedRequest.nextStatus === 'clearedIFR') {
-      reviewClearance(callsign);
-    }
-
-    if (completedRequest.nextStatus) {
-      setPlaneStatus(completedRequest.callsign, completedRequest.nextStatus, timer);
-    }
-  }
-
   const value: SimulationDetails = {
     requests,
-    completeRequest,
     paused,
     setPaused,
     pushToTalkActive,

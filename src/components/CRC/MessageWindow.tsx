@@ -2,16 +2,14 @@ import { useEffect, useMemo, useRef, type RefObject } from 'react';
 import Draggable from 'react-draggable';
 import { useMessages } from '../../hooks/useMessages';
 import List from '@mui/material/List';
-import { ListItem } from '@mui/material';
-import type { MessageType } from '../../types/common';
-import { useSimulation } from '../../hooks/useSimulation';
 import { Resizable } from 're-resizable';
+import { Message } from './Message';
+import { fireCompleteRequestEvent } from '../../utils/constants/customEvents';
 
 export function MessageWindow() {
   const draggableRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLLIElement>(null);
 
-  const { completeRequest } = useSimulation();
   const { messages } = useMessages();
 
   useEffect(() => {
@@ -21,49 +19,20 @@ export function MessageWindow() {
   }, [messages]);
 
   return useMemo(() => {
-    function handleColor(messageType: MessageType) {
-      if (messageType === 'ATC') {
-        return 'rgb(0, 230, 0)';
-      } else if (messageType === 'system') {
-        return 'yellow';
-      } else if (messageType === 'self') {
-        return 'rgb(37, 212, 224)';
-      }
-      return 'white';
-    }
-
     function handleMessageClicked(callsign: string) {
-      completeRequest(callsign);
+      fireCompleteRequestEvent(callsign);
     }
 
     function createMessageDisplay() {
-      const messageElements = messages.map((message) => {
-        const date = new Date(message.time);
-        const hours = date.getUTCHours().toString().padStart(2, '0');
-        const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-        const seconds = date.getUTCSeconds().toString().padStart(2, '0');
-        const cursor = message.type === 'radio' ? 'pointer' : 'auto';
-
-        const displayString = `[${hours}:${minutes}:${seconds}] ${message.type === 'ATC' ? '[ATC] ' : ''}${message.callsign ? message.callsign + ': ' : ''}${message.content}`;
-
-        return (
-          <ListItem sx={{ padding: '0px' }} key={message.time + message.callsign}>
-            <p
-              style={{
-                color: handleColor(message.type),
-                marginTop: '0px',
-                marginBottom: '0px',
-                fontFamily: 'monospace',
-                cursor: cursor,
-              }}
-              onClick={() => handleMessageClicked(message.callsign)}
-            >
-              {displayString}
-            </p>
-          </ListItem>
-        );
-      });
-      return messageElements;
+      return (
+        <>
+          {messages.map((message) => {
+            return (
+              <Message message={message} handleMessageClicked={handleMessageClicked}></Message>
+            );
+          })}
+        </>
+      );
     }
 
     return (
@@ -128,5 +97,5 @@ export function MessageWindow() {
         </div>
       </Draggable>
     );
-  }, [messages, completeRequest]);
+  }, [messages]);
 }

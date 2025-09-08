@@ -26,6 +26,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   const { addMistake, reviewClearance, reviewVFRDeparture } = useMistakes();
   const { strips } = useStrips();
   const [timer, setTimer] = useState(0);
+  const [lastSentRequestTime, setLastSentRequestTime] = useState(0);
   const [pushToTalkActive, setPushToTalkActive] = useState(false);
 
   const {
@@ -66,6 +67,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           'radio',
           completedRequest.responsePhoneticMessage
         );
+        setLastSentRequestTime(timer);
       }
 
       setNextRequestTime(completedRequest.callsign, completedRequest.nextRequestDelay, timer);
@@ -103,6 +105,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   });
 
   function addNewRequest(newRequest: AircraftRequest) {
+    setLastSentRequestTime(timer);
+
     if (newRequest.requestMessage) {
       sendMessage(
         newRequest.requestMessage,
@@ -219,9 +223,10 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      if (!pushToTalkActive && Math.floor(timer / 1000) % Math.ceil(80 / difficulty) === 0) {
+      if (!pushToTalkActive && timer - lastSentRequestTime > Math.ceil(60 / difficulty) * 1000) {
         for (const request of requests) {
           if (request.reminder && request.reminder.sendTime && timer >= request.reminder.sendTime) {
+            setLastSentRequestTime(timer);
             sendMessage(
               request.reminder.message,
               request.callsign,

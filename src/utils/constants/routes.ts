@@ -60,7 +60,7 @@ export const DEST_TO_NAME_MAP: Record<string, string> = {
   KHPN: 'Westchester County',
   KIAD: 'Washington Dulles',
   KJFK: 'JFK',
-  KLGA: 'LaGuardia',
+  KLGA: 'La Guardia',
   KMCO: 'Orlando',
   KMIA: 'Miami',
   KMSP: 'Minneapolis',

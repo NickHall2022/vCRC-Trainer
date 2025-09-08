@@ -206,7 +206,7 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
   function reviewPhrasesForTaxi(phrases: string[], request: AircraftRequest) {
     if (['taxi', 'readbackVFR', 'pattern'].includes(request.requestType)) {
       if (request.responseMessage?.includes('cross')) {
-        if (!phrases.find((phrase) => phrase.includes('cross runway'))) {
+        if (!phrases.find((phrase) => phrase.includes('cross'))) {
           addPhraseologyMistake('forgotCrossing', phrases.join(', '), request.callsign);
         }
       }
@@ -266,6 +266,14 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
               'sidTransition',
               phrases.join(', '),
               `${request.callsign} (NUBLE#)`
+            );
+          }
+        } else {
+          if (phrases.find((phrase) => phrase.includes('transition'))) {
+            addPhraseologyMistake(
+              'sidTransition',
+              phrases.join(', '),
+              `${request.callsign} (PWM#)`
             );
           }
         }

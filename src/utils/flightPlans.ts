@@ -177,9 +177,9 @@ function buildClearanceRequest(
   const flightPlan = aircraft.flightPlan;
   return {
     requestMessage: `Request IFR clearance to ${phonetizeDestination(flightPlan.destination)}`,
-    requestPhoneticMessage: `Portland ground, ${phoneticizeString(flightPlan.callsign)} request IFR clearance to ${phonetizeDestination(flightPlan.destination)}`,
+    requestPhoneticMessage: `Portland ground, ${phoneticizeString(flightPlan.callsign)} request IFR clearance to the ${phonetizeDestination(flightPlan.destination)} airport`,
     responseMessage: `Cleared to ${phonetizeDestination(flightPlan.destination)}, squawk ${aircraft.flightPlan.squawk}`,
-    responsePhoneticMessage: `${phoneticizeString(flightPlan.callsign)} cleared to ${phonetizeDestination(flightPlan.destination)}, squawk ${phoneticizeString(aircraft.flightPlan.squawk)}`,
+    responsePhoneticMessage: `${phoneticizeString(flightPlan.callsign)} cleared to ${phonetizeDestination(flightPlan.destination)} airport, squawk ${phoneticizeString(aircraft.flightPlan.squawk)}`,
     priority: 1,
     callsign: aircraft.callsign,
     nextRequestDelay: 0,

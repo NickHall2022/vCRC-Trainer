@@ -32,7 +32,6 @@ function createMistakeList(
         className={formatAsMessage ? 'messageDisplay' : 'flightPlanInput'}
         style={{
           width: width ? width : 'auto',
-          // display: 'inline-block',
           paddingLeft: '5px',
           paddingRight: '5px',
         }}
@@ -295,7 +294,7 @@ function MistakeList() {
     newMistakes.filter((mistakeType) => mistakeType === 'sidTransition').length,
     phraseologyMistakes.filter((mistake) => mistake.type === 'sidTransition'),
     'Use of "Transition" for Pilot Nav SIDs',
-    `You must include the word "transition" for departure clearances including a pilot navigated SID with multiple transitions`,
+    `You must include the word "transition" for departure clearances including a pilot navigated SID with multiple transitions. Other types of SIDs should not include the word "transition"`,
     'FAA JO 7110.65 4-3-2.c(4)',
     'You forgot "transition" in these instructions',
     undefined,

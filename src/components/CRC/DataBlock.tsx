@@ -79,7 +79,6 @@ export function DataBlock({ aircraft }: { aircraft: Aircraft }) {
   }
 
   return useMemo(() => {
-    console.log('datablock');
     return (
       <>
         <svg

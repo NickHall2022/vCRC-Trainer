@@ -16,7 +16,7 @@ export const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
     alternatives: [
       {
         keywords: [],
-        atLeastOneOf: ['on request', 'standby'],
+        atLeastOneOf: ['request'],
         aircraftResponse: '',
       },
       {
@@ -57,8 +57,7 @@ export const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
         aircraftResponse: 'Ready for pushback',
       },
       {
-        keywords: [],
-        atLeastOneOf: ['hold', 'stand'],
+        keywords: [{ phrase: 'hold' }],
         aircraftResponse: 'Holding position',
       },
     ],
@@ -122,6 +121,10 @@ export const GLOBAL_ALTERNATIVES = function (aircraft: Aircraft): Keywords[] {
       keywords: [{ phrase: 'say' }],
       atLeastOneOf: ['atis', 'information'],
       aircraftResponse: `We have information ${PHONETIC_ATIS}`,
+    },
+    {
+      keywords: [{ phrase: 'standby' }],
+      aircraftResponse: '',
     },
   ];
 

@@ -152,6 +152,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll(' se ', ' say ')
       .replaceAll(' sir ', ' say ')
       .replaceAll(' save ', ' say ')
+      .replaceAll('stand by', 'standby')
       .replaceAll('out of blow', 'at or below')
       .replaceAll('radio cha', 'radio check')
       .replaceAll('radio shack', 'radio check')
@@ -185,6 +186,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('clear ', 'cleared ')
       .replaceAll('concerns ', 'clearance')
       .replaceAll('noble', 'nuble')
+      .replaceAll('nebel', 'nuble')
       .replaceAll('is filed', 'as filed')
       .replaceAll('has filed', 'as filed')
       .replaceAll('viled', 'filed')
@@ -234,10 +236,28 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
     if (transcript.startsWith('number ')) {
       transcript = transcript.replace('number ', 'N');
     }
+    transcript = transcript.replace('number', 'nuble');
+    transcript = transcript.replace('nouvel', 'nuble');
+    transcript = transcript.replace('nuvel', 'nuble');
+    transcript = transcript.replace('nabble', 'nuble');
+    transcript = transcript.replace('nouble', 'nuble');
+    transcript = transcript.replace('nubul', 'nuble');
+    transcript = transcript.replace('nubble', 'nuble');
+    transcript = transcript.replace('level', 'nuble');
+    transcript = transcript.replace('nibble', 'nuble');
+    transcript = transcript.replace('novel', 'nuble');
+    transcript = transcript.replace('#', 'nuble ');
+    transcript = transcript.replace('nuble form', 'nuble 4');
+    transcript = transcript.replace('nuble for', 'nuble 4');
+    transcript = transcript.replace('haskell', 'hskel');
+
     Object.keys(PHONETIC_ALPHABET_REVERSE).forEach((letter) => {
       transcript = transcript.replaceAll(letter, PHONETIC_ALPHABET_REVERSE[letter]);
     });
     transcript = formatCallsign(transcript);
+
+    transcript = transcript.replace(' 44 departure', ' nuble 4 departure');
+
     return transcript;
   }
 

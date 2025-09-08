@@ -32,7 +32,7 @@ function createMistakeList(
         className={formatAsMessage ? 'messageDisplay' : 'flightPlanInput'}
         style={{
           width: width ? width : 'auto',
-          display: 'inline-block',
+          // display: 'inline-block',
           paddingLeft: '5px',
           paddingRight: '5px',
         }}

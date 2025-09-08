@@ -182,7 +182,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        if (requests.length >= difficulty) {
+        if (requests.length >= difficulty + 1) {
           return;
         }
 

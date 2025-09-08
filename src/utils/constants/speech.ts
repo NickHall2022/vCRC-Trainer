@@ -10,7 +10,7 @@ export const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
     keywords: [
       { phrase: 'clear', missingPhraseResponse: 'clearance limit' },
       { phrase: 'maintain', missingPhraseResponse: 'altitude' },
-      { phrase: 'frequency', missingPhraseResponse: 'departure frequency' },
+      { phrase: '119', missingPhraseResponse: 'departure frequency' },
       { phrase: 'squawk', missingPhraseResponse: 'squawk' },
     ],
     alternatives: [
@@ -30,7 +30,7 @@ export const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
   clearanceVFR: {
     keywords: [
       { phrase: 'maintain', missingPhraseResponse: 'altitude' },
-      { phrase: 'frequency', missingPhraseResponse: 'departure frequency' },
+      { phrase: '119', missingPhraseResponse: 'departure frequency' },
       { phrase: 'squawk', missingPhraseResponse: 'squawk' },
     ],
   },
@@ -55,6 +55,11 @@ export const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
         keywords: [],
         atLeastOneOf: ['advise', 'ready'],
         aircraftResponse: 'Ready for pushback',
+      },
+      {
+        keywords: [],
+        atLeastOneOf: ['hold', 'stand'],
+        aircraftResponse: 'Holding position',
       },
     ],
   },
@@ -161,6 +166,14 @@ export const GLOBAL_ALTERNATIVES = function (aircraft: Aircraft): Keywords[] {
         aircraftResponse: `Requesting taxi for pattern work`,
       },
     ]);
+  }
+
+  if (aircraft.status === 'pushback') {
+    alternativeKeywords = alternativeKeywords.concat({
+      keywords: [],
+      atLeastOneOf: ['advise', 'ready'],
+      aircraftResponse: "We'll call for taxi in a minute or two",
+    });
   }
 
   return alternativeKeywords;

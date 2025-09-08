@@ -119,10 +119,10 @@ export function AircraftProvider({ children }: { children: ReactNode }) {
     setAircrafts((draft) => {
       const aircraft = draft.find((aircraft) => aircraft.callsign === callsign);
       if (aircraft) {
-        aircraft.holdingPosition = value;
-        if (aircraft.status === 'pushback') {
+        if (aircraft.status === 'pushback' && aircraft.holdingPosition) {
           aircraft.canSendRequestTime = value ? Number.MAX_SAFE_INTEGER : timer + 90000;
         }
+        aircraft.holdingPosition = value;
       }
     });
   }

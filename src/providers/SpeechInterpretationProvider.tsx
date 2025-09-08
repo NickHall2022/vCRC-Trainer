@@ -176,7 +176,7 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
           `${phoneticizeString(callsign)} holding position`
         );
         return true;
-      } else if (transcript.includes('continue')) {
+      } else if (transcript.includes('continue') || transcript.includes('resume')) {
         holdPosition(callsign, false, timer);
         sendMessage('Continuing', callsign, 'radio', `${phoneticizeString(callsign)} continuing`);
         return true;

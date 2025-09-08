@@ -284,7 +284,7 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
 
     for (let i = 0; i < phrases.length; i++) {
       let phraseCount = 0;
-      ['clear', 'departure', 'maintain', 'frequency', 'squawk'].forEach((keyword) => {
+      ['clear', 'maintain', '119', 'squawk'].forEach((keyword) => {
         if (phrases[i].includes(keyword)) {
           phraseCount++;
         }
@@ -295,14 +295,9 @@ export function MistakeProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    const phraseOrder = ['clear', 'departure', 'maintain', 'frequency', 'squawk'].map((keyword) =>
-      longestPhrase.indexOf(keyword)
-    );
-
-    if (phraseOrder.find((index) => index === -1)) {
-      addPhraseologyMistake('craftOrder', phrases.join(', '), request.callsign);
-      return;
-    }
+    const phraseOrder = ['clear', 'maintain', '119', 'squawk']
+      .map((keyword) => longestPhrase.indexOf(keyword))
+      .filter((index) => index !== -1);
 
     for (let i = 0; i < phraseOrder.length - 1; i++) {
       if (phraseOrder[i] > phraseOrder[i + 1]) {

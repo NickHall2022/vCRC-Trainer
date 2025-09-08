@@ -184,7 +184,8 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('rate of rectors', 'radar vectors')
       .replaceAll('crack', 'correct')
       .replaceAll('clear ', 'cleared ')
-      .replaceAll('concerns ', 'clearance')
+      .replaceAll('concerns', 'clearance')
+      .replaceAll('clarence', 'clearance')
       .replaceAll('noble', 'nuble')
       .replaceAll('nebel', 'nuble')
       .replaceAll('is filed', 'as filed')
@@ -202,10 +203,12 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('funk straut', 'f')
       .replaceAll('funk strout', 'f')
       .replaceAll('fockstraught', 'f')
+      .replaceAll('juilliard', 'j')
       .replaceAll('mic', 'm')
       .replaceAll('panpa ', 'p')
       .replaceAll('go back', 'q')
       .replaceAll('uniformed', 'u')
+      .replaceAll('uniforms', 'u')
       .replaceAll('hello', '')
       .replaceAll('airlines', 'airline')
       .replaceAll('crowned', 'ground')
@@ -257,6 +260,10 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
     transcript = formatCallsign(transcript);
 
     transcript = transcript.replace(' 44 departure', ' nuble 4 departure');
+    transcript = transcript.replace("you're nuble", "you're number");
+    transcript = transcript.replace('your nuble', "you're number");
+    transcript = transcript.replace('you are nuble', 'you are number');
+    transcript = transcript.replace('request nuble', 'request number');
 
     return transcript;
   }

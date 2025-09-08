@@ -1,7 +1,7 @@
 import { Grid } from '@mui/material';
 import { useAircraft } from '../../hooks/useAircraft';
 import type { FlightPlan } from '../../types/common';
-import { useState, useEffect, useRef, type RefObject } from 'react';
+import { useState, useEffect, useRef, type RefObject, useMemo } from 'react';
 import Draggable from 'react-draggable';
 import { makeEmptyFlightPlan } from '../../utils/flightPlans';
 import { useStrips } from '../../hooks/useStrips';
@@ -40,15 +40,6 @@ export function FlightPlanEditor() {
       document.removeEventListener('keydown', handleControlF);
     };
   }, [setFlightPlan]);
-
-  function handleTextInput(fieldType: keyof FlightPlan, value: string) {
-    setFlightPlan((draft) => {
-      if (draft[fieldType] !== value) {
-        setHasBeenEdited(true);
-      }
-      draft[fieldType] = value as never;
-    });
-  }
 
   function handleAmendFlightPlan() {
     setHasBeenEdited(false);
@@ -94,54 +85,19 @@ export function FlightPlanEditor() {
   const editButtonEnabled =
     (flightPlan.created && hasBeenEdited) || (!flightPlan.created && flightPlan.squawk !== '');
 
-  return (
-    <Draggable
-      nodeRef={draggableRef as RefObject<HTMLElement>}
-      allowAnyClick={true}
-      handle=".handle"
-    >
-      <div
-        className="preventSelect"
-        ref={draggableRef}
-        style={{
-          width: '620px',
-          height: '155px',
-          backgroundColor: '#090909',
-          position: 'absolute',
-          top: '1%',
-          left: '580px',
-          zIndex: 3,
-        }}
-        onKeyDown={handleEnterPressed}
-      >
-        <div
-          className="handle"
-          style={{
-            backgroundColor: '#151515',
-            margin: '0px',
-            marginBottom: '2px',
-          }}
-        >
-          <p style={{ margin: '0px', marginLeft: '4px', fontSize: '11px' }}>Flight Plan Editor</p>
-        </div>
-        <Grid
-          container
-          columnSpacing={1}
-          style={{ textAlign: 'center', fontSize: '14px', marginBottom: '3px' }}
-        >
-          <Grid size={1}></Grid>
-          <Grid size={'auto'}>
-            AID
-            <br></br>
-            <ControlledInput
-              className="flightPlanInput"
-              maxLength={7}
-              externalRef={callsignInputRef}
-              value={flightPlan?.callsign}
-              onChange={(event) => handleCallsignChange(event.target.value.toUpperCase())}
-              style={{ width: '60px' }}
-            ></ControlledInput>
-          </Grid>
+  const { topTextInputs, bottomTextInputs } = useMemo(() => {
+    function handleTextInput(fieldType: keyof FlightPlan, value: string) {
+      setFlightPlan((draft) => {
+        if (draft[fieldType] !== value) {
+          setHasBeenEdited(true);
+        }
+        draft[fieldType] = value as never;
+      });
+    }
+
+    return {
+      topTextInputs: (
+        <>
           <Grid size={'auto'}>
             BCN
             <br></br>
@@ -223,6 +179,90 @@ export function FlightPlanEditor() {
               style={{ width: '60px' }}
             ></ControlledInput>
           </Grid>
+        </>
+      ),
+      bottomTextInputs: (
+        <>
+          <Grid container spacing={0.5}>
+            <Grid size={1} style={{ textAlign: 'right', fontSize: '14px' }}>
+              RTE
+            </Grid>
+            <Grid size={'grow'}>
+              <ControlledInput
+                isTextArea={true}
+                className="flightPlanTextArea"
+                value={flightPlan?.route}
+                onChange={(event) => handleTextInput('route', event.target.value.toUpperCase())}
+              ></ControlledInput>
+            </Grid>
+          </Grid>
+          <Grid container spacing={0.5}>
+            <Grid size={1} style={{ textAlign: 'right', fontSize: '14px' }}>
+              RMK
+            </Grid>
+            <Grid size={'grow'}>
+              <ControlledInput
+                isTextArea={true}
+                className="flightPlanTextArea"
+                value={flightPlan?.remarks}
+                onChange={(event) => handleTextInput('remarks', event.target.value)}
+              ></ControlledInput>
+            </Grid>
+          </Grid>
+        </>
+      ),
+    };
+  }, [flightPlan, setFlightPlan]);
+
+  return (
+    <Draggable
+      nodeRef={draggableRef as RefObject<HTMLElement>}
+      allowAnyClick={true}
+      handle=".handle"
+    >
+      <div
+        className="preventSelect"
+        ref={draggableRef}
+        style={{
+          width: '620px',
+          height: '155px',
+          backgroundColor: '#090909',
+          position: 'absolute',
+          top: '1%',
+          left: '580px',
+          zIndex: 3,
+        }}
+        onKeyDown={handleEnterPressed}
+      >
+        <div
+          className="handle"
+          style={{
+            backgroundColor: '#151515',
+            margin: '0px',
+            marginBottom: '2px',
+          }}
+        >
+          <p style={{ margin: '0px', marginLeft: '4px', fontSize: '11px' }}>Flight Plan Editor</p>
+        </div>
+        <Grid
+          container
+          columnSpacing={1}
+          style={{ textAlign: 'center', fontSize: '14px', marginBottom: '3px' }}
+        >
+          <Grid size={1}></Grid>
+          <Grid size={'auto'}>
+            AID
+            <br></br>
+            <ControlledInput
+              className="flightPlanInput"
+              maxLength={7}
+              externalRef={callsignInputRef}
+              value={flightPlan?.callsign}
+              onChange={(event) => handleCallsignChange(event.target.value.toUpperCase())}
+              style={{ width: '60px' }}
+            ></ControlledInput>
+          </Grid>
+          {topTextInputs}
           <Grid size={1}>
             <button
               disabled={!editButtonEnabled}
@@ -234,32 +274,7 @@ export function FlightPlanEditor() {
             </button>
           </Grid>
         </Grid>
-        <Grid container spacing={0.5}>
-          <Grid size={1} style={{ textAlign: 'right', fontSize: '14px' }}>
-            RTE
-          </Grid>
-          <Grid size={'grow'}>
-            <ControlledInput
-              isTextArea={true}
-              className="flightPlanTextArea"
-              value={flightPlan?.route}
-              onChange={(event) => handleTextInput('route', event.target.value.toUpperCase())}
-            ></ControlledInput>
-          </Grid>
-        </Grid>
-        <Grid container spacing={0.5}>
-          <Grid size={1} style={{ textAlign: 'right', fontSize: '14px' }}>
-            RMK
-          </Grid>
-          <Grid size={'grow'}>
-            <ControlledInput
-              isTextArea={true}
-              className="flightPlanTextArea"
-              value={flightPlan?.remarks}
-              onChange={(event) => handleTextInput('remarks', event.target.value)}
-            ></ControlledInput>
-          </Grid>
-        </Grid>
+        {bottomTextInputs}
       </div>
     </Draggable>
   );

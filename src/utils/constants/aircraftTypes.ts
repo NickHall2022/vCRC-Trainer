@@ -34,6 +34,7 @@ export const AIRLINES: Record<string, string> = {
   maxi: 'MXY',
   'mox c': 'MXY',
   microsoft: 'MXY',
+  'tier flight': 'FFT',
   "what's your flight": 'FFT',
   'frontier flight': 'FFT',
   'frontier airline': 'FFT',

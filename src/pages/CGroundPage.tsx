@@ -8,6 +8,7 @@ import ErrorIcon from '@mui/icons-material/Error';
 import { useSimulation } from '../hooks/useSimulation';
 import MistakeTracker from '../components/Menus/MistakeTracker';
 import { useMistakes } from '../hooks/useMistakes';
+import { Vignette } from '../components/CRC/Vignette';
 
 export function CGgroundPage() {
   const [helpOpen, setHelpOpen] = useState(false);
@@ -81,6 +82,7 @@ export function CGgroundPage() {
       </button>
       {helpOpen && <Help setHelpOpen={setHelpOpen}></Help>}
       {mistakesOpen && <MistakeTracker setOpen={setMistakesOpen}></MistakeTracker>}
+      <Vignette></Vignette>
     </>
   );
 }

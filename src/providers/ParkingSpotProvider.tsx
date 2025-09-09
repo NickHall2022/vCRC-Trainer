@@ -3,6 +3,7 @@ import type { ParkingSpot, ParkingSpotMethods, ParkingSpotType } from '../types/
 import { useImmer } from 'use-immer';
 import { v4 as uuidv4 } from 'uuid';
 import { ParkingSpotContext } from '../hooks/useParkingSpots';
+import { getRandomArrayElement } from '../utils/arrays';
 
 type PartialParkingSpot = Omit<ParkingSpot, 'available' | 'id' | 'type' | 'pushbackLocation'>;
 
@@ -103,35 +104,35 @@ const GA_SPOTS: PartialParkingSpot[] = [
     x: 62.5,
     y: 34,
     rotation: 0,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'north ramp',
   },
   {
     x: 62.8,
     y: 32,
     rotation: 180,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'north ramp',
   },
   {
     x: 62.1,
     y: 30,
     rotation: 0,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'north ramp',
   },
   {
     x: 62.4,
     y: 28,
     rotation: 180,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'north ramp',
   },
   {
     x: 62.7,
     y: 26,
     rotation: 0,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'north ramp',
   },
 ];
@@ -141,7 +142,7 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     x: 61,
     y: 47.5,
     rotation: 70,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'gate 1B',
     airline: 'KAP',
   },
@@ -149,7 +150,7 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     x: 63,
     y: 46.5,
     rotation: 170,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'gate 1A',
     airline: 'KAP',
     taxiInstruction: {
@@ -161,7 +162,7 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     x: 63,
     y: 22,
     rotation: 0,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'north ramp',
     taxiInstruction: {
       text: 'Runway 29, taxi via C, A, cross runway 36',
@@ -172,7 +173,7 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     x: 63,
     y: 20,
     rotation: 180,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'north ramp',
     taxiInstruction: {
       text: 'Runway 29, taxi via C, A, cross runway 36',
@@ -183,7 +184,7 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     x: 63,
     y: 18,
     rotation: 0,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'north ramp',
     taxiInstruction: {
       text: 'Runway 29, taxi via C, A, cross runway 36',
@@ -194,7 +195,7 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     x: 63,
     y: 16,
     rotation: 180,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'north ramp',
     taxiInstruction: {
       text: 'Runway 29, taxi via C, A, cross runway 36',
@@ -205,7 +206,7 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     x: 75,
     y: 37,
     rotation: 270,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'cargo ramp',
     airline: 'FDX',
     taxiInstruction: {
@@ -217,7 +218,7 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     x: 76.5,
     y: 37.5,
     rotation: 90,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'cargo ramp',
     airline: 'FDX',
     taxiInstruction: {
@@ -229,7 +230,7 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     x: 78,
     y: 37,
     rotation: 270,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'cargo ramp',
     airline: 'WIG',
     taxiInstruction: {
@@ -241,7 +242,7 @@ const TEC_SPOTS: PartialParkingSpot[] = [
     x: 79.5,
     y: 37.5,
     rotation: 90,
-    pushbackIntoRamp: false,
+    pushbackIntoRamp: true,
     location: 'cargo ramp',
     airline: 'WIG',
     taxiInstruction: {
@@ -295,7 +296,7 @@ export function ParkingSpotProvider({ children }: { children: ReactNode }) {
     if (openSpots.length === 0) {
       return;
     }
-    const randomSpot = openSpots[Math.floor(Math.random() * openSpots.length)];
+    const randomSpot = getRandomArrayElement(openSpots);
     setParkingSpots((draft) => {
       const replaceIndex = draft.findIndex((spot) => spot.id === randomSpot.id);
       if (replaceIndex !== -1) {

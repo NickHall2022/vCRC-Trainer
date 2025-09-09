@@ -3,7 +3,7 @@ import { PHONETIC_ATIS } from './alphabet';
 
 export const SPEECH_AVAILABLE = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
-export const DEFAULT_PTT_KEY = 'q';
+export const DEFAULT_PTT_KEY = 'Escape';
 
 export const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
   clearanceIFR: {
@@ -26,7 +26,9 @@ export const REQUEST_KEYWORDS: Record<RequestType, Keywords> = {
       },
     ],
   },
-  readbackIFR: { keywords: [{ phrase: 'readback' }] },
+  readbackIFR: {
+    keywords: [{ phrase: 'readback', missingPhraseResponse: 'was our readback correct?' }],
+  },
   clearanceVFR: {
     keywords: [
       { phrase: 'maintain', missingPhraseResponse: 'altitude' },

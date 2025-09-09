@@ -4,9 +4,10 @@ import type { Updater } from 'use-immer';
 export type FlightStatus =
   | 'ramp'
   | 'clearedIFR'
+  | 'pushbackDiscretion'
   | 'pushback'
   | 'taxi'
-  | 'departing'
+  | 'awaitingHandoff'
   | 'handedOff'
   | 'handedOffReminded'
   | 'departed';
@@ -30,6 +31,7 @@ export type FlightPlanDefaultIFRAttributes = {
   printCount: number;
   created: boolean;
   route: string;
+  originalRoute: string;
   squawk: string;
   direction?: string;
 };
@@ -80,7 +82,7 @@ export type AircraftDetails = {
   aircrafts: Aircraft[];
   amendFlightPlan: (amendedFlightPlan: FlightPlan) => void;
   removeFirstRequest: (callsign: string) => void;
-  setNextRequestTime: (callsign: string, canSendRequestTime: number, timer: number) => void;
+  setNextRequestTime: (callsign: string, canSendRequestTime: number) => void;
   setPlanePosition: (callsign: string, x: number, y: number, angle?: number) => void;
   setPlaneStatus: (callsign: string, status: FlightStatus, timer: number) => void;
   deleteFlightPlan: (callsign: string) => void;
@@ -166,6 +168,8 @@ export type SimulationDetails = {
   setPushToTalkActive: Dispatch<SetStateAction<boolean>>;
   setRequests: Updater<AircraftRequest[]>;
   timer: number;
+  completeRequest: (callsign: string, completedByVoice?: boolean) => void;
+  discardRequest: (callsign: string) => void;
 };
 
 export type FaaRouteType = 'L' | 'H' | 'LSD' | 'HSD' | 'SLD' | 'HLD' | 'TEC';

@@ -9,6 +9,7 @@ import type {
   FlightPlanDefaultIFRAttributes,
   ParkingSpotTaxiInstruction,
 } from '../types/common';
+import { getRandomArrayElement } from './arrays';
 import { AIRLINE_CODES, GA_TYPES, JET_TYPES, TEC_TYPES } from './constants/aircraftTypes';
 import { PHONETIC_ALPHABET, PHONETIC_ATIS, PHONETIC_NUMBERS } from './constants/alphabet';
 import {
@@ -34,6 +35,7 @@ export function makeEmptyFlightPlan(): FlightPlan {
     speed: '',
     altitude: '',
     route: '',
+    originalRoute: '',
     remarks: '',
     printCount: 1,
     plannedTime: '',
@@ -121,6 +123,7 @@ function buildDefaultIFRFlightPlanAttributes(prefRoute: PrefRoute): FlightPlanDe
     altitude: getRandomIFRAltitude(prefRoute),
     destination: `K${prefRoute.destination}`,
     route: prefRoute.route,
+    originalRoute: prefRoute.route,
     squawk: buildRandomSquawk(),
   };
 }
@@ -300,6 +303,7 @@ function createVFRFlightPlan(callsign: string): FlightPlan {
     speed: '',
     altitude: '',
     route: '',
+    originalRoute: '',
     remarks: '',
     created: false,
     routeType: 'VFR',
@@ -412,29 +416,35 @@ function buildRandomFlightNumber() {
 }
 
 function getRandomJetType() {
-  return JET_TYPES[Math.floor(Math.random() * JET_TYPES.length)];
+  return getRandomArrayElement(JET_TYPES);
 }
 
 function getRandomTecType() {
-  return TEC_TYPES[Math.floor(Math.random() * TEC_TYPES.length)];
+  return getRandomArrayElement(TEC_TYPES);
 }
 
 function getRandomGAType() {
-  return GA_TYPES[Math.floor(Math.random() * GA_TYPES.length)];
+  return getRandomArrayElement(GA_TYPES);
 }
 
 function getRandomRoute(prefRoutes: PrefRoute[]) {
-  const prefRoute = prefRoutes[Math.floor(Math.random() * prefRoutes.length)];
+  const destinationOptions: Record<string, boolean> = {};
+  prefRoutes.map((route) => (destinationOptions[route.destination] = true));
+  const destinations = Object.keys(destinationOptions);
+  const randomDestination = getRandomArrayElement(destinations);
+  const routesToDestination = prefRoutes.filter((route) => route.destination === randomDestination);
+  const prefRoute = getRandomArrayElement(routesToDestination);
+
   let routeString = prefRoute.route.substring(4, prefRoute.route.length - 4);
 
   if (Math.random() > 0.75) {
     const random = Math.random();
     if (random < 0.33) {
       const blankRoutes = ['IFR DIRECT', 'DIRECT', ''];
-      routeString = blankRoutes[Math.floor(Math.random() * blankRoutes.length)];
+      routeString = getRandomArrayElement(blankRoutes);
     } else if (random >= 0.33 && random < 0.44) {
       const otherRoutes = prefRoutes.filter((route) => route.destination !== prefRoute.destination);
-      const randomRoute = otherRoutes[Math.floor(Math.random() * otherRoutes.length)];
+      const randomRoute = getRandomArrayElement(otherRoutes);
       routeString = randomRoute.route.substring(4, randomRoute.route.length - 4);
     } else {
       const splitRoute = routeString.split(' ');
@@ -457,49 +467,39 @@ function getRandomRoute(prefRoutes: PrefRoute[]) {
 function getRandomIFRAltitude(prefRoute: PrefRoute) {
   if (prefRoute.type === 'TEC') {
     if (Math.random() < 0.75) {
-      const index = Math.floor(Math.random() * SPAWNABLE_TEC_WEST_ALT.length);
-      return SPAWNABLE_TEC_WEST_ALT[index];
+      return getRandomArrayElement(SPAWNABLE_TEC_WEST_ALT);
     }
     const random = Math.random();
     if (random < 0.33) {
-      const index = Math.floor(Math.random() * SPAWNABLE_TEC_EAST_ALT.length);
-      return SPAWNABLE_TEC_EAST_ALT[index];
+      return getRandomArrayElement(SPAWNABLE_TEC_EAST_ALT);
     }
     if (random >= 0.33 && random < 0.66) {
-      const index = Math.floor(Math.random() * SPAWNABLE_HIGH_WEST_ALT.length);
-      return SPAWNABLE_HIGH_WEST_ALT[index];
+      return getRandomArrayElement(SPAWNABLE_HIGH_WEST_ALT);
     }
     if (Math.random() < 0.5) {
-      const index = Math.floor(Math.random() * SPAWNABLE_TEC_WEST_ALT.length);
-      const alt = `${SPAWNABLE_TEC_WEST_ALT[index]}00`;
+      const alt = `${getRandomArrayElement(SPAWNABLE_TEC_WEST_ALT)}00`;
       if (alt.charAt(0) === '0') {
         return alt.substring(1);
       }
       return alt;
     }
-    const index = Math.floor(Math.random() * SPAWNABLE_TEC_WEST_ALT.length);
-    return `VFR/${SPAWNABLE_TEC_WEST_ALT[index]}`;
+    return `VFR/${getRandomArrayElement(SPAWNABLE_TEC_WEST_ALT)}`;
   }
 
   if (Math.random() < 0.75) {
-    const index = Math.floor(Math.random() * SPAWNABLE_HIGH_WEST_ALT.length);
-    return SPAWNABLE_HIGH_WEST_ALT[index];
+    return getRandomArrayElement(SPAWNABLE_HIGH_WEST_ALT);
   }
   const random = Math.random();
   if (random < 0.33) {
-    const index = Math.floor(Math.random() * SPAWNABLE_HIGH_EAST_ALT.length);
-    return SPAWNABLE_HIGH_EAST_ALT[index];
+    return getRandomArrayElement(SPAWNABLE_HIGH_EAST_ALT);
   }
   if (random >= 0.33 && random < 0.66) {
-    const index = Math.floor(Math.random() * SPAWNABLE_HIGH_WEST_ALT.length);
-    return `FL${SPAWNABLE_HIGH_WEST_ALT[index]}`;
+    return `FL${getRandomArrayElement(SPAWNABLE_HIGH_WEST_ALT)}`;
   }
   if (Math.random() < 0.5) {
-    const index = Math.floor(Math.random() * SPAWNABLE_HIGH_WEST_ALT.length);
-    return `${SPAWNABLE_HIGH_WEST_ALT[index]}00`;
+    return `${getRandomArrayElement(SPAWNABLE_HIGH_WEST_ALT)}00`;
   }
-  const index = Math.floor(Math.random() * SPAWNABLE_HIGH_WEST_ALT.length);
-  return `VFR/${SPAWNABLE_HIGH_WEST_ALT[index]}`;
+  return `VFR/${getRandomArrayElement(SPAWNABLE_HIGH_WEST_ALT)}`;
 }
 
 function getRandomVFRAltitude(direction: string) {
@@ -549,7 +549,7 @@ function buildRandomNNumber() {
     }
   }
   for (let i = 0; i < numLetters; i++) {
-    callsign += LETTERS[Math.floor(Math.random() * LETTERS.length)];
+    callsign += getRandomArrayElement(LETTERS);
   }
 
   return `N${callsign}`;
@@ -574,7 +574,7 @@ function getRandomJetEquipment() {
     return 'L';
   }
   const equipmentCodes = ['X', 'G', 'W', 'P', 'A', 'D', 'B', 'T', 'U'];
-  return equipmentCodes[Math.floor(Math.random() * equipmentCodes.length)];
+  return getRandomArrayElement(equipmentCodes);
 }
 
 function getRandomTecEquipment() {
@@ -582,11 +582,11 @@ function getRandomTecEquipment() {
     return 'G';
   }
   const equipmentCodes = ['X', 'L', 'W', 'P', 'A', 'D', 'B', 'T', 'U'];
-  return equipmentCodes[Math.floor(Math.random() * equipmentCodes.length)];
+  return getRandomArrayElement(equipmentCodes);
 }
 
 function getRandomDepartureDirection() {
-  return DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
+  return getRandomArrayElement(DIRECTIONS);
 }
 
 function handoffRequest(callsign: string): AircraftRequest {
@@ -612,7 +612,7 @@ function getRandomVoice() {
         !voice.name.includes('Microsoft Zira')
     );
   const pitch = voices.length < 10 ? 0.8 + Math.random() * 0.4 : 1;
-  return { voice: voices[Math.floor(Math.random() * voices.length)], pitch };
+  return { voice: getRandomArrayElement(voices), pitch };
 }
 
 export function phoneticizeString(text: string): string {
@@ -632,6 +632,6 @@ export function phoneticizeString(text: string): string {
     .join(' ');
 }
 
-function phonetizeDestination(text: string): string {
+export function phonetizeDestination(text: string): string {
   return DEST_TO_NAME_MAP[text] || phoneticizeString(text);
 }

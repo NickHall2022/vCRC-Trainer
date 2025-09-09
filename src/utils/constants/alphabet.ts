@@ -1,3 +1,5 @@
+import { getRandomArrayElement } from '../arrays';
+
 export const ALPHABET = [
   'A',
   'B',
@@ -61,7 +63,7 @@ export const PHONETIC_ALPHABET_REVERSE: Record<string, keyof typeof PHONETIC_ALP
     Object.entries(PHONETIC_ALPHABET).map(([letter, codeword]) => [codeword, letter])
   );
 
-export const ATIS = ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
+export const ATIS = getRandomArrayElement(ALPHABET);
 export const PHONETIC_ATIS = PHONETIC_ALPHABET[ATIS];
 
 export const PHONETIC_NUMBERS: Record<string, string> = {

@@ -21,8 +21,27 @@ export function PrefRoutesProvider({
     },
   });
 
-  if (!loadSilently && (isLoading || !data)) return <h1>Loading...</h1>;
-  if (error) return <div style={{ textAlign: 'center' }}>Error loading users</div>;
+  if (!loadSilently && (isLoading || !data)) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          width: '100vw',
+          height: '100vh',
+        }}
+      >
+        <div style={{ textAlign: 'center', width: '100vw' }}>
+          <h1>Loading vSweatbox...</h1>
+          <h3>This should only take a few seconds</h3>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div style={{ textAlign: 'center' }}>Error loading prefroute database</div>;
+  }
 
   const value: PrefRouteDetails = !data
     ? { tecRoutes: [], highRoutes: [] }
@@ -30,6 +49,5 @@ export function PrefRoutesProvider({
         tecRoutes: data.filter((route) => route.type === 'TEC'),
         highRoutes: data.filter((route) => route.type === 'H'),
       };
-
   return <PrefRouteContext.Provider value={value}>{children}</PrefRouteContext.Provider>;
 }

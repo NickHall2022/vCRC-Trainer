@@ -1,19 +1,23 @@
-import { useMemo } from 'react';
+import { useMemo, type RefObject } from 'react';
 import type { Aircraft } from '../../types/common';
-import {
-  fireCompleteRequestEvent,
-  fireSelectAircraftEvent,
-} from '../../utils/constants/customEvents';
+import { useSimulation } from '../../hooks/useSimulation';
 
-export function Airplane({ aircraft }: { aircraft: Aircraft }) {
+export function Airplane({
+  aircraft,
+  selectPlaneRef,
+}: {
+  aircraft: Aircraft;
+  selectPlaneRef: RefObject<((callsign: string) => void) | undefined>;
+}) {
+  const { completeRequest } = useSimulation();
   return useMemo(() => {
     function handleClick(event: React.MouseEvent) {
-      if (event.ctrlKey) {
-        fireSelectAircraftEvent(aircraft.callsign);
+      if (event.ctrlKey && selectPlaneRef.current) {
+        selectPlaneRef.current(aircraft.callsign);
         return;
       }
 
-      fireCompleteRequestEvent(aircraft.callsign);
+      completeRequest(aircraft.callsign);
     }
 
     return (
@@ -36,5 +40,5 @@ export function Airplane({ aircraft }: { aircraft: Aircraft }) {
         </div>
       </>
     );
-  }, [aircraft]);
+  }, [aircraft, completeRequest, selectPlaneRef]);
 }

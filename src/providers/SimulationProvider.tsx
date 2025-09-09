@@ -12,8 +12,8 @@ import { useMistakes } from '../hooks/useMistakes';
 
 import type { Node } from '../utils/taxiways';
 import { ATIS } from '../utils/constants/alphabet';
-import { phoneticizeString } from '../utils/flightPlans';
-import type { CompleteRequestEventDetails } from '../utils/constants/customEvents';
+import { phoneticizeString, phonetizeDestination } from '../utils/flightPlans';
+import { getRandomArrayElement } from '../utils/arrays';
 
 const endNode = taxiways.find((node) => node.id === 'END') as Node;
 const TAXIWAY_NODE_THRESHOLD = 0.5;
@@ -45,64 +45,74 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
 
   const { sendMessage } = useMessages();
 
-  useEffect(() => {
-    function handleCompleteRequest(event: CustomEventInit<CompleteRequestEventDetails>) {
-      completeRequest(event.detail!.callsign, event.detail!.completedByVoice);
+  function completeRequest(callsign: string, completedByVoice: boolean = false) {
+    const completedRequestIndex = requests.findIndex((request) => request.callsign === callsign);
+    if (completedRequestIndex === -1) {
+      return;
     }
+    const completedRequest = requests[completedRequestIndex];
 
-    function completeRequest(callsign: string, completedByVoice: boolean = false) {
-      const completedRequestIndex = requests.findIndex((request) => request.callsign === callsign);
-      if (completedRequestIndex === -1) {
-        return;
-      }
-      const completedRequest = requests[completedRequestIndex];
-
-      if (completedRequest.atcMessage && !completedByVoice) {
-        sendMessage(completedRequest.atcMessage, 'PWM_GND', 'self');
-      }
-      if (completedRequest.responseMessage) {
+    if (completedRequest.atcMessage && !completedByVoice) {
+      sendMessage(completedRequest.atcMessage, 'PWM_GND', 'self');
+    }
+    if (completedRequest.responseMessage) {
+      const aircraft = aircrafts.find(
+        (aircraft) => aircraft.callsign === completedRequest.callsign
+      );
+      if (
+        aircraft &&
+        completedRequest.requestType === 'clearanceIFR' &&
+        aircraft.flightPlan.route !== aircraft.flightPlan.originalRoute
+      ) {
+        let response = `Cleared to ${phonetizeDestination(aircraft.flightPlan.destination)} via ${aircraft.flightPlan.route}, squawk ${aircraft.flightPlan.squawk}`;
+        let phoneticResponse = `${phoneticizeString(aircraft.callsign)} cleared to ${phonetizeDestination(aircraft.flightPlan.destination)} airport via ${aircraft.flightPlan.route}, squawk ${phoneticizeString(aircraft.flightPlan.squawk)}`;
+        sendMessage(response, completedRequest.callsign, 'radio', phoneticResponse);
+      } else {
         sendMessage(
           completedRequest.responseMessage,
           completedRequest.callsign,
           'radio',
           completedRequest.responsePhoneticMessage
         );
-        setLastSentRequestTime(timer);
       }
-
-      setNextRequestTime(completedRequest.callsign, completedRequest.nextRequestDelay, timer);
-
-      if (completedRequest.subsequentRequest) {
-        addNewRequest(completedRequest.subsequentRequest);
-      } else {
-        setRequests((draft) => {
-          draft.splice(completedRequestIndex, 1);
-          if (completedRequest.subsequentRequest) {
-            draft.push(completedRequest.subsequentRequest);
-          }
-        });
-      }
-
-      if (completedRequest.nextStatus === 'handedOff') {
-        const aircraft = aircrafts.find((aircraft) => aircraft.callsign === callsign);
-        if (aircraft) {
-          releaseSpot(aircraft.parkingSpotId);
-          holdPosition(aircraft.callsign, false, timer);
-        }
-      } else if (completedRequest.nextStatus === 'clearedIFR') {
-        reviewClearance(callsign);
-      }
-
-      if (completedRequest.nextStatus) {
-        setPlaneStatus(completedRequest.callsign, completedRequest.nextStatus, timer);
-      }
+      setLastSentRequestTime(timer);
     }
 
-    document.addEventListener('completerequest', handleCompleteRequest);
-    return () => {
-      document.removeEventListener('completerequest', handleCompleteRequest);
-    };
-  });
+    setNextRequestTime(completedRequest.callsign, completedRequest.nextRequestDelay + timer);
+
+    if (completedRequest.subsequentRequest) {
+      addNewRequest(completedRequest.subsequentRequest);
+    } else {
+      setRequests((draft) => {
+        draft.splice(completedRequestIndex, 1);
+        if (completedRequest.subsequentRequest) {
+          draft.push(completedRequest.subsequentRequest);
+        }
+      });
+    }
+
+    if (completedRequest.nextStatus === 'handedOff') {
+      const aircraft = aircrafts.find((aircraft) => aircraft.callsign === callsign);
+      if (aircraft) {
+        releaseSpot(aircraft.parkingSpotId);
+        holdPosition(aircraft.callsign, false, timer);
+      }
+    } else if (completedRequest.nextStatus === 'clearedIFR') {
+      reviewClearance(callsign);
+    }
+
+    if (completedRequest.nextStatus) {
+      setPlaneStatus(completedRequest.callsign, completedRequest.nextStatus, timer);
+    }
+  }
+
+  function discardRequest(callsign: string) {
+    setLastSentRequestTime(timer);
+    const requestIndex = requests.findIndex((request) => request.callsign === callsign);
+    setRequests((draft) => {
+      draft.splice(requestIndex, 1);
+    });
+  }
 
   function addNewRequest(newRequest: AircraftRequest) {
     setLastSentRequestTime(timer);
@@ -145,7 +155,10 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       setTimer(timer + 1000);
 
       for (const aircraft of aircrafts) {
-        if (aircraft.status === 'pushback' && !aircraft.holdingPosition) {
+        if (aircraft.status === 'pushbackDiscretion' && timer >= aircraft.canSendRequestTime) {
+          setPlaneStatus(aircraft.callsign, 'pushback', timer);
+          setNextRequestTime(aircraft.callsign, timer + 120000);
+        } else if (aircraft.status === 'pushback' && !aircraft.holdingPosition) {
           const angleAsRadians = (aircraft.rotation * Math.PI) / 180;
           const pushbackLocation = getPushbackLocation(aircraft.parkingSpotId);
           const diffX =
@@ -159,12 +172,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
             aircraft.positionX + diffX,
             aircraft.positionY + diffY
           );
-        } else if (aircraft.status === 'taxi' || aircraft.status === 'departing') {
+        } else if (aircraft.status === 'taxi' || aircraft.status === 'awaitingHandoff') {
           movePlaneTowardsRunway(aircraft);
         } else if (aircraft.status === 'handedOff') {
           const dist = movePlaneTowardsRunway(aircraft);
           if (
-            dist &&
+            dist != undefined &&
             dist < PLANE_DIST_THRESHOLD &&
             timer - (aircraft.statusChangedTime as number) > 20000
           ) {
@@ -263,8 +276,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         const priorityFlightPlansWithRequest = aircraftWithRequest.filter(
           (aircraft) => aircraft.requests[0].priority === maxPriority
         );
-        const randomIndex = Math.floor(Math.random() * priorityFlightPlansWithRequest.length);
-        const chosenFlight = priorityFlightPlansWithRequest[randomIndex];
+        const chosenFlight = getRandomArrayElement(priorityFlightPlansWithRequest);
         const request = chosenFlight.requests[0];
 
         addNewRequest(request);
@@ -310,7 +322,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     const distanceToEnd = distance(planeX, planeY, endNode.x, endNode.y);
     if (aircraft.status === 'taxi') {
       if (distanceToEnd < PLANE_DIST_THRESHOLD && !pushToTalkActive) {
-        setPlaneStatus(callsign, 'departing', timer);
+        setPlaneStatus(callsign, 'awaitingHandoff', timer);
         addMistake('aircraftHandoff', aircraft.callsign);
         sendMessage(
           'Ground, should we switch to tower?',
@@ -377,6 +389,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     setPushToTalkActive,
     setRequests,
     timer,
+    completeRequest,
+    discardRequest,
   };
 
   return <SimulationContext.Provider value={value}>{children}</SimulationContext.Provider>;

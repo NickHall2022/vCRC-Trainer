@@ -32,11 +32,11 @@ export function AircraftProvider({ children }: { children: ReactNode }) {
     });
   }
 
-  function setNextRequestTime(callsign: string, canSendRequestTime: number, timer: number) {
+  function setNextRequestTime(callsign: string, canSendRequestTime: number) {
     setAircrafts((draft) => {
       const modifyIndex = draft.findIndex((aircraft) => aircraft.callsign === callsign);
       if (modifyIndex !== -1) {
-        draft[modifyIndex].canSendRequestTime = timer + canSendRequestTime;
+        draft[modifyIndex].canSendRequestTime = canSendRequestTime;
       }
     });
   }

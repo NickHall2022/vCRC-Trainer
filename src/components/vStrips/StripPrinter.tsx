@@ -1,6 +1,13 @@
 import { Grid } from '@mui/material';
 import type { AbstractStrip } from '../../types/common';
-import React, { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type Dispatch,
+  type SetStateAction,
+} from 'react';
 import { useAircraft } from '../../hooks/useAircraft';
 import { StripPrinterStrip } from './StripPrinterStrip';
 import { useStrips } from '../../hooks/useStrips';
@@ -46,7 +53,9 @@ export function StripPrinter({
     };
   }, [printerOpen, setPrinterOpen]);
 
-  function handleCallsignChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleCallsignChange(
+    event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
+  ) {
     setEnteredCallsign(event.target.value.toUpperCase());
   }
 
@@ -114,7 +123,7 @@ export function StripPrinter({
             placeholder="AAL123"
             value={enteredCallsign}
             maxLength={8}
-            onChange={() => handleCallsignChange}
+            onChange={handleCallsignChange}
             onKeyUp={handleEnterPressed}
             style={{
               height: '42.2px',

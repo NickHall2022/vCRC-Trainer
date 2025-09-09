@@ -30,7 +30,7 @@ export function Message({
     }
 
     return (
-      <ListItem sx={{ padding: '0px' }} key={message.id}>
+      <ListItem sx={{ padding: '0px' }}>
         <p
           style={{
             color: handleColor(message.type),

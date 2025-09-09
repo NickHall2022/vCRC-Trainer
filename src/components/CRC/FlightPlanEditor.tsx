@@ -8,7 +8,11 @@ import { useStrips } from '../../hooks/useStrips';
 import { useImmer } from 'use-immer';
 import { ControlledInput } from '../Menus/ControlledInput';
 
-export function FlightPlanEditor() {
+export function FlightPlanEditor({
+  handleCallsignChangedRef,
+}: {
+  handleCallsignChangedRef: RefObject<((callsign: string) => void) | undefined>;
+}) {
   const { amendFlightPlan, aircrafts } = useAircraft();
   const { printAmendedFlightPlan } = useStrips();
 
@@ -31,6 +35,8 @@ export function FlightPlanEditor() {
     [setHasBeenEdited, setFlightPlan, aircrafts]
   );
 
+  handleCallsignChangedRef.current = handleCallsignChange;
+
   useEffect(() => {
     function handleControlF(event: KeyboardEvent) {
       if (event.key === 'f' && event.ctrlKey) {
@@ -41,15 +47,9 @@ export function FlightPlanEditor() {
       }
     }
 
-    function handleSelectAirplane(event: CustomEventInit) {
-      handleCallsignChange(event.detail.callsign);
-    }
-
     document.addEventListener('keydown', handleControlF);
-    document.addEventListener('selectairplane', handleSelectAirplane);
     return () => {
       document.removeEventListener('keydown', handleControlF);
-      document.removeEventListener('selectairplane', handleSelectAirplane);
     };
   }, [setFlightPlan, handleCallsignChange]);
 
@@ -69,10 +69,10 @@ export function FlightPlanEditor() {
       equipmentCode: flightPlan.equipmentCode,
       departure: flightPlan.departure,
       destination: flightPlan.destination,
-      speed: flightPlan.speed,
-      altitude: flightPlan.altitude,
-      route: flightPlan.route,
-      remarks: flightPlan.remarks,
+      speed: flightPlan.speed.trim(),
+      altitude: flightPlan.altitude.trim(),
+      route: flightPlan.route.trim(),
+      remarks: flightPlan.remarks.trim(),
     };
     if (amendedFlightPlan.equipmentCode.length === 0) {
       amendedFlightPlan.equipmentCode = 'A';

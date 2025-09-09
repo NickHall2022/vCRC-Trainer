@@ -4,13 +4,14 @@ import { useMessages } from '../../hooks/useMessages';
 import List from '@mui/material/List';
 import { Resizable } from 're-resizable';
 import { Message } from './Message';
-import { fireCompleteRequestEvent } from '../../utils/constants/customEvents';
+import { useSimulation } from '../../hooks/useSimulation';
 
 export function MessageWindow() {
   const draggableRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLLIElement>(null);
 
   const { messages } = useMessages();
+  const { completeRequest } = useSimulation();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -20,7 +21,7 @@ export function MessageWindow() {
 
   return useMemo(() => {
     function handleMessageClicked(callsign: string) {
-      fireCompleteRequestEvent(callsign);
+      completeRequest(callsign);
     }
 
     function createMessageDisplay() {
@@ -28,7 +29,9 @@ export function MessageWindow() {
         <>
           {messages.map((message) => {
             return (
-              <Message message={message} handleMessageClicked={handleMessageClicked}></Message>
+              <div key={message.id}>
+                <Message message={message} handleMessageClicked={handleMessageClicked}></Message>
+              </div>
             );
           })}
         </>
@@ -97,5 +100,5 @@ export function MessageWindow() {
         </div>
       </Draggable>
     );
-  }, [messages]);
+  }, [messages, completeRequest]);
 }

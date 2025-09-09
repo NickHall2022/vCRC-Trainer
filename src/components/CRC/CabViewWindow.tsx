@@ -15,6 +15,7 @@ export function CabViewWindow() {
   const [rotate, setRotate] = useState<number>(0);
   const draggableRef = useRef<HTMLDivElement>(null);
   const visualizeTaxiways = false;
+  const handleEditorCallsignChangedRef = useRef<(callsign: string) => void>(undefined);
 
   useEffect(() => {
     const draggable = draggableRef.current;
@@ -38,7 +39,13 @@ export function CabViewWindow() {
 
   function createAirplanes() {
     return aircrafts.map((aircraft) => {
-      return <Airplane aircraft={aircraft} key={aircraft.callsign}></Airplane>;
+      return (
+        <Airplane
+          aircraft={aircraft}
+          key={aircraft.callsign}
+          selectPlaneRef={handleEditorCallsignChangedRef}
+        ></Airplane>
+      );
     });
   }
 
@@ -93,7 +100,9 @@ export function CabViewWindow() {
         </Draggable>
         {createDataBlocks()}
       </div>
-      <FlightPlanEditor></FlightPlanEditor>
+      <FlightPlanEditor
+        handleCallsignChangedRef={handleEditorCallsignChangedRef}
+      ></FlightPlanEditor>
       <ControllerList></ControllerList>
       <MessageWindow></MessageWindow>
       <VoiceSwitch></VoiceSwitch>

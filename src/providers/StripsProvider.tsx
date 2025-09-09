@@ -16,7 +16,7 @@ import useSound from 'use-sound';
 export function StripsProvider({ children }: { children: ReactNode }) {
   const { aircrafts } = useAircraft();
   const [selectedBay, setSelectedBay] = useState<BayName>('ground');
-  const [playPrintSound] = useSound('printer.mp3');
+  const [playPrintSound] = useSound('printer.mp3', { volume: 0.75 });
 
   const flightPlans = aircrafts.map((aircraft) => aircraft.flightPlan);
 

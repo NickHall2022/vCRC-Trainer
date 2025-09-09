@@ -6,20 +6,28 @@ import {
 import { useSimulation } from '../hooks/useSimulation';
 import useSound from 'use-sound';
 import { useMessages } from '../hooks/useMessages';
-import type { Aircraft, Keywords } from '../types/common';
+import type { Aircraft, AircraftRequest, Keywords } from '../types/common';
 import { useAircraft } from '../hooks/useAircraft';
 import { phoneticizeString } from '../utils/flightPlans';
 import { findBestMatch } from 'string-similarity';
 import { useMistakes } from '../hooks/useMistakes';
 import { GLOBAL_ALTERNATIVES, REQUEST_KEYWORDS } from '../utils/constants/speech';
-import { fireCompleteRequestEvent } from '../utils/constants/customEvents';
+import { useParkingSpots } from '../hooks/useParkingSpots';
 
 export function SpeechInterpretatonProvider({ children }: { children: ReactNode }) {
-  const { requests, setRequests, timer } = useSimulation();
-  const { aircrafts, setAircraftHasBeenSpokenTo, holdPosition } = useAircraft();
+  const { requests, setRequests, timer, completeRequest, discardRequest } = useSimulation();
+  const {
+    aircrafts,
+    setAircraftHasBeenSpokenTo,
+    holdPosition,
+    setNextRequestTime,
+    setPlaneStatus,
+    removeFirstRequest,
+  } = useAircraft();
   const { addPhraseologyMistake, reviewGeneralPhraseology, reviewPhraseologyForRequest } =
     useMistakes();
   const { sendMessage } = useMessages();
+  const { getParkingSpotPushbackIntoRamp } = useParkingSpots();
   const [playErrorSound] = useSound('Error.wav');
 
   function interpretNewSpeech(transcript: string) {
@@ -27,6 +35,7 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
     sendMessage(transcript, 'PWM_GND', 'self');
 
     const callsign = getCallsign(transcript);
+
     const bestCallsignMatch = findBestMatch(
       callsign,
       aircrafts.map((aircraft) => aircraft.callsign)
@@ -35,6 +44,10 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
     if (bestCallsignMatch.bestMatch.rating < 0.5) {
       playErrorSound();
       sendMessage(`Could not identify callsign ${callsign}`, '', 'system');
+      return;
+    }
+
+    if (callsign.length === transcript.length) {
       return;
     }
 
@@ -71,11 +84,15 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
 
     const request = requests.find((request) => request.callsign === callsign);
     if (request) {
+      if (checkSkipPushbackRequest(aircraft, transcript, request)) {
+        return;
+      }
+
       const keywords = REQUEST_KEYWORDS[request.requestType];
 
       if (keywordsMatchTranscript(keywords, transcript)) {
         reviewPhraseologyForRequest(transcript, request);
-        return fireCompleteRequestEvent(callsign, true);
+        return completeRequest(callsign, true);
       }
 
       if (keywords.alternatives) {
@@ -112,7 +129,7 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
 
       if (matchedKeywords.length === keywords.keywords.length && atLeastOneMatch) {
         reviewPhraseologyForRequest(transcript, request);
-        return fireCompleteRequestEvent(callsign, true);
+        return completeRequest(callsign, true);
       } else {
         setRequests((draft) => {
           const requestToChange = draft.find((item) => item.callsign === aircraft.callsign);
@@ -166,7 +183,7 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
     if (
       aircraft.status === 'pushback' ||
       aircraft.status === 'taxi' ||
-      aircraft.status === 'departing'
+      aircraft.status === 'awaitingHandoff'
     ) {
       if (transcript.includes('hold position')) {
         holdPosition(callsign, true, timer);
@@ -183,6 +200,43 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
         return true;
       }
     }
+    return false;
+  }
+
+  function checkSkipPushbackRequest(
+    aircraft: Aircraft,
+    transcript: string,
+    request: AircraftRequest
+  ): boolean {
+    if (request.requestType !== 'readbackIFR') {
+      return false;
+    }
+
+    if (aircraft.requests[0].nextStatus !== 'pushback') {
+      return false;
+    }
+
+    if (transcript.includes('readback') && transcript.includes('discretion')) {
+      if (!getParkingSpotPushbackIntoRamp(aircraft.parkingSpotId)) {
+        addPhraseologyMistake('pushbackKeyword', transcript, `${request.callsign} (onto taxiway)`);
+        return false;
+      }
+
+      const callsign = aircraft.callsign;
+      discardRequest(callsign);
+      setNextRequestTime(callsign, timer + request.nextRequestDelay);
+      setPlaneStatus(callsign, 'pushbackDiscretion', timer);
+      removeFirstRequest(callsign);
+      sendMessage(
+        'Pushback our discretion, will call for taxi',
+        callsign,
+        'radio',
+        `${phoneticizeString(callsign)} pushback our discretion, will call for taxi`
+      );
+
+      return true;
+    }
+
     return false;
   }
 

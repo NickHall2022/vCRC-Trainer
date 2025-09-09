@@ -61,7 +61,7 @@ export function SpeechInterpretatonProvider({ children }: { children: ReactNode 
 
     if (!aircraft.hasBeenSpokenTo) {
       setAircraftHasBeenSpokenTo(aircraft.callsign);
-      if (!transcript.includes('portland ground')) {
+      if (!transcript.includes('ground')) {
         addPhraseologyMistake('forgotToIdentify', aircraft.callsign);
       }
     }

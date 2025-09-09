@@ -64,8 +64,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         completedRequest.requestType === 'clearanceIFR' &&
         aircraft.flightPlan.route !== aircraft.flightPlan.originalRoute
       ) {
-        let response = `Cleared to ${phonetizeDestination(aircraft.flightPlan.destination)} via ${aircraft.flightPlan.route}, squawk ${aircraft.flightPlan.squawk}`;
-        let phoneticResponse = `${phoneticizeString(aircraft.callsign)} cleared to ${phonetizeDestination(aircraft.flightPlan.destination)} airport via ${aircraft.flightPlan.route}, squawk ${phoneticizeString(aircraft.flightPlan.squawk)}`;
+        const response = `Cleared to ${phonetizeDestination(aircraft.flightPlan.destination)} via ${aircraft.flightPlan.route}, squawk ${aircraft.flightPlan.squawk}`;
+        const phoneticResponse = `${phoneticizeString(aircraft.callsign)} cleared to ${phonetizeDestination(aircraft.flightPlan.destination)} airport via ${aircraft.flightPlan.route}, squawk ${phoneticizeString(aircraft.flightPlan.squawk)}`;
         sendMessage(response, completedRequest.callsign, 'radio', phoneticResponse);
       } else {
         sendMessage(
@@ -236,7 +236,10 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      if (!pushToTalkActive && timer - lastSentRequestTime > Math.ceil(60 / difficulty) * 1000) {
+      if (
+        !pushToTalkActive &&
+        timer - lastSentRequestTime > Math.ceil(60 / (difficulty * 1.5)) * 1000
+      ) {
         for (const request of requests) {
           if (request.reminder && request.reminder.sendTime && timer >= request.reminder.sendTime) {
             setLastSentRequestTime(timer);

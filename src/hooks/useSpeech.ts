@@ -1,6 +1,7 @@
 import { createContext, useContext, type Dispatch, type SetStateAction } from 'react';
 
 export type SpeechDetails = {
+  voiceSwitchEnabled: boolean;
   setVoiceSwitchEnabled: Dispatch<SetStateAction<boolean>>;
 };
 

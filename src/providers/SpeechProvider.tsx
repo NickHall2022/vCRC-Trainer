@@ -100,6 +100,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('9 and', '9')
       .replaceAll('9 are', '9')
       .replaceAll('niner', '9')
+      .replaceAll('nineer', '9')
       .replaceAll('diner', '9')
       .replaceAll(' 4th', '4')
       .replaceAll(' 5th', '5')
@@ -108,6 +109,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll(' 8th', '8')
       .replaceAll(' 9th', '9')
       .replaceAll('eighth', '8')
+      .replaceAll(' ate ', '8')
       .replaceAll('via far', 'VFR')
       .replaceAll('via our', 'VFR')
       .replaceAll('via power', 'VFR')
@@ -134,12 +136,15 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('read my', 'readback')
       .replaceAll('rebecca', 'readback')
       .replaceAll('frequencies', 'frequency')
+      .replaceAll('factor frequency', 'departure frequency')
       .replaceAll(' tao', ' tower')
       .replaceAll('hour', ' tower')
       .replaceAll(' tau', ' tower')
       .replaceAll('contact our', ' tower')
       .replaceAll('contact hour', ' tower')
       .replaceAll('texaco', 'taxi')
+      .replaceAll('texas', 'taxi')
+      .replaceAll('view', 'via')
       .replaceAll('tax review', 'taxi via')
       .replaceAll('tax ', 'taxi ')
       .replaceAll('text you', 'taxi via')
@@ -152,6 +157,8 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('taxavia', 'taxi via')
       .replaceAll('texivia', 'taxi via')
       .replaceAll('taxivio', 'taxi via')
+      .replaceAll('texadia', 'taxi via')
+      .replaceAll('taxadia', 'taxi via')
       .replaceAll('texa via', 'taxi via')
       .replaceAll('tech cvi', 'taxi via')
       .replaceAll('texevia', 'taxi via')
@@ -180,7 +187,9 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll(' walk', ' squawk')
       .replaceAll(' guac', ' squawk')
       .replaceAll(' coffee', ' copy')
+      .replaceAll(' on my', ' runway')
       .replaceAll('run by', 'runway')
+      .replaceAll(' only ', ' runway ')
       .replaceAll('roaming', 'runway')
       .replaceAll('crossword', 'cross runway')
       .replaceAll('run my', 'runway')
@@ -206,6 +215,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('noble', 'nuble')
       .replaceAll('nebel', 'nuble')
       .replaceAll('is filed', 'as filed')
+      .replaceAll('inspired', 'as filed')
       .replaceAll('has filed', 'as filed')
       .replaceAll('his filed', 'as filed')
       .replaceAll('viled', 'filed')
@@ -251,6 +261,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
       .replaceAll('it is', 'atis')
       .replaceAll('runway to 9', 'runway 29')
       .replaceAll('2 9', '29')
+      .replaceAll('room 29', 'runway 29')
       .replaceAll("'s", ' is')
       .trim();
 
@@ -350,6 +361,7 @@ export function SpeechProvider({ children }: { children: ReactNode }) {
   }
 
   const value: SpeechDetails = {
+    voiceSwitchEnabled,
     setVoiceSwitchEnabled,
   };
 

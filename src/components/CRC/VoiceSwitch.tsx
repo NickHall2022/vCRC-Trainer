@@ -20,7 +20,9 @@ export function VoiceSwitch() {
 
   const {
     setVoiceSwitchEnabled,
-  }: { setVoiceSwitchEnabled: Dispatch<SetStateAction<boolean>> | undefined } = useSpeech();
+  }: {
+    setVoiceSwitchEnabled: Dispatch<SetStateAction<boolean>> | undefined;
+  } = useSpeech();
   const { pushToTalkActive } = useSimulation();
   const { sendMessage, recieveSwitchEnabled, setRecieveSwitchEnabled } = useMessages();
   const [playErrorSound] = useSound('Error.wav');

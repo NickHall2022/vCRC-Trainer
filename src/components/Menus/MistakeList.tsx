@@ -222,7 +222,10 @@ function MistakeList() {
     `In the United States, we use "point" instead of "decimal", such as "one two zero point niner"`,
     'FAA JO 7110.65 2-4-17.k',
     'You used "decimal" in these instructions',
-    undefined
+    undefined,
+    undefined,
+    '',
+    true
   );
 
   const forgotCrossing = createMistakeList(
@@ -254,7 +257,7 @@ function MistakeList() {
   const pushbackKeyword = createMistakeList(
     newMistakes.filter((mistakeType) => mistakeType === 'pushbackKeyword').length,
     phraseologyMistakes.filter((mistake) => mistake.type === 'pushbackKeyword'),
-    'Pushback Instruction use of "Approved" and "Discretion"',
+    'Pushback use of "Approved" and "Discretion"',
     `Aircraft that will push into a movement area should be told "Push approved". Aircraft requesting pushback onto a non-movement area should be told "Pushback your discretion"`,
     'ATC Handbook 4.6',
     'You used the incorrect phrasing in these instructions',
